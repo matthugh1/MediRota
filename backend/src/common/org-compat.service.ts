@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ORG_HIERARCHY_ENABLED } from '../config/org.config';
+import { ORG_HIERARCHY_ENABLED } from '../config/org.config.js';
 
 @Injectable()
 export class OrgCompatService {

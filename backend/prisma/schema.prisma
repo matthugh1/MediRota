@@ -82,7 +82,7 @@ model ShiftType {
 	durationMinutes Int
 
 	// Organisational hierarchy (nullable)
-	scope      ScopeLevel?
+	scope      String? @db.VarChar(20) // 'TRUST', 'HOSPITAL', 'WARD', 'SCHEDULE'
 	trustId    String? @db.Uuid
 	hospitalId String? @db.Uuid
 	wardId     String? @db.Uuid
@@ -120,7 +120,7 @@ model RuleSet {
 	updatedAt DateTime @updatedAt
 
 	// Organisational hierarchy (nullable)
-	scope      ScopeLevel?
+	scope      String? @db.VarChar(20) // 'TRUST', 'HOSPITAL', 'WARD', 'SCHEDULE'
 	trustId    String? @db.Uuid
 	hospitalId String? @db.Uuid
 
@@ -220,7 +220,7 @@ model Event {
 
 model Policy {
 	id           String @id @default(uuid()) @db.Uuid
-	scope        ScopeLevel
+	scope        String @db.VarChar(20) // 'TRUST', 'HOSPITAL', 'WARD', 'SCHEDULE'
 	orgId        String?
 	wardId       String?
 	scheduleId   String?
@@ -246,12 +246,8 @@ model Policy {
 // ORGANISATIONAL HIERARCHY (ADDITIVE ONLY - NO BREAKING CHANGES)
 // ============================================================================
 
-enum ScopeLevel {
-	TRUST
-	HOSPITAL
-	WARD
-	SCHEDULE
-}
+// Scope levels are string-based for flexibility
+// Valid values: 'TRUST', 'HOSPITAL', 'WARD', 'SCHEDULE'
 
 model Trust {
 	id        String     @id @default(uuid()) @db.Uuid

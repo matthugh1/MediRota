@@ -1,6 +1,7 @@
 import { IsEnum, IsOptional, IsString, IsNumber, IsBoolean, IsObject, ValidateNested, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { VALID_SCOPE_LEVELS, ScopeLevel } from '../../common/constants.js';
 
 export class PolicyWeightsDto {
   @ApiProperty({ description: 'Weight for unmet demand penalty' })
@@ -49,9 +50,12 @@ export class PolicyTogglesDto {
 }
 
 export class CreatePolicyDto {
-  @ApiProperty({ enum: ['ORG', 'WARD', 'SCHEDULE'], description: 'Policy scope' })
-  @IsEnum(['ORG', 'WARD', 'SCHEDULE'])
-  scope!: 'ORG' | 'WARD' | 'SCHEDULE';
+  @ApiProperty({ 
+    enum: VALID_SCOPE_LEVELS, 
+    description: 'Policy scope' 
+  })
+  @IsEnum(VALID_SCOPE_LEVELS)
+  scope!: ScopeLevel;
 
   @ApiProperty({ required: false, description: 'Ward ID for WARD scope' })
   @IsOptional()

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreatePolicyDto, UpdatePolicyDto } from './dto/index.js';
 import { Policy } from '@prisma/client';
+import { SCOPE_LEVELS } from '../common/constants.js';
 
 @Injectable()
 export class PolicyService {
@@ -21,6 +22,8 @@ export class PolicyService {
         limits: createPolicyDto.limits as any,
         toggles: createPolicyDto.toggles as any,
         substitution: createPolicyDto.substitution as any,
+        trustId: null,
+        hospitalId: null,
       },
     });
   }
@@ -82,7 +85,7 @@ export class PolicyService {
     if (args.scheduleId) {
       policy = await this.prisma.policy.findFirst({
         where: {
-          scope: 'SCHEDULE',
+          scope: SCOPE_LEVELS.SCHEDULE,
           scheduleId: args.scheduleId,
           isActive: true,
         },
@@ -94,7 +97,7 @@ export class PolicyService {
     if (!policy && args.wardId) {
       policy = await this.prisma.policy.findFirst({
         where: {
-          scope: 'WARD',
+          scope: SCOPE_LEVELS.WARD,
           wardId: args.wardId,
           isActive: true,
         },
@@ -106,7 +109,7 @@ export class PolicyService {
     if (!policy) {
       policy = await this.prisma.policy.findFirst({
         where: {
-          scope: 'ORG',
+          scope: SCOPE_LEVELS.TRUST,
           isActive: true,
         },
         orderBy: { createdAt: 'desc' }
@@ -126,10 +129,12 @@ export class PolicyService {
   private getDefaultPolicy(): Policy {
     return {
       id: 'default',
-      scope: 'ORG',
+      scope: SCOPE_LEVELS.TRUST,
       orgId: null,
       wardId: null,
       scheduleId: null,
+      trustId: null,
+      hospitalId: null,
       weights: {
         unmet: 1000000,
         overtime: 10000,
