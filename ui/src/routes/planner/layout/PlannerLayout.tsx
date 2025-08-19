@@ -4,6 +4,8 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { Outlet, useLocation } from 'react-router-dom';
 import SidebarNav from './SidebarNav';
 import TopBar from './TopBar';
+import { ScopeDropdown } from '../../../components/ScopeDropdown.js';
+import { Breadcrumb } from '../../../components/Breadcrumb.js';
 import { sidebarVariants, pageVariants, pageTransition } from '../../../lib/motion';
 
 const PlannerLayout: React.FC = () => {
@@ -73,8 +75,10 @@ const PlannerLayout: React.FC = () => {
         </motion.aside>
 
         {/* Top Bar */}
-        <header className="h-16 sticky top-0 bg-white/80 backdrop-blur border-b border-neutral-200 z-10">
+        <header className="sticky top-0 bg-white/80 backdrop-blur border-b border-neutral-200 z-10">
           <TopBar navCollapsed={navCollapsed} />
+          <ScopeDropdown />
+          <Breadcrumb />
         </header>
 
         {/* Main Content */}

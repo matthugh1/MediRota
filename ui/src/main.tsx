@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastProvider } from './components/Toast';
 import { ConfirmDialogProvider } from './components/ConfirmDialog';
+import { OrgScopeProvider } from './lib/orgScope.js';
 import { queryClient } from './lib/query';
 import './styles.css';
 
@@ -26,10 +27,11 @@ import PolicyAssignmentPage from './routes/admin/policy/PolicyAssignmentPage';
 function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<ToastProvider>
-				<ConfirmDialogProvider>
-					<Router>
-						<Routes>
+			<OrgScopeProvider>
+				<ToastProvider>
+					<ConfirmDialogProvider>
+						<Router>
+							<Routes>
 							{/* Redirect root to planner */}
 							<Route path="/" element={<Navigate to="/planner" replace />} />
 							
@@ -87,6 +89,7 @@ function App() {
 					</Router>
 				</ConfirmDialogProvider>
 			</ToastProvider>
+		</OrgScopeProvider>
 		</QueryClientProvider>
 	);
 }
