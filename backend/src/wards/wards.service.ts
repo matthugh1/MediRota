@@ -15,8 +15,8 @@ export class WardsService {
 		});
 	}
 
-	async findAll(paginationDto: PaginationDto, queryDto: QueryWardDto): Promise<PaginatedResponseDto<any>> {
-		const { page = 1, limit = 20 } = paginationDto;
+	async findAll(queryDto: QueryWardDto): Promise<PaginatedResponseDto<any>> {
+		const { page = 1, limit = 20 } = queryDto;
 		const skip = (page - 1) * limit;
 
 		// Build where clause for filtering

@@ -40,8 +40,8 @@ export class WardsController {
 	@ApiOperation({ summary: 'Get all wards with pagination' })
 	@ApiResponse({ status: 200, description: 'Wards retrieved successfully' })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
-	findAll(@Query() paginationDto: PaginationDto, @Query() queryDto: QueryWardDto) {
-		return this.wardsService.findAll(paginationDto, queryDto);
+	findAll(@Query() queryDto: QueryWardDto) {
+		return this.wardsService.findAll(queryDto);
 	}
 
 	@Get(':id')
