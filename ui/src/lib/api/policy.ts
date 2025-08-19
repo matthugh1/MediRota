@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Hardcode the API URL for now to test
-const API_BASE_URL = 'http://localhost:3000';
-console.log('Using hardcoded API_BASE_URL:', API_BASE_URL);
+// Use environment variable for API URL, fallback to relative paths
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '';
+console.log('Using API_BASE_URL:', API_BASE_URL || '(relative paths)');
 
 export interface Policy {
   id: string;
@@ -71,9 +71,9 @@ class PolicyApi {
   private api: any;
 
   constructor() {
-    console.log('PolicyApi constructor - API_BASE_URL:', API_BASE_URL);
+    console.log('PolicyApi constructor - API_BASE_URL:', API_BASE_URL || '(relative paths)');
     this.api = axios.create({
-      baseURL: `${API_BASE_URL}/api/policy`,
+      baseURL: API_BASE_URL ? `${API_BASE_URL}/api/policy` : '/api/policy',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -83,7 +83,8 @@ class PolicyApi {
 
   // Get all policies
   getAllPolicies = async (): Promise<Policy[]> => {
-    console.log('Making request to:', `${API_BASE_URL}/api/policy`);
+    const requestUrl = API_BASE_URL ? `${API_BASE_URL}/api/policy` : '/api/policy';
+    console.log('Making request to:', requestUrl);
     console.log('this.api exists:', !!this.api);
     try {
       const response = await this.api.get('/');
@@ -153,22 +154,22 @@ try {
   policyApi = {
     getAllPolicies: async () => {
       console.log('Using fallback getAllPolicies');
-      const response = await fetch('http://localhost:3000/api/policy');
+      const response = await fetch('/api/policy');
       return response.json();
     },
     getPolicy: async (id: string) => {
-      const response = await fetch(`http://localhost:3000/api/policy/${id}`);
+      const response = await fetch(`/api/policy/${id}`);
       return response.json();
     },
     getEffectivePolicy: async (params: EffectivePolicyParams) => {
       const queryParams = new URLSearchParams();
       if (params.wardId) queryParams.append('wardId', params.wardId);
       if (params.scheduleId) queryParams.append('scheduleId', params.scheduleId);
-      const response = await fetch(`http://localhost:3000/api/policy/effective?${queryParams.toString()}`);
+      const response = await fetch(`/api/policy/effective?${queryParams.toString()}`);
       return response.json();
     },
     createPolicy: async (data: CreatePolicyData) => {
-      const response = await fetch('http://localhost:3000/api/policy', {
+      const response = await fetch('/api/policy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -176,7 +177,7 @@ try {
       return response.json();
     },
     updatePolicy: async (id: string, data: UpdatePolicyData) => {
-      const response = await fetch(`http://localhost:3000/api/policy/${id}`, {
+      const response = await fetch(`/api/policy/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -184,10 +185,10 @@ try {
       return response.json();
     },
     deletePolicy: async (id: string) => {
-      await fetch(`http://localhost:3000/api/policy/${id}`, { method: 'DELETE' });
+      await fetch(`/api/policy/${id}`, { method: 'DELETE' });
     },
     testPolicy: async (data: CreatePolicyData) => {
-      const response = await fetch('http://localhost:3000/api/policy/test', {
+      const response = await fetch('/api/policy/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ policy: data }),

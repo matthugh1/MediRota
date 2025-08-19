@@ -6,10 +6,12 @@ services:
     image: postgres:15-alpine
     container_name: medirota-postgres
     restart: unless-stopped
+    env_file:
+      - .env.production
     environment:
       POSTGRES_DB: medirota
       POSTGRES_USER: medirota_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_this_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -25,6 +27,8 @@ services:
       dockerfile: Dockerfile
     container_name: medirota-backend
     restart: unless-stopped
+    env_file:
+      - .env.production
     environment:
       DATABASE_URL: postgresql://medirota_user:${POSTGRES_PASSWORD}@postgres:5432/medirota
       NODE_ENV: production
