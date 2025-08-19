@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: medirota-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medirota
+      POSTGRES_USER: medirota_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_this_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - medirota-network
+
+  # Backend API (NestJS)
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: medirota-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://medirota_user:${POSTGRES_PASSWORD:-change_this_password}@postgres:5432/medirota
+      NODE_ENV: production
+      PORT: 3000
+      SOLVER_URL: http://solver:8000
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_here}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - solver
+    volumes:
+      - ./logs/backend:/app/logs
+    networks:
+      - medirota-network
+
+  # Solver Service (Python/FastAPI)
+  solver:
+    build:
+      context: ../solver
+      dockerfile: Dockerfile
+    container_name: medirota-solver
+    restart: unless-stopped
+    environment:
+      PYTHONPATH: /app
+      LOG_LEVEL: INFO
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./logs/solver:/app/logs
+    networks:
+      - medirota-network
+
+  # Frontend UI (React/Vite)
+  ui:
+    build:
+      context: ../ui
+      dockerfile: Dockerfile
+    container_name: medirota-ui
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+      VITE_SOLVER_URL: ${VITE_SOLVER_URL:-http://localhost:8000}
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - medirota-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: medirota-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - backend
+      - ui
+    networks:
+      - medirota-network
+
+volumes:
+  postgres_data:
+
+networks:
+  medirota-network:
+    driver: bridge
