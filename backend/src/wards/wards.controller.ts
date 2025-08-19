@@ -13,6 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { WardsService } from './wards.service.js';
 import { CreateWardDto } from './dto/create-ward.dto.js';
 import { UpdateWardDto } from './dto/update-ward.dto.js';
+import { QueryWardDto } from './dto/query-ward.dto.js';
 import { PaginationDto } from '../common/dto/pagination.dto.js';
 import { Roles } from '../auth/roles.decorator.js';
 import { RolesGuard } from '../auth/roles.guard.js';
@@ -39,8 +40,8 @@ export class WardsController {
 	@ApiOperation({ summary: 'Get all wards with pagination' })
 	@ApiResponse({ status: 200, description: 'Wards retrieved successfully' })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
-	findAll(@Query() paginationDto: PaginationDto) {
-		return this.wardsService.findAll(paginationDto);
+	findAll(@Query() paginationDto: PaginationDto, @Query() queryDto: QueryWardDto) {
+		return this.wardsService.findAll(paginationDto, queryDto);
 	}
 
 	@Get(':id')
