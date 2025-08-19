@@ -9,6 +9,7 @@ import { DrawerForm } from './components/DrawerForm';
 import { FormField } from './components/FormFields';
 import { useWards, useCreateWard, useUpdateWard, useDeleteWard, Ward } from '../../../lib/hooks';
 import { useToastSuccess, useToastError, useConfirmDelete } from '../../../components';
+import { useOrgScope } from '../../../lib/orgScope.js';
 
 const wardSchema = z.object({
   name: z.string().min(1, 'Ward name is required').max(100, 'Ward name must be less than 100 characters'),
@@ -56,7 +57,12 @@ export default function WardsPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingWard, setEditingWard] = useState<Ward | null>(null);
   
-  const { data: wardsData, isLoading } = useWards();
+  const { scope, isHierarchyEnabled } = useOrgScope();
+  
+  // Filter wards by selected hospital when hierarchy is enabled
+  const filters = isHierarchyEnabled && scope.hospitalId ? { hospitalId: scope.hospitalId } : undefined;
+  
+  const { data: wardsData, isLoading } = useWards(filters);
   const createWardMutation = useCreateWard();
   const updateWardMutation = useUpdateWard();
   const deleteWardMutation = useDeleteWard();
@@ -122,14 +128,26 @@ export default function WardsPage() {
 
   const handleSubmit = async (data: WardFormData) => {
     try {
+      // Check if hospital is selected when hierarchy is enabled
+      if (isHierarchyEnabled && !scope.hospitalId) {
+        showError('Hospital selection required', 'Please select a hospital before creating a ward.');
+        return;
+      }
+
+      const wardData = {
+        ...data,
+        // Include hospital ID when hierarchy is enabled
+        ...(isHierarchyEnabled && scope.hospitalId && { hospitalId: scope.hospitalId }),
+      };
+
       if (editingWard) {
         await updateWardMutation.mutateAsync({
           id: editingWard.id,
-          data,
+          data: wardData,
         });
         showSuccess('Ward updated successfully');
       } else {
-        await createWardMutation.mutateAsync(data);
+        await createWardMutation.mutateAsync(wardData);
         showSuccess('Ward created successfully');
       }
       setIsDrawerOpen(false);
@@ -152,7 +170,14 @@ export default function WardsPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">Wards</h1>
-        <p className="text-zinc-600">Manage hospital wards and their configuration.</p>
+        <p className="text-zinc-600">
+          Manage hospital wards and their configuration.
+          {isHierarchyEnabled && scope.hospitalId && (
+            <span className="ml-2 text-blue-600 font-medium">
+              (Filtered by {scope.hospitalName})
+            </span>
+          )}
+        </p>
       </div>
 
       {/* Data Table */}
