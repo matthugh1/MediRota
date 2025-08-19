@@ -1,0 +1,2782 @@
+{
+  "request": {
+    "horizon": {
+      "start": "2025-01-01",
+      "end": "2025-01-14"
+    },
+    "wards": [
+      {
+        "id": "WardA",
+        "name": "Emergency Ward"
+      },
+      {
+        "id": "WardB",
+        "name": "Radiology Ward"
+      }
+    ],
+    "shiftTypes": [
+      {
+        "id": "day",
+        "code": "DAY",
+        "start": "08:00",
+        "end": "16:00",
+        "isNight": false,
+        "durationMinutes": 480
+      },
+      {
+        "id": "evening",
+        "code": "EVENING",
+        "start": "16:00",
+        "end": "00:00",
+        "isNight": false,
+        "durationMinutes": 480
+      },
+      {
+        "id": "night",
+        "code": "NIGHT",
+        "start": "00:00",
+        "end": "08:00",
+        "isNight": true,
+        "durationMinutes": 480
+      }
+    ],
+    "staff": [
+      {
+        "id": "doc1",
+        "fullName": "Doctor 1",
+        "job": "doctor",
+        "contractHoursPerWeek": 40.0,
+        "skills": [
+          "MRI",
+          "XRay",
+          "General"
+        ],
+        "eligibleWards": [
+          "WardA",
+          "WardB"
+        ]
+      },
+      {
+        "id": "doc2",
+        "fullName": "Doctor 2",
+        "job": "doctor",
+        "contractHoursPerWeek": 40.0,
+        "skills": [
+          "MRI",
+          "XRay",
+          "General"
+        ],
+        "eligibleWards": [
+          "WardA",
+          "WardB"
+        ]
+      },
+      {
+        "id": "doc3",
+        "fullName": "Doctor 3",
+        "job": "doctor",
+        "contractHoursPerWeek": 40.0,
+        "skills": [
+          "MRI",
+          "XRay",
+          "General"
+        ],
+        "eligibleWards": [
+          "WardA",
+          "WardB"
+        ]
+      },
+      {
+        "id": "doc4",
+        "fullName": "Doctor 4",
+        "job": "doctor",
+        "contractHoursPerWeek": 40.0,
+        "skills": [
+          "MRI",
+          "XRay",
+          "General"
+        ],
+        "eligibleWards": [
+          "WardA",
+          "WardB"
+        ]
+      },
+      {
+        "id": "nurse1",
+        "fullName": "Nurse 1",
+        "job": "nurse",
+        "contractHoursPerWeek": 37.5,
+        "skills": [
+          "General"
+        ],
+        "eligibleWards": [
+          "WardA",
+          "WardB"
+        ]
+      },
+      {
+        "id": "nurse2",
+        "fullName": "Nurse 2",
+        "job": "nurse",
+        "contractHoursPerWeek": 37.5,
+        "skills": [
+          "General"
+        ],
+        "eligibleWards": [
+          "WardA",
+          "WardB"
+        ]
+      },
+      {
+        "id": "nurse3",
+        "fullName": "Nurse 3",
+        "job": "nurse",
+        "contractHoursPerWeek": 37.5,
+        "skills": [
+          "General"
+        ],
+        "eligibleWards": [
+          "WardA",
+          "WardB"
+        ]
+      },
+      {
+        "id": "nurse4",
+        "fullName": "Nurse 4",
+        "job": "nurse",
+        "contractHoursPerWeek": 37.5,
+        "skills": [
+          "General"
+        ],
+        "eligibleWards": [
+          "WardA",
+          "WardB"
+        ]
+      },
+      {
+        "id": "nurse5",
+        "fullName": "Nurse 5",
+        "job": "nurse",
+        "contractHoursPerWeek": 37.5,
+        "skills": [
+          "General"
+        ],
+        "eligibleWards": [
+          "WardA",
+          "WardB"
+        ]
+      },
+      {
+        "id": "radio1",
+        "fullName": "Radiographer 1",
+        "job": "radiographer",
+        "contractHoursPerWeek": 20.0,
+        "skills": [
+          "MRI",
+          "XRay"
+        ],
+        "eligibleWards": [
+          "WardB"
+        ]
+      },
+      {
+        "id": "radio2",
+        "fullName": "Radiographer 2",
+        "job": "radiographer",
+        "contractHoursPerWeek": 20.0,
+        "skills": [
+          "MRI",
+          "XRay"
+        ],
+        "eligibleWards": [
+          "WardB"
+        ]
+      },
+      {
+        "id": "radio3",
+        "fullName": "Radiographer 3",
+        "job": "radiographer",
+        "contractHoursPerWeek": 20.0,
+        "skills": [
+          "MRI",
+          "XRay"
+        ],
+        "eligibleWards": [
+          "WardB"
+        ]
+      }
+    ],
+    "demand": [
+      {
+        "wardId": "WardA",
+        "date": "2025-01-01",
+        "slot": "DAY",
+        "requirements": {
+          "General": 2,
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-01",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 2
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-01",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-01",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1,
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-01",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-01",
+        "slot": "NIGHT",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-02",
+        "slot": "DAY",
+        "requirements": {
+          "General": 2,
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-02",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 2
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-02",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-02",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1,
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-02",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-02",
+        "slot": "NIGHT",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-03",
+        "slot": "DAY",
+        "requirements": {
+          "General": 2,
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-03",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 2
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-03",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-03",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1,
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-03",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-03",
+        "slot": "NIGHT",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-04",
+        "slot": "DAY",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-04",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-04",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-04",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-04",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-04",
+        "slot": "NIGHT",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-05",
+        "slot": "DAY",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-05",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-05",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-05",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-05",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-05",
+        "slot": "NIGHT",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-06",
+        "slot": "DAY",
+        "requirements": {
+          "General": 2,
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-06",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 2
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-06",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-06",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1,
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-06",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-06",
+        "slot": "NIGHT",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-07",
+        "slot": "DAY",
+        "requirements": {
+          "General": 2,
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-07",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 2
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-07",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-07",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1,
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-07",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-07",
+        "slot": "NIGHT",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-08",
+        "slot": "DAY",
+        "requirements": {
+          "General": 2,
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-08",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 2
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-08",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-08",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1,
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-08",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-08",
+        "slot": "NIGHT",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-09",
+        "slot": "DAY",
+        "requirements": {
+          "General": 2,
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-09",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 2
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-09",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-09",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1,
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-09",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-09",
+        "slot": "NIGHT",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-10",
+        "slot": "DAY",
+        "requirements": {
+          "General": 2,
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-10",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 2
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-10",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-10",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1,
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-10",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-10",
+        "slot": "NIGHT",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-11",
+        "slot": "DAY",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-11",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-11",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-11",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-11",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-11",
+        "slot": "NIGHT",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-12",
+        "slot": "DAY",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-12",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-12",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-12",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-12",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-12",
+        "slot": "NIGHT",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-13",
+        "slot": "DAY",
+        "requirements": {
+          "General": 2,
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-13",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 2
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-13",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-13",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1,
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-13",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-13",
+        "slot": "NIGHT",
+        "requirements": {
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-14",
+        "slot": "DAY",
+        "requirements": {
+          "General": 2,
+          "MRI": 1
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-14",
+        "slot": "EVENING",
+        "requirements": {
+          "General": 2
+        }
+      },
+      {
+        "wardId": "WardA",
+        "date": "2025-01-14",
+        "slot": "NIGHT",
+        "requirements": {
+          "General": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-14",
+        "slot": "DAY",
+        "requirements": {
+          "MRI": 1,
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-14",
+        "slot": "EVENING",
+        "requirements": {
+          "XRay": 1
+        }
+      },
+      {
+        "wardId": "WardB",
+        "date": "2025-01-14",
+        "slot": "NIGHT",
+        "requirements": {
+          "MRI": 1
+        }
+      }
+    ],
+    "rules": {
+      "minRestHours": 11,
+      "maxConsecutiveNights": 3,
+      "oneShiftPerDay": true
+    },
+    "locks": [],
+    "preferences": [],
+    "objective": "min_soft_penalties",
+    "timeBudgetMs": 300000,
+    "hints": []
+  },
+  "response": {
+    "solutionId": "sol_03efbfc3",
+    "assignments": [
+      {
+        "staffId": "doc1",
+        "wardId": "WardB",
+        "date": "2025-01-01",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "doc1",
+        "wardId": "WardB",
+        "date": "2025-01-03",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "doc1",
+        "wardId": "WardB",
+        "date": "2025-01-05",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc1",
+        "wardId": "WardB",
+        "date": "2025-01-07",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "doc1",
+        "wardId": "WardB",
+        "date": "2025-01-09",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc1",
+        "wardId": "WardB",
+        "date": "2025-01-10",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc1",
+        "wardId": "WardB",
+        "date": "2025-01-11",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc1",
+        "wardId": "WardB",
+        "date": "2025-01-12",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc1",
+        "wardId": "WardB",
+        "date": "2025-01-14",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "doc2",
+        "wardId": "WardB",
+        "date": "2025-01-01",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc2",
+        "wardId": "WardB",
+        "date": "2025-01-02",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc2",
+        "wardId": "WardB",
+        "date": "2025-01-04",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "doc2",
+        "wardId": "WardB",
+        "date": "2025-01-06",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "doc2",
+        "wardId": "WardB",
+        "date": "2025-01-08",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc2",
+        "wardId": "WardA",
+        "date": "2025-01-09",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc2",
+        "wardId": "WardA",
+        "date": "2025-01-10",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc2",
+        "wardId": "WardB",
+        "date": "2025-01-12",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "doc2",
+        "wardId": "WardB",
+        "date": "2025-01-14",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc3",
+        "wardId": "WardB",
+        "date": "2025-01-01",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "doc3",
+        "wardId": "WardB",
+        "date": "2025-01-03",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc3",
+        "wardId": "WardB",
+        "date": "2025-01-04",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc3",
+        "wardId": "WardB",
+        "date": "2025-01-06",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc3",
+        "wardId": "WardB",
+        "date": "2025-01-07",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc3",
+        "wardId": "WardA",
+        "date": "2025-01-08",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc3",
+        "wardId": "WardB",
+        "date": "2025-01-10",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "doc3",
+        "wardId": "WardB",
+        "date": "2025-01-12",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "doc3",
+        "wardId": "WardB",
+        "date": "2025-01-14",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "doc4",
+        "wardId": "WardB",
+        "date": "2025-01-01",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "doc4",
+        "wardId": "WardB",
+        "date": "2025-01-03",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "doc4",
+        "wardId": "WardB",
+        "date": "2025-01-05",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "doc4",
+        "wardId": "WardB",
+        "date": "2025-01-07",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "doc4",
+        "wardId": "WardA",
+        "date": "2025-01-09",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc4",
+        "wardId": "WardA",
+        "date": "2025-01-10",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc4",
+        "wardId": "WardA",
+        "date": "2025-01-11",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc4",
+        "wardId": "WardA",
+        "date": "2025-01-12",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "doc4",
+        "wardId": "WardB",
+        "date": "2025-01-14",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse1",
+        "wardId": "WardA",
+        "date": "2025-01-01",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse1",
+        "wardId": "WardA",
+        "date": "2025-01-03",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse1",
+        "wardId": "WardA",
+        "date": "2025-01-05",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse1",
+        "wardId": "WardA",
+        "date": "2025-01-07",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse1",
+        "wardId": "WardA",
+        "date": "2025-01-09",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse1",
+        "wardId": "WardA",
+        "date": "2025-01-11",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse1",
+        "wardId": "WardA",
+        "date": "2025-01-13",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse2",
+        "wardId": "WardA",
+        "date": "2025-01-01",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse2",
+        "wardId": "WardA",
+        "date": "2025-01-03",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse2",
+        "wardId": "WardA",
+        "date": "2025-01-05",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse2",
+        "wardId": "WardA",
+        "date": "2025-01-06",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse2",
+        "wardId": "WardA",
+        "date": "2025-01-07",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse2",
+        "wardId": "WardA",
+        "date": "2025-01-09",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse2",
+        "wardId": "WardA",
+        "date": "2025-01-11",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse2",
+        "wardId": "WardA",
+        "date": "2025-01-14",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse3",
+        "wardId": "WardA",
+        "date": "2025-01-01",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse3",
+        "wardId": "WardA",
+        "date": "2025-01-02",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse3",
+        "wardId": "WardA",
+        "date": "2025-01-04",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse3",
+        "wardId": "WardA",
+        "date": "2025-01-06",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse3",
+        "wardId": "WardA",
+        "date": "2025-01-08",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse3",
+        "wardId": "WardA",
+        "date": "2025-01-10",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse3",
+        "wardId": "WardA",
+        "date": "2025-01-12",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse3",
+        "wardId": "WardA",
+        "date": "2025-01-14",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse4",
+        "wardId": "WardA",
+        "date": "2025-01-01",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse4",
+        "wardId": "WardA",
+        "date": "2025-01-02",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse4",
+        "wardId": "WardA",
+        "date": "2025-01-04",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse4",
+        "wardId": "WardA",
+        "date": "2025-01-06",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse4",
+        "wardId": "WardA",
+        "date": "2025-01-07",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse4",
+        "wardId": "WardA",
+        "date": "2025-01-08",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse4",
+        "wardId": "WardA",
+        "date": "2025-01-10",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse4",
+        "wardId": "WardA",
+        "date": "2025-01-14",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse5",
+        "wardId": "WardA",
+        "date": "2025-01-01",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse5",
+        "wardId": "WardA",
+        "date": "2025-01-03",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse5",
+        "wardId": "WardA",
+        "date": "2025-01-04",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "nurse5",
+        "wardId": "WardA",
+        "date": "2025-01-06",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse5",
+        "wardId": "WardA",
+        "date": "2025-01-08",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse5",
+        "wardId": "WardA",
+        "date": "2025-01-10",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "nurse5",
+        "wardId": "WardA",
+        "date": "2025-01-12",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "nurse5",
+        "wardId": "WardA",
+        "date": "2025-01-14",
+        "slot": "EVENING",
+        "shiftTypeId": "evening"
+      },
+      {
+        "staffId": "radio1",
+        "wardId": "WardB",
+        "date": "2025-01-04",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "radio1",
+        "wardId": "WardB",
+        "date": "2025-01-06",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "radio1",
+        "wardId": "WardB",
+        "date": "2025-01-11",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "radio2",
+        "wardId": "WardB",
+        "date": "2025-01-02",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "radio2",
+        "wardId": "WardB",
+        "date": "2025-01-08",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      },
+      {
+        "staffId": "radio2",
+        "wardId": "WardB",
+        "date": "2025-01-10",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "radio3",
+        "wardId": "WardB",
+        "date": "2025-01-03",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "radio3",
+        "wardId": "WardB",
+        "date": "2025-01-08",
+        "slot": "DAY",
+        "shiftTypeId": "day"
+      },
+      {
+        "staffId": "radio3",
+        "wardId": "WardB",
+        "date": "2025-01-11",
+        "slot": "NIGHT",
+        "shiftTypeId": "night"
+      }
+    ],
+    "metrics": {
+      "hardViolations": 0,
+      "solveMs": 137242,
+      "fairnessNightStd": 1.4866068747318504,
+      "preferenceSatisfaction": 0.0
+    },
+    "diagnostics": {
+      "unfilled": [],
+      "infeasible": false,
+      "notes": [
+        "Validation temporarily disabled"
+      ],
+      "violationSamples": [],
+      "summary": {
+        "dates_histogram": {
+          "2025-01-01": 9,
+          "2025-01-03": 7,
+          "2025-01-05": 4,
+          "2025-01-07": 6,
+          "2025-01-09": 5,
+          "2025-01-10": 8,
+          "2025-01-11": 6,
+          "2025-01-12": 6,
+          "2025-01-14": 8,
+          "2025-01-02": 4,
+          "2025-01-04": 6,
+          "2025-01-06": 7,
+          "2025-01-08": 7,
+          "2025-01-13": 1
+        },
+        "cell_fill": {
+          "2025-01-01_DAY_WardA": {
+            "required": 3,
+            "assigned": 2,
+            "unmet": 1
+          },
+          "2025-01-01_EVENING_WardA": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-01_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-01_DAY_WardB": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-01_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-01_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-02_DAY_WardA": {
+            "required": 3,
+            "assigned": 0,
+            "unmet": 3
+          },
+          "2025-01-02_EVENING_WardA": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-02_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 0,
+            "unmet": 1
+          },
+          "2025-01-02_DAY_WardB": {
+            "required": 2,
+            "assigned": 1,
+            "unmet": 1
+          },
+          "2025-01-02_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-02_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 0,
+            "unmet": 1
+          },
+          "2025-01-03_DAY_WardA": {
+            "required": 3,
+            "assigned": 0,
+            "unmet": 3
+          },
+          "2025-01-03_EVENING_WardA": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-03_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-03_DAY_WardB": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-03_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-03_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-04_DAY_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-04_EVENING_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-04_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-04_DAY_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-04_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-04_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-05_DAY_WardA": {
+            "required": 1,
+            "assigned": 0,
+            "unmet": 1
+          },
+          "2025-01-05_EVENING_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-05_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-05_DAY_WardB": {
+            "required": 1,
+            "assigned": 0,
+            "unmet": 1
+          },
+          "2025-01-05_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-05_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-06_DAY_WardA": {
+            "required": 3,
+            "assigned": 1,
+            "unmet": 2
+          },
+          "2025-01-06_EVENING_WardA": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-06_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-06_DAY_WardB": {
+            "required": 2,
+            "assigned": 1,
+            "unmet": 1
+          },
+          "2025-01-06_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-06_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-07_DAY_WardA": {
+            "required": 3,
+            "assigned": 0,
+            "unmet": 3
+          },
+          "2025-01-07_EVENING_WardA": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-07_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-07_DAY_WardB": {
+            "required": 2,
+            "assigned": 1,
+            "unmet": 1
+          },
+          "2025-01-07_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-07_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-08_DAY_WardA": {
+            "required": 3,
+            "assigned": 1,
+            "unmet": 2
+          },
+          "2025-01-08_EVENING_WardA": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-08_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-08_DAY_WardB": {
+            "required": 2,
+            "assigned": 1,
+            "unmet": 1
+          },
+          "2025-01-08_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-08_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-09_DAY_WardA": {
+            "required": 3,
+            "assigned": 1,
+            "unmet": 2
+          },
+          "2025-01-09_EVENING_WardA": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-09_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-09_DAY_WardB": {
+            "required": 2,
+            "assigned": 0,
+            "unmet": 2
+          },
+          "2025-01-09_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-09_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 0,
+            "unmet": 1
+          },
+          "2025-01-10_DAY_WardA": {
+            "required": 3,
+            "assigned": 2,
+            "unmet": 1
+          },
+          "2025-01-10_EVENING_WardA": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-10_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-10_DAY_WardB": {
+            "required": 2,
+            "assigned": 1,
+            "unmet": 1
+          },
+          "2025-01-10_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-10_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-11_DAY_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-11_EVENING_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-11_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-11_DAY_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-11_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-11_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-12_DAY_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-12_EVENING_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-12_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-12_DAY_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-12_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-12_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-13_DAY_WardA": {
+            "required": 3,
+            "assigned": 0,
+            "unmet": 3
+          },
+          "2025-01-13_EVENING_WardA": {
+            "required": 2,
+            "assigned": 1,
+            "unmet": 1
+          },
+          "2025-01-13_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 0,
+            "unmet": 1
+          },
+          "2025-01-13_DAY_WardB": {
+            "required": 2,
+            "assigned": 0,
+            "unmet": 2
+          },
+          "2025-01-13_EVENING_WardB": {
+            "required": 1,
+            "assigned": 0,
+            "unmet": 1
+          },
+          "2025-01-13_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 0,
+            "unmet": 1
+          },
+          "2025-01-14_DAY_WardA": {
+            "required": 3,
+            "assigned": 1,
+            "unmet": 2
+          },
+          "2025-01-14_EVENING_WardA": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-14_NIGHT_WardA": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-14_DAY_WardB": {
+            "required": 2,
+            "assigned": 2,
+            "unmet": 0
+          },
+          "2025-01-14_EVENING_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          },
+          "2025-01-14_NIGHT_WardB": {
+            "required": 1,
+            "assigned": 1,
+            "unmet": 0
+          }
+        },
+        "total_required": 124,
+        "total_assigned": 84,
+        "total_unmet": 40,
+        "staff_minutes": {
+          "doc1": 4320,
+          "doc2": 4320,
+          "doc3": 4320,
+          "doc4": 4320,
+          "nurse1": 3360,
+          "nurse2": 3840,
+          "nurse3": 3840,
+          "nurse4": 3840,
+          "nurse5": 3840,
+          "radio1": 1440,
+          "radio2": 1440,
+          "radio3": 1440
+        },
+        "staff_shifts": {
+          "doc1": 9,
+          "doc2": 9,
+          "doc3": 9,
+          "doc4": 9,
+          "nurse1": 7,
+          "nurse2": 8,
+          "nurse3": 8,
+          "nurse4": 8,
+          "nurse5": 8,
+          "radio1": 3,
+          "radio2": 3,
+          "radio3": 3
+        },
+        "week_caps": {
+          "doc1": {
+            "2025-01": {
+              "cap": 1714,
+              "assigned": 1440
+            },
+            "2025-02": {
+              "cap": 2400,
+              "assigned": 2400
+            },
+            "2025-03": {
+              "cap": 685,
+              "assigned": 480
+            }
+          },
+          "doc2": {
+            "2025-01": {
+              "cap": 1714,
+              "assigned": 1440
+            },
+            "2025-02": {
+              "cap": 2400,
+              "assigned": 2400
+            },
+            "2025-03": {
+              "cap": 685,
+              "assigned": 480
+            }
+          },
+          "doc3": {
+            "2025-01": {
+              "cap": 1714,
+              "assigned": 1440
+            },
+            "2025-02": {
+              "cap": 2400,
+              "assigned": 2400
+            },
+            "2025-03": {
+              "cap": 685,
+              "assigned": 480
+            }
+          },
+          "doc4": {
+            "2025-01": {
+              "cap": 1714,
+              "assigned": 1440
+            },
+            "2025-02": {
+              "cap": 2400,
+              "assigned": 2400
+            },
+            "2025-03": {
+              "cap": 685,
+              "assigned": 480
+            }
+          },
+          "nurse1": {
+            "2025-01": {
+              "cap": 1607,
+              "assigned": 1440
+            },
+            "2025-02": {
+              "cap": 2250,
+              "assigned": 1440
+            },
+            "2025-03": {
+              "cap": 642,
+              "assigned": 480
+            }
+          },
+          "nurse2": {
+            "2025-01": {
+              "cap": 1607,
+              "assigned": 1440
+            },
+            "2025-02": {
+              "cap": 2250,
+              "assigned": 1920
+            },
+            "2025-03": {
+              "cap": 642,
+              "assigned": 480
+            }
+          },
+          "nurse3": {
+            "2025-01": {
+              "cap": 1607,
+              "assigned": 1440
+            },
+            "2025-02": {
+              "cap": 2250,
+              "assigned": 1920
+            },
+            "2025-03": {
+              "cap": 642,
+              "assigned": 480
+            }
+          },
+          "nurse4": {
+            "2025-01": {
+              "cap": 1607,
+              "assigned": 1440
+            },
+            "2025-02": {
+              "cap": 2250,
+              "assigned": 1920
+            },
+            "2025-03": {
+              "cap": 642,
+              "assigned": 480
+            }
+          },
+          "nurse5": {
+            "2025-01": {
+              "cap": 1607,
+              "assigned": 1440
+            },
+            "2025-02": {
+              "cap": 2250,
+              "assigned": 1920
+            },
+            "2025-03": {
+              "cap": 642,
+              "assigned": 480
+            }
+          },
+          "radio1": {
+            "2025-01": {
+              "cap": 857,
+              "assigned": 480
+            },
+            "2025-02": {
+              "cap": 1200,
+              "assigned": 960
+            }
+          },
+          "radio2": {
+            "2025-01": {
+              "cap": 857,
+              "assigned": 480
+            },
+            "2025-02": {
+              "cap": 1200,
+              "assigned": 960
+            }
+          },
+          "radio3": {
+            "2025-01": {
+              "cap": 857,
+              "assigned": 480
+            },
+            "2025-02": {
+              "cap": 1200,
+              "assigned": 960
+            }
+          }
+        },
+        "per_date": [
+          {
+            "date": "2025-01-01",
+            "required": 3,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-01",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-01",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-01",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-01",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-01",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-02",
+            "required": 3,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-02",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-02",
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-02",
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-02",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-02",
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-03",
+            "required": 3,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-03",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-03",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-03",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-03",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-03",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-04",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-04",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-04",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-04",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-04",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-04",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-05",
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-05",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-05",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-05",
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-05",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-05",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-06",
+            "required": 3,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-06",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-06",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-06",
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-06",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-06",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-07",
+            "required": 3,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-07",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-07",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-07",
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-07",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-07",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-08",
+            "required": 3,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-08",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-08",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-08",
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-08",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-08",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-09",
+            "required": 3,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-09",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-09",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-09",
+            "required": 2,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-09",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-09",
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-10",
+            "required": 3,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-10",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-10",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-10",
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-10",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-10",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-11",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-11",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-11",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-11",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-11",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-11",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-12",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-12",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-12",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-12",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-12",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-12",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-13",
+            "required": 3,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-13",
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-13",
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-13",
+            "required": 2,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-13",
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-13",
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "date": "2025-01-14",
+            "required": 3,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-14",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-14",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-14",
+            "required": 2,
+            "assigned": 2
+          },
+          {
+            "date": "2025-01-14",
+            "required": 1,
+            "assigned": 1
+          },
+          {
+            "date": "2025-01-14",
+            "required": 1,
+            "assigned": 1
+          }
+        ],
+        "fairness_stats": {
+          "min_minutes": 1440,
+          "max_minutes": 4320,
+          "mean_minutes": 3360.0,
+          "variance": 2880,
+          "staff_minutes": {
+            "doc1": 4320,
+            "doc2": 4320,
+            "doc3": 4320,
+            "doc4": 4320,
+            "nurse1": 3360,
+            "nurse2": 3840,
+            "nurse3": 3840,
+            "nurse4": 3840,
+            "nurse5": 3840,
+            "radio1": 1440,
+            "radio2": 1440,
+            "radio3": 1440
+          }
+        },
+        "unfilled": [
+          {
+            "cell": "2025-01-02_DAY_WardA",
+            "unmet": 3,
+            "required": 3,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-03_DAY_WardA",
+            "unmet": 3,
+            "required": 3,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-07_DAY_WardA",
+            "unmet": 3,
+            "required": 3,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-13_DAY_WardA",
+            "unmet": 3,
+            "required": 3,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-06_DAY_WardA",
+            "unmet": 2,
+            "required": 3,
+            "assigned": 1
+          },
+          {
+            "cell": "2025-01-08_DAY_WardA",
+            "unmet": 2,
+            "required": 3,
+            "assigned": 1
+          },
+          {
+            "cell": "2025-01-09_DAY_WardA",
+            "unmet": 2,
+            "required": 3,
+            "assigned": 1
+          },
+          {
+            "cell": "2025-01-09_DAY_WardB",
+            "unmet": 2,
+            "required": 2,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-13_DAY_WardB",
+            "unmet": 2,
+            "required": 2,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-14_DAY_WardA",
+            "unmet": 2,
+            "required": 3,
+            "assigned": 1
+          },
+          {
+            "cell": "2025-01-01_DAY_WardA",
+            "unmet": 1,
+            "required": 3,
+            "assigned": 2
+          },
+          {
+            "cell": "2025-01-02_NIGHT_WardA",
+            "unmet": 1,
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-02_DAY_WardB",
+            "unmet": 1,
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "cell": "2025-01-02_NIGHT_WardB",
+            "unmet": 1,
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-05_DAY_WardA",
+            "unmet": 1,
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-05_DAY_WardB",
+            "unmet": 1,
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-06_DAY_WardB",
+            "unmet": 1,
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "cell": "2025-01-07_DAY_WardB",
+            "unmet": 1,
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "cell": "2025-01-08_DAY_WardB",
+            "unmet": 1,
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "cell": "2025-01-09_NIGHT_WardB",
+            "unmet": 1,
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-10_DAY_WardA",
+            "unmet": 1,
+            "required": 3,
+            "assigned": 2
+          },
+          {
+            "cell": "2025-01-10_DAY_WardB",
+            "unmet": 1,
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "cell": "2025-01-13_EVENING_WardA",
+            "unmet": 1,
+            "required": 2,
+            "assigned": 1
+          },
+          {
+            "cell": "2025-01-13_NIGHT_WardA",
+            "unmet": 1,
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-13_EVENING_WardB",
+            "unmet": 1,
+            "required": 1,
+            "assigned": 0
+          },
+          {
+            "cell": "2025-01-13_NIGHT_WardB",
+            "unmet": 1,
+            "required": 1,
+            "assigned": 0
+          }
+        ]
+      }
+    }
+  },
+  "log": [
+    "=== SOLVER REQUEST SUMMARY ===",
+    "Staff: 12 members",
+    "ShiftTypes: 3 types",
+    "Wards: 2 wards",
+    "Demand: 84 items",
+    "First demand requirements type: <class 'dict'>",
+    "First demand requirements: {'General': 2, 'MRI': 1}",
+    "First demand requirements keys: ['General', 'MRI']",
+    "First demand requirements values: [2, 1]",
+    "=================================",
+    "=== SOLVER REQUEST SUMMARY ===",
+    "Staff: 12 members",
+    "ShiftTypes: 3 types",
+    "Wards: 2 wards",
+    "Demand: 84 items",
+    "First demand requirements type: <class 'dict'>",
+    "First demand requirements: {'General': 2, 'MRI': 1}",
+    "First demand requirements keys: ['General', 'MRI']",
+    "First demand requirements values: [2, 1]",
+    "=================================",
+    "=== SOLVER REQUEST SUMMARY ===",
+    "Staff: 12 members",
+    "ShiftTypes: 3 types",
+    "Wards: 2 wards",
+    "Demand: 84 items",
+    "First demand requirements type: <class 'dict'>",
+    "First demand requirements: {'General': 2, 'MRI': 1}",
+    "First demand requirements keys: ['General', 'MRI']",
+    "First demand requirements values: [2, 1]",
+    "================================="
+  ]
+}

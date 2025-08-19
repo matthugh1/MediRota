@@ -1,0 +1,912 @@
+{
+  "horizon": {
+    "start": "2025-01-01",
+    "end": "2025-01-14"
+  },
+  "wards": [
+    {
+      "id": "WardA",
+      "name": "Emergency Ward"
+    },
+    {
+      "id": "WardB",
+      "name": "Radiology Ward"
+    }
+  ],
+  "shiftTypes": [
+    {
+      "id": "day",
+      "code": "DAY",
+      "start": "08:00",
+      "end": "16:00",
+      "isNight": false,
+      "durationMinutes": 480
+    },
+    {
+      "id": "evening",
+      "code": "EVENING",
+      "start": "16:00",
+      "end": "00:00",
+      "isNight": false,
+      "durationMinutes": 480
+    },
+    {
+      "id": "night",
+      "code": "NIGHT",
+      "start": "00:00",
+      "end": "08:00",
+      "isNight": true,
+      "durationMinutes": 480
+    }
+  ],
+  "staff": [
+    {
+      "id": "doc1",
+      "fullName": "Doctor 1",
+      "job": "doctor",
+      "contractHoursPerWeek": 40.0,
+      "skills": [
+        "MRI",
+        "XRay",
+        "General"
+      ],
+      "eligibleWards": [
+        "WardA",
+        "WardB"
+      ]
+    },
+    {
+      "id": "doc2",
+      "fullName": "Doctor 2",
+      "job": "doctor",
+      "contractHoursPerWeek": 40.0,
+      "skills": [
+        "MRI",
+        "XRay",
+        "General"
+      ],
+      "eligibleWards": [
+        "WardA",
+        "WardB"
+      ]
+    },
+    {
+      "id": "doc3",
+      "fullName": "Doctor 3",
+      "job": "doctor",
+      "contractHoursPerWeek": 40.0,
+      "skills": [
+        "MRI",
+        "XRay",
+        "General"
+      ],
+      "eligibleWards": [
+        "WardA",
+        "WardB"
+      ]
+    },
+    {
+      "id": "doc4",
+      "fullName": "Doctor 4",
+      "job": "doctor",
+      "contractHoursPerWeek": 40.0,
+      "skills": [
+        "MRI",
+        "XRay",
+        "General"
+      ],
+      "eligibleWards": [
+        "WardA",
+        "WardB"
+      ]
+    },
+    {
+      "id": "nurse1",
+      "fullName": "Nurse 1",
+      "job": "nurse",
+      "contractHoursPerWeek": 37.5,
+      "skills": [
+        "General"
+      ],
+      "eligibleWards": [
+        "WardA",
+        "WardB"
+      ]
+    },
+    {
+      "id": "nurse2",
+      "fullName": "Nurse 2",
+      "job": "nurse",
+      "contractHoursPerWeek": 37.5,
+      "skills": [
+        "General"
+      ],
+      "eligibleWards": [
+        "WardA",
+        "WardB"
+      ]
+    },
+    {
+      "id": "nurse3",
+      "fullName": "Nurse 3",
+      "job": "nurse",
+      "contractHoursPerWeek": 37.5,
+      "skills": [
+        "General"
+      ],
+      "eligibleWards": [
+        "WardA",
+        "WardB"
+      ]
+    },
+    {
+      "id": "nurse4",
+      "fullName": "Nurse 4",
+      "job": "nurse",
+      "contractHoursPerWeek": 37.5,
+      "skills": [
+        "General"
+      ],
+      "eligibleWards": [
+        "WardA",
+        "WardB"
+      ]
+    },
+    {
+      "id": "nurse5",
+      "fullName": "Nurse 5",
+      "job": "nurse",
+      "contractHoursPerWeek": 37.5,
+      "skills": [
+        "General"
+      ],
+      "eligibleWards": [
+        "WardA",
+        "WardB"
+      ]
+    },
+    {
+      "id": "radio1",
+      "fullName": "Radiographer 1",
+      "job": "radiographer",
+      "contractHoursPerWeek": 20.0,
+      "skills": [
+        "MRI",
+        "XRay"
+      ],
+      "eligibleWards": [
+        "WardB"
+      ]
+    },
+    {
+      "id": "radio2",
+      "fullName": "Radiographer 2",
+      "job": "radiographer",
+      "contractHoursPerWeek": 20.0,
+      "skills": [
+        "MRI",
+        "XRay"
+      ],
+      "eligibleWards": [
+        "WardB"
+      ]
+    },
+    {
+      "id": "radio3",
+      "fullName": "Radiographer 3",
+      "job": "radiographer",
+      "contractHoursPerWeek": 20.0,
+      "skills": [
+        "MRI",
+        "XRay"
+      ],
+      "eligibleWards": [
+        "WardB"
+      ]
+    }
+  ],
+  "demand": [
+    {
+      "wardId": "WardA",
+      "date": "2025-01-01",
+      "slot": "DAY",
+      "requirements": {
+        "General": 2,
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-01",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 2
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-01",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-01",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1,
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-01",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-01",
+      "slot": "NIGHT",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-02",
+      "slot": "DAY",
+      "requirements": {
+        "General": 2,
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-02",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 2
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-02",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-02",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1,
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-02",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-02",
+      "slot": "NIGHT",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-03",
+      "slot": "DAY",
+      "requirements": {
+        "General": 2,
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-03",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 2
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-03",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-03",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1,
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-03",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-03",
+      "slot": "NIGHT",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-04",
+      "slot": "DAY",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-04",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-04",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-04",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-04",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-04",
+      "slot": "NIGHT",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-05",
+      "slot": "DAY",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-05",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-05",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-05",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-05",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-05",
+      "slot": "NIGHT",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-06",
+      "slot": "DAY",
+      "requirements": {
+        "General": 2,
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-06",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 2
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-06",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-06",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1,
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-06",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-06",
+      "slot": "NIGHT",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-07",
+      "slot": "DAY",
+      "requirements": {
+        "General": 2,
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-07",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 2
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-07",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-07",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1,
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-07",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-07",
+      "slot": "NIGHT",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-08",
+      "slot": "DAY",
+      "requirements": {
+        "General": 2,
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-08",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 2
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-08",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-08",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1,
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-08",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-08",
+      "slot": "NIGHT",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-09",
+      "slot": "DAY",
+      "requirements": {
+        "General": 2,
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-09",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 2
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-09",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-09",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1,
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-09",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-09",
+      "slot": "NIGHT",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-10",
+      "slot": "DAY",
+      "requirements": {
+        "General": 2,
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-10",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 2
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-10",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-10",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1,
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-10",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-10",
+      "slot": "NIGHT",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-11",
+      "slot": "DAY",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-11",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-11",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-11",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-11",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-11",
+      "slot": "NIGHT",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-12",
+      "slot": "DAY",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-12",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-12",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-12",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-12",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-12",
+      "slot": "NIGHT",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-13",
+      "slot": "DAY",
+      "requirements": {
+        "General": 2,
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-13",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 2
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-13",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-13",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1,
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-13",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-13",
+      "slot": "NIGHT",
+      "requirements": {
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-14",
+      "slot": "DAY",
+      "requirements": {
+        "General": 2,
+        "MRI": 1
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-14",
+      "slot": "EVENING",
+      "requirements": {
+        "General": 2
+      }
+    },
+    {
+      "wardId": "WardA",
+      "date": "2025-01-14",
+      "slot": "NIGHT",
+      "requirements": {
+        "General": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-14",
+      "slot": "DAY",
+      "requirements": {
+        "MRI": 1,
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-14",
+      "slot": "EVENING",
+      "requirements": {
+        "XRay": 1
+      }
+    },
+    {
+      "wardId": "WardB",
+      "date": "2025-01-14",
+      "slot": "NIGHT",
+      "requirements": {
+        "MRI": 1
+      }
+    }
+  ],
+  "rules": {
+    "minRestHours": 11,
+    "maxConsecutiveNights": 3,
+    "oneShiftPerDay": true
+  },
+  "locks": [],
+  "preferences": [],
+  "objective": "min_soft_penalties",
+  "timeBudgetMs": 300000,
+  "hints": []
+}

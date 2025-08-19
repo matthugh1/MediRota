@@ -1,0 +1,8 @@
+{
+  "id": "sched-ward1-14d",
+  "name": "Ward 1 – 14 days",
+  "startDate": "2025-01-01",
+  "endDate":   "2025-01-14",
+  "status": "DRAFT",
+  "wardIds": ["ward1"]
+}

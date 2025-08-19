@@ -1,0 +1,5 @@
+[
+  { "id": "day",     "code": "DAY", "start": "08:00", "end": "16:00", "isNight": false, "durationMinutes": 480 },
+  { "id": "evening", "code": "EVE", "start": "16:00", "end": "00:00", "isNight": false, "durationMinutes": 480 },
+  { "id": "night",   "code": "NIGHT","start": "00:00","end": "08:00","isNight": true,  "durationMinutes": 480 }
+]

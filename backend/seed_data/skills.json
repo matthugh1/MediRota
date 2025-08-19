@@ -1,0 +1,5 @@
+[
+  { "code": "General",   "name": "General Care" },
+  { "code": "MRI",       "name": "MRI" },
+  { "code": "XRay",      "name": "X-Ray" }
+]

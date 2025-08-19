@@ -1,0 +1,11 @@
+{
+  "scope": "WARD",
+  "wardId": "ward1",
+  "label": "Ward 1 Policy",
+  "weights": { "unmet": 1000000, "overtime": 15000, "fairness": 150, "prefs": 1, "substitutes": 50000, "flex": 5000 },
+  "limits":  { "maxOvertimePerWeekMinutes": 480, "maxFlexShiftsPerWeek": 1 },
+  "toggles": { "enableWardFlex": false, "enableSubstitution": true },
+  "substitution": { "MRI": ["MRI"], "XRay": ["XRay"] },
+  "timeBudgetMs": 90000,
+  "isActive": true
+}

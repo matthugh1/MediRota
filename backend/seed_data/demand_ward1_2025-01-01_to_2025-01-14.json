@@ -1,0 +1,57 @@
+[
+  { "wardId":"ward1","date":"2025-01-01","slot":"DAY","requirements":{"General":3,"MRI":1,"XRay":1}},
+  { "wardId":"ward1","date":"2025-01-01","slot":"EVE","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-01","slot":"NIGHT","requirements":{"General":2,"XRay":1}},
+
+  { "wardId":"ward1","date":"2025-01-02","slot":"DAY","requirements":{"General":3,"MRI":1,"XRay":1}},
+  { "wardId":"ward1","date":"2025-01-02","slot":"EVE","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-02","slot":"NIGHT","requirements":{"General":2,"XRay":1}},
+
+  { "wardId":"ward1","date":"2025-01-03","slot":"DAY","requirements":{"General":3,"MRI":1,"XRay":1}},
+  { "wardId":"ward1","date":"2025-01-03","slot":"EVE","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-03","slot":"NIGHT","requirements":{"General":2,"XRay":1}},
+
+  { "wardId":"ward1","date":"2025-01-04","slot":"DAY","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-04","slot":"EVE","requirements":{"General":2}},
+  { "wardId":"ward1","date":"2025-01-04","slot":"NIGHT","requirements":{"General":2}},
+
+  { "wardId":"ward1","date":"2025-01-05","slot":"DAY","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-05","slot":"EVE","requirements":{"General":2}},
+  { "wardId":"ward1","date":"2025-01-05","slot":"NIGHT","requirements":{"General":2}},
+
+  { "wardId":"ward1","date":"2025-01-06","slot":"DAY","requirements":{"General":3,"MRI":1,"XRay":1}},
+  { "wardId":"ward1","date":"2025-01-06","slot":"EVE","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-06","slot":"NIGHT","requirements":{"General":2,"XRay":1}},
+
+  { "wardId":"ward1","date":"2025-01-07","slot":"DAY","requirements":{"General":3,"MRI":1,"XRay":1}},
+  { "wardId":"ward1","date":"2025-01-07","slot":"EVE","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-07","slot":"NIGHT","requirements":{"General":2,"XRay":1}},
+
+  { "wardId":"ward1","date":"2025-01-08","slot":"DAY","requirements":{"General":3,"MRI":1,"XRay":1}},
+  { "wardId":"ward1","date":"2025-01-08","slot":"EVE","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-08","slot":"NIGHT","requirements":{"General":2,"XRay":1}},
+
+  { "wardId":"ward1","date":"2025-01-09","slot":"DAY","requirements":{"General":3,"MRI":1,"XRay":1}},
+  { "wardId":"ward1","date":"2025-01-09","slot":"EVE","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-09","slot":"NIGHT","requirements":{"General":2,"XRay":1}},
+
+  { "wardId":"ward1","date":"2025-01-10","slot":"DAY","requirements":{"General":3,"MRI":1,"XRay":1}},
+  { "wardId":"ward1","date":"2025-01-10","slot":"EVE","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-10","slot":"NIGHT","requirements":{"General":2,"XRay":1}},
+
+  { "wardId":"ward1","date":"2025-01-11","slot":"DAY","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-11","slot":"EVE","requirements":{"General":2}},
+  { "wardId":"ward1","date":"2025-01-11","slot":"NIGHT","requirements":{"General":2}},
+
+  { "wardId":"ward1","date":"2025-01-12","slot":"DAY","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-12","slot":"EVE","requirements":{"General":2}},
+  { "wardId":"ward1","date":"2025-01-12","slot":"NIGHT","requirements":{"General":2}},
+
+  { "wardId":"ward1","date":"2025-01-13","slot":"DAY","requirements":{"General":3,"MRI":1,"XRay":1}},
+  { "wardId":"ward1","date":"2025-01-13","slot":"EVE","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-13","slot":"NIGHT","requirements":{"General":2,"XRay":1}},
+
+  { "wardId":"ward1","date":"2025-01-14","slot":"DAY","requirements":{"General":3,"MRI":1,"XRay":1}},
+  { "wardId":"ward1","date":"2025-01-14","slot":"EVE","requirements":{"General":2,"MRI":1}},
+  { "wardId":"ward1","date":"2025-01-14","slot":"NIGHT","requirements":{"General":2,"XRay":1}}
+]

@@ -1,0 +1,6 @@
+{
+  "scheduleId": "sched-ward1-14d",
+  "minRestHours": 11,
+  "maxConsecutiveNights": 3,
+  "oneShiftPerDay": true
+}

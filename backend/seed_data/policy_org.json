@@ -1,0 +1,10 @@
+{
+  "scope": "ORG",
+  "label": "Default Org Policy",
+  "weights": { "unmet": 1000000, "overtime": 10000, "fairness": 100, "prefs": 1, "substitutes": 50000, "flex": 5000 },
+  "limits":  { "maxOvertimePerWeekMinutes": 480, "maxFlexShiftsPerWeek": 1 },
+  "toggles": { "enableWardFlex": true, "enableSubstitution": true },
+  "substitution": { "MRI": ["MRI"], "XRay": ["XRay"] },
+  "timeBudgetMs": 90000,
+  "isActive": true
+}

@@ -1,0 +1,176 @@
+{
+  "horizon": {
+    "start": "2025-08-18",
+    "end": "2025-08-24"
+  },
+  "wards": [
+    {
+      "id": "ED",
+      "name": "Emergency Department"
+    }
+  ],
+  "shiftTypes": [
+    {
+      "id": "Early",
+      "code": "Early",
+      "start": "07:30",
+      "end": "15:30",
+      "isNight": false,
+      "durationMin": 480
+    },
+    {
+      "id": "Late",
+      "code": "Late",
+      "start": "13:30",
+      "end": "21:30",
+      "isNight": false,
+      "durationMin": 480
+    },
+    {
+      "id": "Night",
+      "code": "Night",
+      "start": "20:00",
+      "end": "08:00",
+      "isNight": true,
+      "durationMin": 720
+    }
+  ],
+  "staff": [
+    {
+      "id": "S1",
+      "fullName": "Aisha",
+      "job": "nurse",
+      "contractHoursPerWeek": 37.5,
+      "skills": ["Resus", "Ventilator"],
+      "eligibleWards": ["ED"]
+    },
+    {
+      "id": "S2",
+      "fullName": "Bob",
+      "job": "nurse",
+      "contractHoursPerWeek": 37.5,
+      "skills": ["Resus"],
+      "eligibleWards": ["ED"]
+    },
+    {
+      "id": "S3",
+      "fullName": "Charlie",
+      "job": "doctor",
+      "contractHoursPerWeek": 40.0,
+      "skills": ["Ventilator"],
+      "eligibleWards": ["ED"]
+    },
+    {
+      "id": "S4",
+      "fullName": "Diana",
+      "job": "nurse",
+      "contractHoursPerWeek": 37.5,
+      "skills": ["Resus", "Ventilator"],
+      "eligibleWards": ["ED"]
+    },
+    {
+      "id": "S5",
+      "fullName": "Eve",
+      "job": "doctor",
+      "contractHoursPerWeek": 40.0,
+      "skills": ["Ventilator"],
+      "eligibleWards": ["ED"]
+    },
+    {
+      "id": "S6",
+      "fullName": "Frank",
+      "job": "nurse",
+      "contractHoursPerWeek": 37.5,
+      "skills": ["Resus"],
+      "eligibleWards": ["ED"]
+    }
+  ],
+  "demand": [
+    {
+      "wardId": "ED",
+      "date": "2025-08-18",
+      "slot": "Night",
+      "requirements": {
+        "Resus": 2,
+        "Ventilator": 6
+      }
+    },
+    {
+      "wardId": "ED",
+      "date": "2025-08-19",
+      "slot": "Night",
+      "requirements": {
+        "Resus": 2,
+        "Ventilator": 6
+      }
+    },
+    {
+      "wardId": "ED",
+      "date": "2025-08-20",
+      "slot": "Night",
+      "requirements": {
+        "Resus": 2,
+        "Ventilator": 6
+      }
+    },
+    {
+      "wardId": "ED",
+      "date": "2025-08-21",
+      "slot": "Night",
+      "requirements": {
+        "Resus": 2,
+        "Ventilator": 6
+      }
+    },
+    {
+      "wardId": "ED",
+      "date": "2025-08-22",
+      "slot": "Night",
+      "requirements": {
+        "Resus": 2,
+        "Ventilator": 6
+      }
+    },
+    {
+      "wardId": "ED",
+      "date": "2025-08-23",
+      "slot": "Night",
+      "requirements": {
+        "Resus": 2,
+        "Ventilator": 6
+      }
+    },
+    {
+      "wardId": "ED",
+      "date": "2025-08-24",
+      "slot": "Night",
+      "requirements": {
+        "Resus": 2,
+        "Ventilator": 6
+      }
+    }
+  ],
+  "rules": {
+    "minRestHours": 11,
+    "maxConsecutiveNights": 3,
+    "oneShiftPerDay": true
+  },
+  "locks": [],
+  "preferences": [
+    {
+      "staffId": "S1",
+      "date": "2025-08-20",
+      "preferOff": true,
+      "preferOn": false
+    },
+    {
+      "staffId": "S3",
+      "date": "2025-08-22",
+      "preferOn": true,
+      "preferOff": false
+    }
+  ],
+  "objective": "min_soft_penalties",
+  "timeBudgetMs": 180000,
+  "hints": []
+}

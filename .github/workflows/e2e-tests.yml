@@ -1,0 +1,102 @@
+name: E2E Tests
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: medirota_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: |
+          backend/package-lock.json
+          ui/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd backend && npm ci
+        cd ../ui && npm ci
+
+    - name: Setup database
+      run: |
+        cd backend
+        npm run prisma:generate
+        npm run prisma:migrate
+        npm run seed
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/medirota_test
+        SOLVER_URL: http://localhost:8090
+
+    - name: Start backend server
+      run: |
+        cd backend
+        npm run build
+        npm start &
+        sleep 10
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/medirota_test
+        SOLVER_URL: http://localhost:8090
+        PORT: 3000
+
+    - name: Start solver service
+      run: |
+        cd solver
+        pip install -r requirements.txt
+        python -m uvicorn app.main:app --host 0.0.0.0 --port 8090 &
+        sleep 5
+      env:
+        PYTHONPATH: .
+
+    - name: Install Playwright browsers
+      run: |
+        cd backend
+        npx playwright install --with-deps
+
+    - name: Run E2E tests
+      run: |
+        cd backend
+        npm run test:e2e
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/medirota_test
+        SOLVER_URL: http://localhost:8090
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: backend/playwright-report/
+        retention-days: 30
+
+    - name: Upload test videos
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-videos
+        path: backend/test-results/
+        retention-days: 30

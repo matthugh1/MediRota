@@ -1,0 +1,219 @@
+// Datasource
+datasource db {
+	provider = "postgresql"
+	url      = env("DATABASE_URL")
+}
+
+// Generator
+generator client {
+	provider = "prisma-client-js"
+}
+
+model Ward {
+	id                 String  @id @default(uuid()) @db.Uuid
+	name               String
+	hourlyGranularity  Boolean @default(false)
+
+	// Relations
+	staff     Staff[] @relation("StaffWards")
+	demands   Demand[]
+	schedules Schedule[]
+	assignments Assignment[]
+	ruleSets  RuleSet[]
+}
+
+model Job {
+	id   String @id @default(uuid()) @db.Uuid
+	code String @unique
+	name String
+
+	// Relations
+	staff Staff[]
+}
+
+model Skill {
+	id   String @id @default(uuid()) @db.Uuid
+	code String @unique
+	name String
+
+	// Relations
+	staff Staff[] @relation("StaffSkills")
+}
+
+model Staff {
+	id                    String     @id @default(uuid()) @db.Uuid
+	fullName              String
+	role                  StaffRole
+	gradeBand             String?
+	contractHoursPerWeek  Float
+	active                Boolean @default(true)
+
+	// NEW
+	jobId String @db.Uuid
+	job   Job    @relation(fields: [jobId], references: [id])
+
+	// Many-to-many
+	wards  Ward[] @relation("StaffWards")
+	skills Skill[] @relation("StaffSkills")
+
+	// Relations
+	assignments Assignment[]
+	preferences Preference[]
+}
+
+enum StaffRole {
+	doctor
+	nurse
+}
+
+model ShiftType {
+	id              String @id @default(uuid()) @db.Uuid
+	code            String @unique
+	name            String
+	startTime       String
+	endTime         String
+	isNight         Boolean
+	durationMinutes Int
+
+	assignments Assignment[]
+}
+
+model Demand {
+	id               String      @id @default(uuid()) @db.Uuid
+	wardId           String      @db.Uuid
+	ward             Ward        @relation(fields: [wardId], references: [id])
+	date             DateTime
+	granularity      Granularity
+	slot             String
+	requiredBySkill  Json
+
+	@@index([wardId, date, slot])
+}
+
+enum Granularity {
+	shift
+	hour
+}
+
+model RuleSet {
+	id        String   @id @default(uuid()) @db.Uuid
+	wardId    String   @db.Uuid
+	ward      Ward     @relation(fields: [wardId], references: [id])
+	name      String
+	active    Boolean  @default(false)
+	createdAt DateTime @default(now())
+
+	rules Rule[]
+}
+
+model Rule {
+	id         String  @id @default(uuid()) @db.Uuid
+	ruleSetId  String  @db.Uuid
+	ruleSet    RuleSet @relation(fields: [ruleSetId], references: [id])
+	key        String
+	value      String
+
+	@@index([ruleSetId, key])
+}
+
+model Schedule {
+	id            String          @id @default(uuid()) @db.Uuid
+	wardId        String          @db.Uuid
+	ward          Ward            @relation(fields: [wardId], references: [id])
+	horizonStart  DateTime
+	horizonEnd    DateTime
+	status        ScheduleStatus  @default(draft)
+	objective     String?
+	metrics       Json?
+	createdAt     DateTime        @default(now())
+
+	assignments Assignment[]
+	events      Event[]
+
+	@@index([wardId])
+	@@unique([wardId, status], name: "unique_published_schedule_per_ward")
+}
+
+enum ScheduleStatus {
+	draft
+	published
+}
+
+model Assignment {
+	id           String    @id @default(uuid()) @db.Uuid
+	scheduleId   String    @db.Uuid
+	schedule     Schedule  @relation(fields: [scheduleId], references: [id])
+	staffId      String    @db.Uuid
+	staff        Staff     @relation(fields: [staffId], references: [id])
+	wardId       String    @db.Uuid
+	ward         Ward      @relation(fields: [wardId], references: [id])
+	date         DateTime
+	slot         String
+	shiftTypeId  String    @db.Uuid
+	shiftType    ShiftType @relation(fields: [shiftTypeId], references: [id])
+	createdAt    DateTime  @default(now())
+
+	@@index([scheduleId])
+	@@index([wardId, date, slot])
+}
+
+model Lock {
+	id         String   @id @default(uuid()) @db.Uuid
+	scheduleId String   @db.Uuid
+	staffId    String   @db.Uuid
+	wardId     String   @db.Uuid
+	date       DateTime
+	slot       String
+
+	@@index([scheduleId])
+}
+
+model Preference {
+	id         String  @id @default(uuid()) @db.Uuid
+	staffId    String  @db.Uuid
+	staff      Staff   @relation(fields: [staffId], references: [id])
+	date       DateTime
+	preferOff  Boolean?
+	preferOn   Boolean?
+}
+
+model Event {
+	id         String    @id @default(uuid()) @db.Uuid
+	scheduleId String    @db.Uuid
+	schedule   Schedule  @relation(fields: [scheduleId], references: [id])
+	type       String
+	payload    Json
+	createdAt  DateTime  @default(now())
+}
+
+model Policy {
+	id              String      @id @default(uuid()) @db.Uuid
+	scope           PolicyScope
+	orgId           String?     // future multi-org, keep nullable for now
+	wardId          String?     @db.VarChar(64)
+	scheduleId      String?     @db.VarChar(64)
+
+	// Core config blobs (JSONB)
+	weights         Json        // {unmet:int, overtime:int, fairness:int, prefs:int, substitutes:int, flex:int}
+	limits          Json        // {maxOvertimePerWeekMinutes:int, maxFlexShiftsPerWeek:int}
+	toggles         Json        // {enableWardFlex:bool, enableSubstitution:bool}
+	substitution    Json        // {"MRI":["MRI","DoctorMRI"], "XRay":["XRay","DoctorXRay"], ...}
+
+	timeBudgetMs    Int         // default 60000
+	label           String      @db.VarChar(100)
+	isActive        Boolean     @default(true)
+
+	createdAt       DateTime    @default(now())
+	updatedAt       DateTime    @updatedAt
+
+	@@index([scope, wardId, scheduleId, isActive])
+	@@index([orgId])
+	@@unique([scope, orgId, wardId, scheduleId], name: "unique_policy_scope")
+}
+
+enum PolicyScope {
+	ORG
+	WARD
+	SCHEDULE
+}
+

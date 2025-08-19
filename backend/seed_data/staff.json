@@ -1,0 +1,17 @@
+[
+  { "id": "doc1", "fullName": "Doctor One",   "job": "doctor",       "contractHoursPerWeek": 40,   "skills": ["General","MRI","XRay"], "eligibleWards": ["ward1"] },
+  { "id": "doc2", "fullName": "Doctor Two",   "job": "doctor",       "contractHoursPerWeek": 40,   "skills": ["General","MRI"],        "eligibleWards": ["ward1"] },
+  { "id": "doc3", "fullName": "Doctor Three", "job": "doctor",       "contractHoursPerWeek": 37.5, "skills": ["General","XRay"],       "eligibleWards": ["ward1"] },
+
+  { "id": "nurse1", "fullName": "Nurse One",  "job": "nurse",        "contractHoursPerWeek": 37.5, "skills": ["General"],              "eligibleWards": ["ward1"] },
+  { "id": "nurse2", "fullName": "Nurse Two",  "job": "nurse",        "contractHoursPerWeek": 37.5, "skills": ["General"],              "eligibleWards": ["ward1"] },
+  { "id": "nurse3", "fullName": "Nurse Three","job": "nurse",        "contractHoursPerWeek": 37.5, "skills": ["General"],              "eligibleWards": ["ward1"] },
+  { "id": "nurse4", "fullName": "Nurse Four", "job": "nurse",        "contractHoursPerWeek": 30,   "skills": ["General"],              "eligibleWards": ["ward1"] },
+
+  { "id": "nurse5", "fullName": "Radiographer One", "job": "nurse", "contractHoursPerWeek": 30, "skills": ["MRI"],         "eligibleWards": ["ward1"] },
+  { "id": "nurse6", "fullName": "Radiographer Two", "job": "nurse", "contractHoursPerWeek": 30, "skills": ["XRay"],        "eligibleWards": ["ward1"] },
+  { "id": "nurse7", "fullName": "Radiographer Three","job": "nurse","contractHoursPerWeek": 20, "skills": ["MRI","XRay"],  "eligibleWards": ["ward1"] },
+
+  { "id": "nurse8", "fullName": "Healthcare Assistant One", "job": "nurse", "contractHoursPerWeek": 20, "skills": ["General"], "eligibleWards": ["ward1"] },
+  { "id": "nurse9", "fullName": "Healthcare Assistant Two", "job": "nurse", "contractHoursPerWeek": 20, "skills": ["General"], "eligibleWards": ["ward1"] }
+]

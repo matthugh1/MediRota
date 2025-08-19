@@ -1,0 +1,49 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: medirota
+      POSTGRES_PASSWORD: medirota
+      POSTGRES_DB: medirota
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U medirota']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://medirota:medirota@postgres:5432/medirota
+      PORT: 8080
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '8080:8080'
+
+  solver:
+    build:
+      context: ..
+      dockerfile: solver/Dockerfile
+    ports:
+      - '8090:8090'
+
+  ui:
+    build:
+      context: ..
+      dockerfile: ui/Dockerfile
+    ports:
+      - '5173:5173'
+
+volumes:
+  pgdata:
+

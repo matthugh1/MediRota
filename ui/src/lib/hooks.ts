@@ -1,0 +1,610 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import apiClient, { PaginatedResponse } from './api';
+import { queryKeys, invalidateQueries } from './query';
+import { DateTime } from 'luxon';
+
+// Types for API responses
+export interface Ward {
+  id: string;
+  name: string;
+  hourlyGranularity: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Skill {
+  id: string;
+  code: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Staff {
+  id: string;
+  fullName: string;
+  role: 'doctor' | 'nurse';
+  gradeBand?: string;
+  contractHoursPerWeek: number;
+  active: boolean;
+  wards: Ward[];
+  skills: Skill[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ShiftType {
+  id: string;
+  code: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  isNight: boolean;
+  durationMinutes: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RuleSet {
+  id: string;
+  name: string;
+  description?: string;
+  active: boolean;
+  wardId: string;
+  rules: Rule[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Rule {
+  id: string;
+  key: string;
+  value: string;
+  ruleSetId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Demand {
+  id: string;
+  wardId: string;
+  date: string;
+  slot: string;
+  requiredBySkill: Record<string, number>;
+  hourlyGranularity: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Schedule {
+  id: string;
+  wardId: string;
+  horizonStart: string;
+  horizonEnd: string;
+  status: 'draft' | 'published' | 'archived';
+  objective?: string;
+  metrics?: any;
+  ward: Ward;
+  assignments: Assignment[];
+  events: Event[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Assignment {
+  id: string;
+  scheduleId: string;
+  staffId: string;
+  wardId: string;
+  date: string;
+  slot: string;
+  shiftTypeId: string;
+  staff: Staff;
+  shiftType: ShiftType;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Event {
+  id: string;
+  scheduleId: string;
+  type: string;
+  payload: any;
+  createdAt: string;
+}
+
+// Wards hooks
+export const useWards = (filters?: any) => {
+  return useQuery({
+    queryKey: queryKeys.wards.list(filters),
+    queryFn: async (): Promise<PaginatedResponse<Ward>> => {
+      const response = await apiClient.get('/wards', { params: filters });
+      return response.data;
+    },
+  });
+};
+
+export const useWard = (id: string) => {
+  return useQuery({
+    queryKey: queryKeys.wards.detail(id),
+    queryFn: async (): Promise<Ward> => {
+      const response = await apiClient.get(`/wards/${id}`);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+};
+
+// Skills hooks
+export const useSkills = (filters?: any) => {
+  return useQuery({
+    queryKey: queryKeys.skills.list(filters),
+    queryFn: async (): Promise<PaginatedResponse<Skill>> => {
+      const response = await apiClient.get('/skills', { params: filters });
+      return response.data;
+    },
+  });
+};
+
+export const useSkill = (id: string) => {
+  return useQuery({
+    queryKey: queryKeys.skills.detail(id),
+    queryFn: async (): Promise<Skill> => {
+      const response = await apiClient.get(`/skills/${id}`);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+};
+
+// Staff hooks
+export const useStaff = (filters?: any) => {
+  return useQuery({
+    queryKey: queryKeys.staff.list(filters),
+    queryFn: async (): Promise<PaginatedResponse<Staff>> => {
+      const response = await apiClient.get('/staff', { params: filters });
+      return response.data;
+    },
+  });
+};
+
+export const useStaffMember = (id: string) => {
+  return useQuery({
+    queryKey: queryKeys.staff.detail(id),
+    queryFn: async (): Promise<Staff> => {
+      const response = await apiClient.get(`/staff/${id}`);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+};
+
+export const useMyShifts = (staffId: string) => {
+  return useQuery({
+    queryKey: queryKeys.staff.myShifts(staffId),
+    queryFn: async (): Promise<Assignment[]> => {
+      const response = await apiClient.get(`/staff/${staffId}/shifts`);
+      return response.data;
+    },
+    enabled: !!staffId,
+  });
+};
+
+// Shift Types hooks
+export const useShiftTypes = (filters?: any) => {
+  return useQuery({
+    queryKey: queryKeys.shiftTypes.list(filters),
+    queryFn: async (): Promise<PaginatedResponse<ShiftType>> => {
+      const response = await apiClient.get('/shift-types', { params: filters });
+      return response.data;
+    },
+  });
+};
+
+export const useShiftType = (id: string) => {
+  return useQuery({
+    queryKey: queryKeys.shiftTypes.detail(id),
+    queryFn: async (): Promise<ShiftType> => {
+      const response = await apiClient.get(`/shift-types/${id}`);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+};
+
+// Rule Sets hooks
+export const useRuleSets = (wardId: string) => {
+  return useQuery({
+    queryKey: queryKeys.ruleSets.list(wardId),
+    queryFn: async (): Promise<PaginatedResponse<RuleSet>> => {
+      const response = await apiClient.get('/rule-sets', { params: { wardId } });
+      return response.data;
+    },
+    enabled: !!wardId,
+  });
+};
+
+export const useRuleSet = (id: string) => {
+  return useQuery({
+    queryKey: queryKeys.ruleSets.detail(id),
+    queryFn: async (): Promise<RuleSet> => {
+      const response = await apiClient.get(`/rule-sets/${id}`);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+};
+
+// Demand hooks
+export const useDemand = (wardId: string, dateRange?: { start: string; end: string }) => {
+  return useQuery({
+    queryKey: queryKeys.demand.list({ wardId, dateRange }),
+    queryFn: async (): Promise<PaginatedResponse<Demand>> => {
+      const params = new URLSearchParams();
+      if (wardId) params.append('wardId', wardId);
+      if (dateRange?.start) params.append('startDate', dateRange.start);
+      if (dateRange?.end) params.append('endDate', dateRange.end);
+      
+      const response = await apiClient.get(`/demand?${params.toString()}`);
+      // The backend returns a plain array, so we need to wrap it in the expected format
+      return {
+        data: response.data,
+        total: response.data.length,
+        page: 1,
+        limit: response.data.length,
+        totalPages: 1,
+      };
+    },
+    enabled: !!wardId,
+  });
+};
+
+// Schedules hooks
+export const useSchedules = (wardId?: string) => {
+  return useQuery({
+    queryKey: queryKeys.schedules.list(wardId || 'all'),
+    queryFn: async (): Promise<PaginatedResponse<Schedule>> => {
+      const params = wardId ? { wardId } : {};
+      const response = await apiClient.get('/schedules', { params });
+      return response.data;
+    },
+    enabled: true, // Always enabled to fetch all schedules
+  });
+};
+
+export const useSchedule = (id: string) => {
+  return useQuery({
+    queryKey: queryKeys.schedules.detail(id),
+    queryFn: async (): Promise<Schedule> => {
+      const response = await apiClient.get(`/schedules/${id}`);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+};
+
+// Locks hooks
+export const useLocks = (scheduleId: string) => {
+  return useQuery({
+    queryKey: queryKeys.locks.list(scheduleId),
+    queryFn: async (): Promise<any[]> => {
+      const response = await apiClient.get('/locks', { params: { scheduleId } });
+      return response.data;
+    },
+    enabled: !!scheduleId,
+  });
+};
+
+// Preferences hooks
+export const usePreferences = (scheduleId: string) => {
+  return useQuery({
+    queryKey: queryKeys.preferences.list(scheduleId),
+    queryFn: async (): Promise<any[]> => {
+      const response = await apiClient.get('/preferences', { params: { scheduleId } });
+      return response.data;
+    },
+    enabled: !!scheduleId,
+  });
+};
+
+// Mutation hooks
+export const useCreateWard = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: Partial<Ward>) => {
+      const response = await apiClient.post('/wards', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.wards();
+    },
+  });
+};
+
+export const useUpdateWard = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Ward> }) => {
+      const response = await apiClient.patch(`/wards/${id}`, data);
+      return response.data;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.wards.detail(id) });
+      invalidateQueries.wards();
+    },
+  });
+};
+
+export const useDeleteWard = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await apiClient.delete(`/wards/${id}`);
+    },
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.wards.detail(id) });
+      invalidateQueries.wards();
+    },
+  });
+};
+
+// Similar mutation hooks for other entities...
+export const useCreateSkill = () => {
+  return useMutation({
+    mutationFn: async (data: Partial<Skill>) => {
+      const response = await apiClient.post('/skills', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.skills();
+    },
+  });
+};
+
+export const useCreateStaff = () => {
+  return useMutation({
+    mutationFn: async (data: Partial<Staff>) => {
+      const response = await apiClient.post('/staff', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.staff();
+    },
+  });
+};
+
+export const useCreateShiftType = () => {
+  return useMutation({
+    mutationFn: async (data: Partial<ShiftType>) => {
+      const response = await apiClient.post('/shift-types', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.shiftTypes();
+    },
+  });
+};
+
+export const useCreateSchedule = () => {
+  return useMutation({
+    mutationFn: async (data: Partial<Schedule>) => {
+      const response = await apiClient.post('/schedules', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.schedules();
+    },
+  });
+};
+
+// Additional mutation hooks for other entities
+export const useUpdateSkill = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Skill> }) => {
+      const response = await apiClient.patch(`/skills/${id}`, data);
+      return response.data;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.skills.detail(id) });
+      invalidateQueries.skills();
+    },
+  });
+};
+
+export const useDeleteSkill = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await apiClient.delete(`/skills/${id}`);
+    },
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.skills.detail(id) });
+      invalidateQueries.skills();
+    },
+  });
+};
+
+export const useUpdateShiftType = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<ShiftType> }) => {
+      const response = await apiClient.patch(`/shift-types/${id}`, data);
+      return response.data;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.shiftTypes.detail(id) });
+      invalidateQueries.shiftTypes();
+    },
+  });
+};
+
+export const useDeleteShiftType = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await apiClient.delete(`/shift-types/${id}`);
+    },
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.shiftTypes.detail(id) });
+      invalidateQueries.shiftTypes();
+    },
+  });
+};
+
+export const useCreateRuleSet = () => {
+  return useMutation({
+    mutationFn: async (data: Partial<RuleSet>) => {
+      const response = await apiClient.post('/rule-sets', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.ruleSets();
+    },
+  });
+};
+
+export const useUpdateRuleSet = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<RuleSet> }) => {
+      const response = await apiClient.patch(`/rule-sets/${id}`, data);
+      return response.data;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.ruleSets.detail(id) });
+      invalidateQueries.ruleSets();
+    },
+  });
+};
+
+export const useDeleteRuleSet = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await apiClient.delete(`/rule-sets/${id}`);
+    },
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.ruleSets.detail(id) });
+      invalidateQueries.ruleSets();
+    },
+  });
+};
+
+export const useCreateDemand = () => {
+  return useMutation({
+    mutationFn: async (data: {
+      wardId: string;
+      date: string;
+      slot: string;
+      requiredBySkill: Record<string, number>;
+    }) => {
+      const response = await apiClient.post('/demand', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.demand();
+    },
+  });
+};
+
+export const useUpdateDemand = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: { requiredBySkill: Record<string, number> } }) => {
+      const response = await apiClient.patch(`/demand/${id}`, data);
+      return response.data;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.demand.detail(id) });
+      invalidateQueries.demand();
+    },
+  });
+};
+
+
+
+export const useSolveSchedule = () => {
+  return useMutation({
+    mutationFn: async (scheduleId: string) => {
+      const response = await apiClient.post('/solve', { scheduleId });
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.schedules();
+    },
+  });
+};
+
+export const useRepairSchedule = () => {
+  return useMutation({
+    mutationFn: async ({ scheduleId, events }: { scheduleId: string; events: any[] }) => {
+      const response = await apiClient.post('/solve/repair', { scheduleId, events });
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.schedules();
+    },
+  });
+};
+
+export const useCreateLock = () => {
+  return useMutation({
+    mutationFn: async (data: { scheduleId: string; staffId: string; date: string; slot: string }) => {
+      const response = await apiClient.post('/locks', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.locks();
+    },
+  });
+};
+
+export const useDeleteLock = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await apiClient.delete(`/locks/${id}`);
+    },
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.locks.detail(id) });
+      invalidateQueries.locks();
+    },
+  });
+};
+
+// Explain hooks
+export const useExplainAssignment = (scheduleId: string, staffId: string, date: string, slot: string) => {
+  return useQuery({
+    queryKey: ['explain', scheduleId, staffId, date, slot],
+    queryFn: async () => {
+      const params = new URLSearchParams({ scheduleId, staffId, date, slot });
+      const response = await apiClient.get(`/explain?${params.toString()}`);
+      return response.data;
+    },
+    enabled: !!scheduleId && !!staffId && !!date && !!slot,
+  });
+};
+
+export const useApplyAlternative = () => {
+  return useMutation({
+    mutationFn: async ({ scheduleId, alternativeId }: { scheduleId: string; alternativeId: string }) => {
+      const response = await apiClient.post('/explain/apply', { scheduleId, alternativeId });
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateQueries.schedules();
+    },
+  });
+};
