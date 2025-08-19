@@ -42,11 +42,20 @@ check_docker() {
     fi
     
     if ! command -v docker-compose &> /dev/null; then
-        print_error "Docker Compose is not installed. Please install Docker Compose first."
-        exit 1
+        print_warning "Docker Compose is not installed. Installing Docker Compose..."
+        curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+        print_success "Docker Compose installed"
     fi
     
-    print_success "Docker and Docker Compose are installed"
+    # Start Docker if not running
+    if ! systemctl is-active --quiet docker; then
+        print_status "Starting Docker service..."
+        systemctl start docker
+        systemctl enable docker
+    fi
+    
+    print_success "Docker and Docker Compose are ready"
 }
 
 # Function to check if .env file exists
