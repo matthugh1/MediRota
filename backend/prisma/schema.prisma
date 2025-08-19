@@ -14,12 +14,18 @@ model Ward {
 	name               String
 	hourlyGranularity  Boolean @default(false)
 
+	// Organisational hierarchy (nullable)
+	hospitalId String? @db.Uuid
+	hospital   Hospital? @relation(fields: [hospitalId], references: [id], onDelete: SetNull)
+
 	// Relations
 	staff     Staff[] @relation("StaffWards")
 	demands   Demand[]
 	schedules Schedule[]
 	assignments Assignment[]
 	ruleSets  RuleSet[]
+
+	@@index([hospitalId])
 }
 
 model Job {
@@ -75,7 +81,16 @@ model ShiftType {
 	isNight         Boolean
 	durationMinutes Int
 
+	// Organisational hierarchy (nullable)
+	scope      ScopeLevel?
+	trustId    String? @db.Uuid
+	hospitalId String? @db.Uuid
+	wardId     String? @db.Uuid
+
 	assignments Assignment[]
+
+	@@index([scope, trustId, hospitalId, wardId])
+	@@unique([scope, trustId, hospitalId, wardId, code])
 }
 
 model Demand {
@@ -104,6 +119,11 @@ model RuleSet {
 	createdAt DateTime @default(now())
 	updatedAt DateTime @updatedAt
 
+	// Organisational hierarchy (nullable)
+	scope      ScopeLevel?
+	trustId    String? @db.Uuid
+	hospitalId String? @db.Uuid
+
 	// Rules
 	minRestHours         Int  @default(11)
 	maxConsecutiveNights Int  @default(3)
@@ -111,6 +131,8 @@ model RuleSet {
 
 	// Relations
 	rules Rule[]
+
+	@@index([scope, trustId, hospitalId, wardId])
 }
 
 model Rule {
@@ -198,7 +220,7 @@ model Event {
 
 model Policy {
 	id           String @id @default(uuid()) @db.Uuid
-	scope        String
+	scope        ScopeLevel
 	orgId        String?
 	wardId       String?
 	scheduleId   String?
@@ -212,6 +234,47 @@ model Policy {
 	createdAt    DateTime @default(now())
 	updatedAt    DateTime @updatedAt
 
+	// Organisational hierarchy (nullable)
+	trustId    String? @db.Uuid
+	hospitalId String? @db.Uuid
+
 	@@unique([scope, orgId, wardId, scheduleId])
+	@@index([scope, trustId, hospitalId, wardId, scheduleId, isActive])
+}
+
+// ============================================================================
+// ORGANISATIONAL HIERARCHY (ADDITIVE ONLY - NO BREAKING CHANGES)
+// ============================================================================
+
+enum ScopeLevel {
+	TRUST
+	HOSPITAL
+	WARD
+	SCHEDULE
+}
+
+model Trust {
+	id        String     @id @default(uuid()) @db.Uuid
+	name      String     @unique @db.VarChar(120)
+	createdAt DateTime   @default(now())
+	updatedAt DateTime   @updatedAt
+
+	// Relations
+	hospitals Hospital[]
+}
+
+model Hospital {
+	id        String   @id @default(uuid()) @db.Uuid
+	name      String   @db.VarChar(120)
+	trustId   String?  @db.Uuid
+	trust     Trust?   @relation(fields: [trustId], references: [id], onDelete: SetNull)
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	// Relations
+	wards Ward[]
+
+	@@index([trustId])
+	@@unique([trustId, name])
 }
 
