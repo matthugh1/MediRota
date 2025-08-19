@@ -23,6 +23,19 @@ const STORAGE_KEY = 'rota-org-scope';
 export function OrgScopeProvider({ children }: { children: ReactNode }) {
   const [scope, setScope] = useState<OrgScope>({});
 
+  // Test localStorage on mount
+  useEffect(() => {
+    console.log('OrgScopeProvider mounted, testing localStorage...');
+    try {
+      localStorage.setItem('test-key', 'test-value');
+      const testValue = localStorage.getItem('test-key');
+      console.log('localStorage test:', testValue);
+      localStorage.removeItem('test-key');
+    } catch (error) {
+      console.error('localStorage test failed:', error);
+    }
+  }, []);
+
   // Load scope from localStorage on mount
   useEffect(() => {
     if (!ORG_HIERARCHY_ENABLED) {

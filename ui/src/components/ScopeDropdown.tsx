@@ -19,6 +19,9 @@ export function ScopeDropdown() {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Debug logging
+  console.log('ScopeDropdown render:', { scope, isHierarchyEnabled });
+
   // Load trusts on mount
   useEffect(() => {
     if (!isHierarchyEnabled) return;
@@ -71,8 +74,10 @@ export function ScopeDropdown() {
         <select
           value={scope.trustId || ''}
           onChange={(e) => {
+            console.log('Trust selection changed:', e.target.value);
             const trust = trusts.find(t => t.id === e.target.value);
             if (trust) {
+              console.log('Setting trust:', trust);
               setTrust(trust.id, trust.name);
             }
           }}
@@ -94,8 +99,10 @@ export function ScopeDropdown() {
           <select
             value={scope.hospitalId || ''}
             onChange={(e) => {
+              console.log('Hospital selection changed:', e.target.value);
               const hospital = hospitals.find(h => h.id === e.target.value);
               if (hospital) {
+                console.log('Setting hospital:', hospital);
                 setHospital(hospital.id, hospital.name);
               }
             }}
