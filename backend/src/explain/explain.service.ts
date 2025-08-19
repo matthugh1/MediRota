@@ -2,21 +2,29 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ExplainQueryDto } from './dto/explain-query.dto.js';
 import { ApplyAlternativeDto } from './dto/apply-alternative.dto.js';
+import { OrgCompatService } from '../common/org-compat.service.js';
 
 @Injectable()
 export class ExplainService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private orgCompatService: OrgCompatService,
+  ) {}
 
   async explain(query: ExplainQueryDto) {
     // This is a placeholder implementation
     // In a real implementation, this would call the solver to get explain data
+    
+    // Apply hospital filter if provided and hierarchy is enabled
+    const where = this.orgCompatService.applyHospitalFilter({
+      scheduleId: query.scheduleId,
+      staffId: query.staffId,
+      date: query.date,
+      slot: query.slot,
+    }, query.hospitalId);
+
     const currentAssignment = await this.prisma.assignment.findFirst({
-      where: {
-        scheduleId: query.scheduleId,
-        staffId: query.staffId,
-        date: query.date,
-        slot: query.slot,
-      },
+      where,
       include: {
         staff: true,
         shiftType: true,

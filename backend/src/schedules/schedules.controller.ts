@@ -13,6 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { SchedulesService } from './schedules.service.js';
 import { CreateScheduleDto } from './dto/create-schedule.dto.js';
 import { UpdateScheduleDto } from './dto/update-schedule.dto.js';
+import { QueryScheduleDto } from './dto/query-schedule.dto.js';
 import { PaginationDto } from '../common/dto/pagination.dto.js';
 import { Roles } from '../auth/roles.decorator.js';
 import { RolesGuard } from '../auth/roles.guard.js';
@@ -62,8 +63,8 @@ export class SchedulesController {
 	@ApiOperation({ summary: 'Get all schedules with pagination' })
 	@ApiResponse({ status: 200, description: 'Schedules retrieved successfully' })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
-	findAll(@Query() paginationDto: PaginationDto) {
-		return this.schedulesService.findAll(paginationDto);
+	findAll(@Query() paginationDto: PaginationDto, @Query() queryDto: QueryScheduleDto) {
+		return this.schedulesService.findAll(paginationDto, queryDto);
 	}
 
 	@Get(':id')

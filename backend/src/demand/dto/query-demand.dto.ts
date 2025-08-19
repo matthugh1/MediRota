@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsDateString } from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsUUID } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class QueryDemandDto {
@@ -16,4 +16,9 @@ export class QueryDemandDto {
   @IsOptional()
   @IsDateString()
   endDate?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by hospital ID' })
+  @IsOptional()
+  @IsUUID('4')
+  hospitalId?: string;
 }

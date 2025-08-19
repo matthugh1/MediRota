@@ -3,10 +3,14 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateDemandDto } from './dto/create-demand.dto.js';
 import { UpdateDemandDto } from './dto/update-demand.dto.js';
 import { QueryDemandDto } from './dto/query-demand.dto.js';
+import { OrgCompatService } from '../common/org-compat.service.js';
 
 @Injectable()
 export class DemandService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private orgCompatService: OrgCompatService,
+  ) {}
 
   async create(createDemandDto: CreateDemandDto) {
     return this.prisma.demand.create({
@@ -38,8 +42,11 @@ export class DemandService {
       };
     }
 
+    // Apply hospital filter if provided and hierarchy is enabled
+    const finalWhere = this.orgCompatService.applyHospitalFilter(where, query.hospitalId);
+
     return this.prisma.demand.findMany({
-      where,
+      where: finalWhere,
       include: {
         ward: true,
       },

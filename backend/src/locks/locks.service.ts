@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateLockDto } from './dto/create-lock.dto.js';
 import { QueryLocksDto } from './dto/query-locks.dto.js';
+import { OrgCompatService } from '../common/org-compat.service.js';
 
 @Injectable()
 export class LocksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private orgCompatService: OrgCompatService,
+  ) {}
 
   async create(createLockDto: CreateLockDto) {
     // Get the schedule to find the wardId
@@ -36,8 +40,11 @@ export class LocksService {
       where.scheduleId = query.scheduleId;
     }
 
+    // Apply hospital filter if provided and hierarchy is enabled
+    const finalWhere = this.orgCompatService.applyHospitalFilter(where, query.hospitalId);
+
     return this.prisma.lock.findMany({
-      where,
+      where: finalWhere,
     });
   }
 

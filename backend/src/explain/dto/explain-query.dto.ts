@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ExplainQueryDto {
   @ApiProperty({ description: 'Schedule ID' })
@@ -21,4 +21,9 @@ export class ExplainQueryDto {
   @IsString()
   @IsNotEmpty()
   slot!: string;
+
+  @ApiPropertyOptional({ description: 'Filter by hospital ID' })
+  @IsOptional()
+  @IsUUID('4')
+  hospitalId?: string;
 }
