@@ -21,8 +21,8 @@ services:
   # Backend API (NestJS)
   backend:
     build:
-      context: ../
-      dockerfile: backend/Dockerfile
+      context: ../backend
+      dockerfile: Dockerfile
     container_name: medirota-backend
     restart: unless-stopped
     environment:
@@ -44,8 +44,8 @@ services:
   # Solver Service (Python/FastAPI)
   solver:
     build:
-      context: ../
-      dockerfile: solver/Dockerfile
+      context: ../solver
+      dockerfile: Dockerfile
     container_name: medirota-solver
     restart: unless-stopped
     environment:
@@ -61,8 +61,8 @@ services:
   # Frontend UI (React/Vite)
   ui:
     build:
-      context: ../
-      dockerfile: ui/Dockerfile
+      context: ../ui
+      dockerfile: Dockerfile
     container_name: medirota-ui
     restart: unless-stopped
     environment:
