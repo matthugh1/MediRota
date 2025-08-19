@@ -2,11 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateShiftTypeDto } from './dto/create-shift-type.dto.js';
 import { UpdateShiftTypeDto } from './dto/update-shift-type.dto.js';
+import { QueryShiftTypeDto } from './dto/query-shift-type.dto.js';
 import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto.js';
+import { OrgCompatService } from '../common/org-compat.service.js';
 
 @Injectable()
 export class ShiftTypesService {
-	constructor(private prisma: PrismaService) {}
+	constructor(
+		private prisma: PrismaService,
+		private orgCompatService: OrgCompatService,
+	) {}
 
 	async create(createShiftTypeDto: CreateShiftTypeDto) {
 		return this.prisma.shiftType.create({
@@ -14,14 +19,19 @@ export class ShiftTypesService {
 		});
 	}
 
-	async findAll(paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
+	async findAll(paginationDto: PaginationDto, queryDto: QueryShiftTypeDto): Promise<PaginatedResponseDto<any>> {
 		const { page = 1, limit = 20 } = paginationDto;
+		const { hospitalId } = queryDto;
 		const skip = (page - 1) * limit;
+
+		// Apply hospital filter if provided and hierarchy is enabled
+		const where = this.orgCompatService.applyHospitalFilter({}, hospitalId);
 
 		const [shiftTypes, total] = await Promise.all([
 			this.prisma.shiftType.findMany({
 				skip,
 				take: limit,
+				where,
 				include: {
 					_count: {
 						select: {
@@ -30,7 +40,7 @@ export class ShiftTypesService {
 					},
 				},
 			}),
-			this.prisma.shiftType.count(),
+			this.prisma.shiftType.count({ where }),
 		]);
 
 		return {

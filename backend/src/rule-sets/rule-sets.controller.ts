@@ -44,8 +44,8 @@ export class RuleSetsController {
 	@ApiQuery({ name: 'page', required: false, description: 'Page number' })
 	@ApiQuery({ name: 'limit', required: false, description: 'Items per page' })
 	findAll(@Query() queryDto: QueryRuleSetsDto) {
-		const { wardId, ...paginationDto } = queryDto;
-		return this.ruleSetsService.findAll(paginationDto, wardId);
+		const { wardId, hospitalId, ...paginationDto } = queryDto;
+		return this.ruleSetsService.findAll(paginationDto, wardId, hospitalId);
 	}
 
 	@Get(':id')

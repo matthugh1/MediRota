@@ -13,6 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { ShiftTypesService } from './shift-types.service.js';
 import { CreateShiftTypeDto } from './dto/create-shift-type.dto.js';
 import { UpdateShiftTypeDto } from './dto/update-shift-type.dto.js';
+import { QueryShiftTypeDto } from './dto/query-shift-type.dto.js';
 import { PaginationDto } from '../common/dto/pagination.dto.js';
 import { Roles } from '../auth/roles.decorator.js';
 import { RolesGuard } from '../auth/roles.guard.js';
@@ -39,8 +40,8 @@ export class ShiftTypesController {
 	@ApiOperation({ summary: 'Get all shift types with pagination' })
 	@ApiResponse({ status: 200, description: 'Shift types retrieved successfully' })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
-	findAll(@Query() paginationDto: PaginationDto) {
-		return this.shiftTypesService.findAll(paginationDto);
+	findAll(@Query() paginationDto: PaginationDto, @Query() queryDto: QueryShiftTypeDto) {
+		return this.shiftTypesService.findAll(paginationDto, queryDto);
 	}
 
 	@Get(':id')

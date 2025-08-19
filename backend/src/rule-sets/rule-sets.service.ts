@@ -4,10 +4,14 @@ import { CreateRuleSetDto } from './dto/create-rule-set.dto.js';
 import { UpdateRuleSetDto } from './dto/update-rule-set.dto.js';
 import { PaginationDto } from '../common/dto/pagination.dto.js';
 import { PaginatedResponseDto } from '../common/dto/pagination.dto.js';
+import { OrgCompatService } from '../common/org-compat.service.js';
 
 @Injectable()
 export class RuleSetsService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private orgCompatService: OrgCompatService,
+	) {}
 
 	async create(createRuleSetDto: CreateRuleSetDto) {
 		const { rules, ...ruleSetData } = createRuleSetDto;
@@ -31,11 +35,14 @@ export class RuleSetsService {
 		});
 	}
 
-	async findAll(paginationDto: PaginationDto, wardId?: string): Promise<PaginatedResponseDto<any>> {
+	async findAll(paginationDto: PaginationDto, wardId?: string, hospitalId?: string): Promise<PaginatedResponseDto<any>> {
 		const { page = 1, limit = 20 } = paginationDto;
 		const skip = (page - 1) * limit;
 
-		const where = wardId && wardId !== 'all' ? { wardId } : {};
+		let where = wardId && wardId !== 'all' ? { wardId } : {};
+		
+		// Apply hospital filter if provided and hierarchy is enabled
+		where = this.orgCompatService.applyHospitalFilter(where, hospitalId);
 
 		const [ruleSets, total] = await Promise.all([
 			this.prisma.ruleSet.findMany({
