@@ -1,8 +1,35 @@
+#!/usr/bin/env node
+
+/**
+ * MediRota Database Seed Script
+ * 
+ * This script clears the database and loads fixture data:
+ * - Clears all existing data
+ * - Creates wards, jobs, skills, shift types
+ * - Creates staff with proper skill assignments
+ * - Creates demand data for 14 days
+ * - Creates schedules, rules, and policies
+ * 
+ * Usage:
+ *   npm run seed
+ *   or
+ *   ts-node tools/seed.ts
+ */
+
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+import { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Map to store generated UUIDs for fixture IDs
+const idMap = new Map<string, string>();
 
 interface WardFixture {
   id: string;
@@ -67,7 +94,26 @@ interface DemandFixture {
   requirements: Record<string, number>;
 }
 
-export async function loadFixtures() {
+async function clearDatabase() {
+  console.log('🗑️  Clearing database...');
+  
+  const tables = [
+    'Lock', 'Ward', 'Demand', 'RuleSet', 'Rule', 'Schedule', 
+    'Assignment', 'ShiftType', 'Preference', 'Event', 'Skill', 
+    '_StaffSkills', '_StaffWards', 'Staff', 'Job', 'Policy'
+  ];
+  
+  console.log(`Found ${tables.length} tables to clear`);
+  
+  for (const table of tables) {
+    console.log(`  Truncating: ${table}`);
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${table}" CASCADE;`);
+  }
+  
+  console.log('✅ Database cleared successfully');
+}
+
+async function loadFixtures() {
   console.log('🌱 Loading fixture-based seed data...');
   
   const fixturesDir = path.join(__dirname, '..', 'seed_data');
@@ -101,11 +147,14 @@ export async function loadFixtures() {
   // 2. Create wards
   console.log('  Creating wards...');
   for (const ward of wards) {
+    const wardUuid = randomUUID();
+    idMap.set(ward.id, wardUuid);
+    
     await prisma.ward.upsert({
-      where: { id: ward.id },
+      where: { id: wardUuid },
       update: { name: ward.name },
       create: {
-        id: ward.id,
+        id: wardUuid,
         name: ward.name,
         hourlyGranularity: false
       },
@@ -115,6 +164,9 @@ export async function loadFixtures() {
   // 3. Create shift types
   console.log('  Creating shift types...');
   for (const shiftType of shiftTypes) {
+    const shiftTypeUuid = randomUUID();
+    idMap.set(shiftType.id, shiftTypeUuid);
+    
     await prisma.shiftType.upsert({
       where: { code: shiftType.code },
       update: {
@@ -125,7 +177,7 @@ export async function loadFixtures() {
         durationMinutes: shiftType.durationMinutes
       },
       create: {
-        id: shiftType.id,
+        id: shiftTypeUuid,
         code: shiftType.code,
         name: shiftType.id.charAt(0).toUpperCase() + shiftType.id.slice(1),
         startTime: shiftType.start,
@@ -166,13 +218,19 @@ export async function loadFixtures() {
     // Get ward IDs
     const wardIds = [];
     for (const wardId of staffMember.eligibleWards) {
-      const ward = await prisma.ward.findUnique({ where: { id: wardId } });
-      if (ward) wardIds.push(ward.id);
+      const mappedWardId = idMap.get(wardId);
+      if (mappedWardId) {
+        const ward = await prisma.ward.findUnique({ where: { id: mappedWardId } });
+        if (ward) wardIds.push(ward.id);
+      }
     }
 
     // Create staff member
+    const staffUuid = randomUUID();
+    idMap.set(staffMember.id, staffUuid);
+    
     await prisma.staff.upsert({
-      where: { id: staffMember.id },
+      where: { id: staffUuid },
       update: {
         fullName: staffMember.fullName,
         role: staffMember.job as 'doctor' | 'nurse',
@@ -182,7 +240,7 @@ export async function loadFixtures() {
         wards: { set: wardIds.map(id => ({ id })) }
       },
       create: {
-        id: staffMember.id,
+        id: staffUuid,
         fullName: staffMember.fullName,
         role: staffMember.job as 'doctor' | 'nurse',
         contractHoursPerWeek: staffMember.contractHoursPerWeek,
@@ -195,11 +253,17 @@ export async function loadFixtures() {
 
   // 6. Create schedule
   console.log('  Creating schedule...');
-  const ward1 = await prisma.ward.findUnique({ where: { id: 'ward1' } });
+  const mappedWardId = idMap.get('ward1');
+  if (!mappedWardId) throw new Error('Mapped ward1 ID not found');
+  
+  const ward1 = await prisma.ward.findUnique({ where: { id: mappedWardId } });
   if (!ward1) throw new Error('Ward1 not found');
 
+  const scheduleUuid = randomUUID();
+  idMap.set(schedule.id, scheduleUuid);
+  
   await prisma.schedule.upsert({
-    where: { id: schedule.id },
+    where: { id: scheduleUuid },
     update: {
       wardId: ward1.id,
       horizonStart: new Date(schedule.startDate),
@@ -208,7 +272,7 @@ export async function loadFixtures() {
       objective: schedule.name
     },
     create: {
-      id: schedule.id,
+      id: scheduleUuid,
       wardId: ward1.id,
       horizonStart: new Date(schedule.startDate),
       horizonEnd: new Date(schedule.endDate),
@@ -219,9 +283,12 @@ export async function loadFixtures() {
 
   // 7. Create rules
   console.log('  Creating rules...');
+  const ruleSetUuid = randomUUID();
+  idMap.set('ruleset-ward1', ruleSetUuid);
+  
   const ruleSet = await prisma.ruleSet.upsert({
     where: { 
-      id: 'ruleset-ward1'
+      id: ruleSetUuid
     },
     update: {
       wardId: ward1.id,
@@ -229,7 +296,7 @@ export async function loadFixtures() {
       active: true
     },
     create: {
-      id: 'ruleset-ward1',
+      id: ruleSetUuid,
       wardId: ward1.id,
       name: 'Ward 1 Rules',
       active: true
@@ -244,9 +311,10 @@ export async function loadFixtures() {
   ];
 
   for (const rule of ruleData) {
+    const ruleUuid = randomUUID();
     await prisma.rule.upsert({
       where: {
-        id: `rule-${ruleSet.id}-${rule.key}`
+        id: ruleUuid
       },
       update: { 
         ruleSetId: ruleSet.id,
@@ -254,7 +322,7 @@ export async function loadFixtures() {
         value: rule.value 
       },
       create: {
-        id: `rule-${ruleSet.id}-${rule.key}`,
+        id: ruleUuid,
         ruleSetId: ruleSet.id,
         key: rule.key,
         value: rule.value
@@ -266,9 +334,12 @@ export async function loadFixtures() {
   console.log('  Creating policies...');
   
   // Org policy
+  const orgPolicyUuid = randomUUID();
+  idMap.set('policy-org-default', orgPolicyUuid);
+  
   await prisma.policy.upsert({
     where: {
-      id: 'policy-org-default'
+      id: orgPolicyUuid
     },
     update: {
       scope: 'ORG',
@@ -284,7 +355,7 @@ export async function loadFixtures() {
       isActive: policyOrg.isActive
     },
     create: {
-      id: 'policy-org-default',
+      id: orgPolicyUuid,
       scope: 'ORG',
       orgId: null,
       wardId: null,
@@ -300,57 +371,69 @@ export async function loadFixtures() {
   });
 
   // Ward policy
-  await prisma.policy.upsert({
-    where: {
-      id: 'policy-ward-ward1'
-    },
-    update: {
-      scope: 'WARD',
-      orgId: null,
-      wardId: policyWard1.wardId!,
-      scheduleId: null,
-      label: policyWard1.label,
-      weights: policyWard1.weights,
-      limits: policyWard1.limits,
-      toggles: policyWard1.toggles,
-      substitution: policyWard1.substitution,
-      timeBudgetMs: policyWard1.timeBudgetMs,
-      isActive: policyWard1.isActive
-    },
-    create: {
-      id: 'policy-ward-ward1',
-      scope: 'WARD',
-      orgId: null,
-      wardId: policyWard1.wardId!,
-      scheduleId: null,
-      label: policyWard1.label,
-      weights: policyWard1.weights,
-      limits: policyWard1.limits,
-      toggles: policyWard1.toggles,
-      substitution: policyWard1.substitution,
-      timeBudgetMs: policyWard1.timeBudgetMs,
-      isActive: policyWard1.isActive
-    },
-  });
+  const mappedPolicyWardId = idMap.get(policyWard1.wardId!);
+  if (mappedPolicyWardId) {
+    const wardPolicyUuid = randomUUID();
+    idMap.set('policy-ward-ward1', wardPolicyUuid);
+    
+    await prisma.policy.upsert({
+      where: {
+        id: wardPolicyUuid
+      },
+      update: {
+        scope: 'WARD',
+        orgId: null,
+        wardId: mappedPolicyWardId,
+        scheduleId: null,
+        label: policyWard1.label,
+        weights: policyWard1.weights,
+        limits: policyWard1.limits,
+        toggles: policyWard1.toggles,
+        substitution: policyWard1.substitution,
+        timeBudgetMs: policyWard1.timeBudgetMs,
+        isActive: policyWard1.isActive
+      },
+      create: {
+        id: wardPolicyUuid,
+        scope: 'WARD',
+        orgId: null,
+        wardId: mappedPolicyWardId,
+        scheduleId: null,
+        label: policyWard1.label,
+        weights: policyWard1.weights,
+        limits: policyWard1.limits,
+        toggles: policyWard1.toggles,
+        substitution: policyWard1.substitution,
+        timeBudgetMs: policyWard1.timeBudgetMs,
+        isActive: policyWard1.isActive
+      },
+    });
+  }
 
   // 9. Create demand
   console.log('  Creating demand...');
   for (const demandItem of demand) {
-    const demandId = `demand-${demandItem.wardId}-${demandItem.date}-${demandItem.slot}`;
+    const mappedWardId = idMap.get(demandItem.wardId);
+    if (!mappedWardId) {
+      console.warn(`Warning: No mapped ward ID found for ${demandItem.wardId}`);
+      continue;
+    }
+    
+    const demandUuid = randomUUID();
     await prisma.demand.upsert({
       where: {
-        id: demandId
+        id: demandUuid
       },
       update: {
-        wardId: demandItem.wardId,
+        wardId: mappedWardId,
         date: new Date(demandItem.date),
         granularity: 'shift',
         slot: demandItem.slot,
         requiredBySkill: demandItem.requirements
       },
       create: {
-        id: demandId,
-        wardId: demandItem.wardId,
+        id: demandUuid,
+        wardId: mappedWardId,
         date: new Date(demandItem.date),
         granularity: 'shift',
         slot: demandItem.slot,
@@ -362,8 +445,8 @@ export async function loadFixtures() {
   console.log('✅ Fixture loading completed!');
 }
 
-export async function printFixtureSummary() {
-  console.log('\n📊 FIXTURE SEED SUMMARY');
+async function printSummary() {
+  console.log('\n📊 SEED SUMMARY');
   console.log('============================================================');
   
   // Counts
@@ -384,10 +467,11 @@ export async function printFixtureSummary() {
   console.log(`📋 Policies: ${policyCount}`);
 
   // Check schedule and rules
-  const schedule = await prisma.schedule.findUnique({ 
-    where: { id: 'sched-ward1-14d' },
+  const mappedScheduleId = idMap.get('sched-ward1-14d');
+  const schedule = mappedScheduleId ? await prisma.schedule.findUnique({ 
+    where: { id: mappedScheduleId },
     include: { ward: true }
-  });
+  }) : null;
   
   if (schedule) {
     console.log(`✅ Schedule sched-ward1-14d exists (${schedule.ward.name})`);
@@ -448,3 +532,28 @@ export async function printFixtureSummary() {
 
   console.log('============================================================\n');
 }
+
+async function main() {
+  try {
+    console.log('🚀 Starting MediRota database seed...\n');
+    
+    // Always clear the database first
+    await clearDatabase();
+    
+    // Load fixture data
+    await loadFixtures();
+    
+    // Print summary
+    await printSummary();
+    
+    console.log('✅ Database seeding completed successfully!');
+    
+  } catch (error) {
+    console.error('❌ Error during seeding:', error);
+    process.exit(1);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+main();

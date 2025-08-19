@@ -62,6 +62,16 @@ export interface CreatePolicyData {
 
 export interface UpdatePolicyData extends Partial<CreatePolicyData> {}
 
+export interface PolicyAssignment {
+  id: string;
+  scope: 'WARD' | 'SCHEDULE';
+  entityId: string;
+  entityName: string;
+  policyId: string;
+  policyLabel: string;
+  isActive: boolean;
+}
+
 export interface EffectivePolicyParams {
   wardId?: string;
   scheduleId?: string;
@@ -139,6 +149,118 @@ class PolicyApi {
   }> => {
     const response = await this.api.post('/test', { policy: data });
     return response.data;
+  }
+
+  // Get all policy assignments (using existing policies endpoint)
+  getAssignments = async (): Promise<{
+    wardAssignments: PolicyAssignment[];
+    scheduleAssignments: PolicyAssignment[];
+  }> => {
+    const allPolicies = await this.getAllPolicies();
+    
+    const wardPolicies = allPolicies.filter(p => p.scope === 'WARD' && p.wardId);
+    const schedulePolicies = allPolicies.filter(p => p.scope === 'SCHEDULE' && p.scheduleId);
+
+    return {
+      wardAssignments: wardPolicies.map(policy => ({
+        id: policy.id,
+        scope: 'WARD' as const,
+        entityId: policy.wardId!,
+        entityName: `Ward ${policy.wardId}`, // Will be enhanced with real ward names
+        policyId: policy.id,
+        policyLabel: policy.label,
+        isActive: policy.isActive,
+      })),
+      scheduleAssignments: schedulePolicies.map(policy => ({
+        id: policy.id,
+        scope: 'SCHEDULE' as const,
+        entityId: policy.scheduleId!,
+        entityName: `Schedule ${policy.scheduleId}`, // Will be enhanced with real schedule names
+        policyId: policy.id,
+        policyLabel: policy.label,
+        isActive: policy.isActive,
+      })),
+    };
+  }
+
+  // Create policy assignments (by creating new policies with WARD/SCHEDULE scope)
+  createAssignments = async (data: {
+    policyId: string;
+    wardIds?: string[];
+    scheduleIds?: string[];
+  }): Promise<Policy[]> => {
+    // Get the base policy to copy its configuration
+    const basePolicy = await this.getPolicy(data.policyId);
+    
+    const createdPolicies = [];
+
+    // Create ward assignments
+    for (const wardId of data.wardIds || []) {
+      const wardPolicy = await this.createPolicy({
+        scope: 'WARD',
+        wardId,
+        scheduleId: undefined,
+        label: `${basePolicy.label} (Ward Assignment)`,
+        weights: basePolicy.weights,
+        limits: basePolicy.limits,
+        toggles: basePolicy.toggles,
+        substitution: basePolicy.substitution,
+        timeBudgetMs: basePolicy.timeBudgetMs,
+        isActive: true,
+      });
+      createdPolicies.push(wardPolicy);
+    }
+
+    // Create schedule assignments
+    for (const scheduleId of data.scheduleIds || []) {
+      const schedulePolicy = await this.createPolicy({
+        scope: 'SCHEDULE',
+        scheduleId,
+        wardId: undefined,
+        label: `${basePolicy.label} (Schedule Assignment)`,
+        weights: basePolicy.weights,
+        limits: basePolicy.limits,
+        toggles: basePolicy.toggles,
+        substitution: basePolicy.substitution,
+        timeBudgetMs: basePolicy.timeBudgetMs,
+        isActive: true,
+      });
+      createdPolicies.push(schedulePolicy);
+    }
+
+    return createdPolicies;
+  }
+
+  // Remove policy assignments (by deactivating the assignment policies)
+  removeAssignments = async (policyId: string, data: {
+    wardIds?: string[];
+    scheduleIds?: string[];
+  }): Promise<void> => {
+    const allPolicies = await this.getAllPolicies();
+    
+    // Find and deactivate ward assignment policies
+    for (const wardId of data.wardIds || []) {
+      const wardPolicy = allPolicies.find(p => 
+        p.scope === 'WARD' && 
+        p.wardId === wardId && 
+        p.label.includes('(Ward Assignment)')
+      );
+      if (wardPolicy) {
+        await this.deletePolicy(wardPolicy.id);
+      }
+    }
+
+    // Find and deactivate schedule assignment policies
+    for (const scheduleId of data.scheduleIds || []) {
+      const schedulePolicy = allPolicies.find(p => 
+        p.scope === 'SCHEDULE' && 
+        p.scheduleId === scheduleId && 
+        p.label.includes('(Schedule Assignment)')
+      );
+      if (schedulePolicy) {
+        await this.deletePolicy(schedulePolicy.id);
+      }
+    }
   }
 }
 

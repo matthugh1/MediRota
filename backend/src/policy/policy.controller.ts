@@ -18,6 +18,7 @@ import { CreatePolicyDto, UpdatePolicyDto } from './dto/index.js';
 import { PolicyEntity } from './entities/policy.entity.js';
 import { SolveService } from '../solve/solve.service.js';
 
+
 @ApiTags('Policy')
 @Controller('api/policy')
 export class PolicyController {
@@ -74,6 +75,8 @@ export class PolicyController {
   remove(@Param('id') id: string) {
     return this.policyService.remove(id);
   }
+
+
 
   @Post('test')
   @ApiOperation({ summary: 'Test policy with solver' })

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient, { PaginatedResponse } from './api';
 import { queryKeys, invalidateQueries } from './query';
 import { DateTime } from 'luxon';
+import axios from 'axios';
 
 // Types for API responses
 export interface Ward {
@@ -537,7 +538,31 @@ export const useUpdateDemand = () => {
 export const useSolveSchedule = () => {
   return useMutation({
     mutationFn: async (scheduleId: string) => {
-      const response = await apiClient.post('/solve', { scheduleId });
+      // Get the schedule to find the wardId
+      const scheduleResponse = await apiClient.get(`/schedules/${scheduleId}`);
+      const schedule = scheduleResponse.data;
+      
+      // Get the effective policy for this schedule
+      const policyParams = new URLSearchParams();
+      if (schedule.wardId) policyParams.append('wardId', schedule.wardId);
+      policyParams.append('scheduleId', scheduleId);
+      
+      const policyResponse = await apiClient.get(`/api/policy/effective?${policyParams.toString()}`);
+      const policy = policyResponse.data;
+      
+      // Calculate timeout: policy timeBudgetMs + 30 second buffer
+      const timeoutMs = (policy.timeBudgetMs || 60000) + 30000;
+      
+      // Create a custom axios instance with dynamic timeout
+      const solveApi = axios.create({
+        baseURL: apiClient.defaults.baseURL,
+        timeout: timeoutMs,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const response = await solveApi.post('/solve', { scheduleId });
       return response.data;
     },
     onSuccess: () => {
@@ -606,5 +631,20 @@ export const useApplyAlternative = () => {
     onSuccess: () => {
       invalidateQueries.schedules();
     },
+  });
+};
+
+export const useEffectivePolicy = (wardId?: string, scheduleId?: string) => {
+  return useQuery({
+    queryKey: queryKeys.policies.effective({ wardId, scheduleId }),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (wardId) params.append('wardId', wardId);
+      if (scheduleId) params.append('scheduleId', scheduleId);
+      
+      const response = await apiClient.get(`/api/policy/effective?${params.toString()}`);
+      return response.data;
+    },
+    enabled: !!(wardId || scheduleId),
   });
 };

@@ -49,6 +49,7 @@ const navGroups: NavGroup[] = [
       { id: 'shift-types', label: 'Shift Types', icon: Clock, href: '/planner/config/shift-types' },
       { id: 'rule-sets', label: 'Rule Sets', icon: FileText, href: '/planner/config/rule-sets' },
       { id: 'policy', label: 'Policy', icon: Shield, href: '/planner/config/policy' },
+      { id: 'policy-assignments', label: 'Policy Assignments', icon: Shield, href: '/planner/config/policy/assignments' },
     ]
   },
   {

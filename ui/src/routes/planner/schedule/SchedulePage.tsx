@@ -6,6 +6,7 @@ import { ActionsBar } from './components/ActionsBar';
 import { MetricsPanel } from './components/MetricsPanel';
 import { CreateScheduleForm } from './components/CreateScheduleForm';
 import { ExplainDrawer } from './components/ExplainDrawer';
+import EffectivePolicyDisplay from './components/EffectivePolicyDisplay';
 import { 
   useWards, 
   useStaff, 
@@ -341,6 +342,14 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
         error={error}
         onClearError={handleClearError}
       />
+
+      {/* Effective Policy Display */}
+      {selectedScheduleId && scheduleData?.wardId && (
+        <EffectivePolicyDisplay
+          wardId={scheduleData.wardId}
+          scheduleId={selectedScheduleId}
+        />
+      )}
 
       {/* Metrics Panel */}
       <MetricsPanel

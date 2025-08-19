@@ -19,6 +19,8 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { policyApi } from '../../../lib/api/policy';
 import { queryKeys, invalidateQueries } from '../../../lib/query';
+import { useWards } from '../../../lib/hooks';
+import { useSchedules } from '../../../lib/hooks';
 
 // Zod schema for policy validation
 const policySchema = z.object({
@@ -55,6 +57,11 @@ interface PolicyEditorProps {
 
 const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
   const [activeTab, setActiveTab] = useState('presets');
+  const [showAssignmentSection, setShowAssignmentSection] = useState(false);
+  
+  // Fetch data for assignments
+  const { data: wardsData } = useWards();
+  const { data: schedulesData } = useSchedules();
   const [testResults, setTestResults] = useState<any>(null);
   const [isTesting, setIsTesting] = useState(false);
   const queryClient = useQueryClient();
@@ -131,7 +138,30 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
   };
 
   const createPolicyMutation = useMutation({
-    mutationFn: policyApi.createPolicy,
+    mutationFn: async (data: PolicyFormData) => {
+      const policy = await policyApi.createPolicy(data);
+      
+      // If assignment section is open and has selections, create assignments
+      if (showAssignmentSection) {
+        const selectedWards = Array.from(document.querySelectorAll('input[type="checkbox"][data-ward-id]:checked'))
+          .map(el => (el as HTMLInputElement).dataset.wardId!)
+          .filter(Boolean);
+        
+        const selectedSchedules = Array.from(document.querySelectorAll('input[type="checkbox"][data-schedule-id]:checked'))
+          .map(el => (el as HTMLInputElement).dataset.scheduleId!)
+          .filter(Boolean);
+        
+        if (selectedWards.length > 0 || selectedSchedules.length > 0) {
+          await policyApi.createAssignments({
+            policyId: policy.id,
+            wardIds: selectedWards.length > 0 ? selectedWards : undefined,
+            scheduleIds: selectedSchedules.length > 0 ? selectedSchedules : undefined,
+          });
+        }
+      }
+      
+      return policy;
+    },
     onSuccess: () => {
       invalidateQueries.policies();
       // Navigate back to list
@@ -574,18 +604,21 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                   {watchedScope === 'WARD' && (
                     <div>
                       <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Ward ID
+                        Ward
                       </label>
                       <Controller
                         name="wardId"
                         control={control}
                         render={({ field }) => (
-                          <input
-                            type="text"
+                          <select
                             {...field}
                             className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder="Enter ward ID"
-                          />
+                          >
+                            <option value="">Select a ward</option>
+                            {wardsData?.data?.map(ward => (
+                              <option key={ward.id} value={ward.id}>{ward.name}</option>
+                            ))}
+                          </select>
                         )}
                       />
                     </div>
@@ -594,18 +627,23 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                   {watchedScope === 'SCHEDULE' && (
                     <div>
                       <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Schedule ID
+                        Schedule
                       </label>
                       <Controller
                         name="scheduleId"
                         control={control}
                         render={({ field }) => (
-                          <input
-                            type="text"
+                          <select
                             {...field}
                             className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder="Enter schedule ID"
-                          />
+                          >
+                            <option value="">Select a schedule</option>
+                            {schedulesData?.data?.map(schedule => (
+                              <option key={schedule.id} value={schedule.id}>
+                                {schedule.ward?.name} - {schedule.objective}
+                              </option>
+                            ))}
+                          </select>
                         )}
                       />
                     </div>
@@ -705,6 +743,86 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
           </form>
         </div>
       </div>
+
+      {/* Policy Assignment Section */}
+      {!policyId && (
+        <div className="mt-8 bg-white rounded-lg border border-neutral-200">
+          <div className="px-6 py-4 border-b border-neutral-200">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-neutral-900">Policy Assignment</h2>
+              <button
+                type="button"
+                onClick={() => setShowAssignmentSection(!showAssignmentSection)}
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              >
+                {showAssignmentSection ? 'Hide' : 'Show'} Assignment Options
+              </button>
+            </div>
+            <p className="text-sm text-neutral-600 mt-1">
+              Assign this policy to specific wards or schedules after creation
+            </p>
+          </div>
+
+          {showAssignmentSection && (
+            <div className="p-6 space-y-6">
+              {/* Ward Assignment */}
+              <div>
+                <h3 className="text-md font-medium text-neutral-900 mb-3">Assign to Wards</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {wardsData?.data?.map(ward => (
+                    <label key={ward.id} className="flex items-center space-x-3 p-3 border border-neutral-200 rounded-lg hover:bg-neutral-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        data-ward-id={ward.id}
+                        className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-neutral-900">{ward.name}</div>
+                        <div className="text-xs text-neutral-500">{ward.id}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Schedule Assignment */}
+              <div>
+                <h3 className="text-md font-medium text-neutral-900 mb-3">Assign to Schedules</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {schedulesData?.data?.map(schedule => (
+                    <label key={schedule.id} className="flex items-center space-x-3 p-3 border border-neutral-200 rounded-lg hover:bg-neutral-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        data-schedule-id={schedule.id}
+                        className="rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-neutral-900">
+                          {schedule.ward?.name} - {schedule.objective}
+                        </div>
+                        <div className="text-xs text-neutral-500">{schedule.id}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
+                <p className="text-sm text-neutral-600">
+                  Selected assignments will be created when you save this policy
+                </p>
+                <button
+                  type="button"
+                  className="text-sm text-neutral-600 hover:text-neutral-700"
+                  onClick={() => setShowAssignmentSection(false)}
+                >
+                  Hide Assignment Options
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

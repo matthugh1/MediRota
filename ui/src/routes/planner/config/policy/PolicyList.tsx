@@ -108,15 +108,26 @@ const PolicyList: React.FC = () => {
             Manage solver policies for different scopes and configurations
           </p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus-ring transition-colors duration-200"
-          onClick={() => window.location.href = '/planner/config/policy/new'}
-        >
-          <Plus className="w-4 h-4" />
-          <span>New Policy</span>
-        </motion.button>
+        <div className="flex items-center space-x-3">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center space-x-2 px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 focus-ring transition-colors duration-200"
+            onClick={() => window.location.href = '/planner/config/policy/assignments'}
+          >
+            <Shield className="w-4 h-4" />
+            <span>Assignments</span>
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus-ring transition-colors duration-200"
+            onClick={() => window.location.href = '/planner/config/policy/new'}
+          >
+            <Plus className="w-4 h-4" />
+            <span>New Policy</span>
+          </motion.button>
+        </div>
       </div>
 
       {/* Filters */}
