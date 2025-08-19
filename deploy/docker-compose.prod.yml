@@ -31,7 +31,7 @@ services:
       - .env.production
     environment:
       DATABASE_URL: postgresql://medirota_user:${POSTGRES_PASSWORD}@postgres:5432/medirota
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV}
       PORT: 3000
       SOLVER_URL: http://solver:8000
       JWT_SECRET: ${JWT_SECRET}
