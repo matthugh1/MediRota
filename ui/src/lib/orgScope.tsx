@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { ORG_HIERARCHY_ENABLED } from './flags.js';
 
 interface OrgScope {
@@ -22,19 +22,7 @@ const STORAGE_KEY = 'rota-org-scope';
 
 export function OrgScopeProvider({ children }: { children: ReactNode }) {
   const [scope, setScope] = useState<OrgScope>({});
-
-  // Test localStorage on mount
-  useEffect(() => {
-    console.log('OrgScopeProvider mounted, testing localStorage...');
-    try {
-      localStorage.setItem('test-key', 'test-value');
-      const testValue = localStorage.getItem('test-key');
-      console.log('localStorage test:', testValue);
-      localStorage.removeItem('test-key');
-    } catch (error) {
-      console.error('localStorage test failed:', error);
-    }
-  }, []);
+  const hasLoadedInitialData = useRef(false);
 
   // Load scope from localStorage on mount
   useEffect(() => {
@@ -51,15 +39,36 @@ export function OrgScopeProvider({ children }: { children: ReactNode }) {
         console.log('Parsed org scope:', parsed);
         setScope(parsed);
       }
+      hasLoadedInitialData.current = true;
     } catch (error) {
       console.warn('Failed to load org scope from localStorage:', error);
+      hasLoadedInitialData.current = true;
     }
   }, []);
 
-  // Save scope to localStorage when it changes
+  // Test localStorage on mount
+  useEffect(() => {
+    console.log('OrgScopeProvider mounted, testing localStorage...');
+    try {
+      localStorage.setItem('test-key', 'test-value');
+      const testValue = localStorage.getItem('test-key');
+      console.log('localStorage test:', testValue);
+      localStorage.removeItem('test-key');
+    } catch (error) {
+      console.error('localStorage test failed:', error);
+    }
+  }, []);
+
+  // Save scope to localStorage when it changes (but not on initial load)
   useEffect(() => {
     if (!ORG_HIERARCHY_ENABLED) {
       console.log('Org hierarchy disabled, not saving scope');
+      return;
+    }
+    
+    // Skip saving until we've loaded initial data
+    if (!hasLoadedInitialData.current) {
+      console.log('Skipping save - initial data not loaded yet');
       return;
     }
     
