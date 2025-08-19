@@ -4,7 +4,7 @@ export class CreateHospitalDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(120)
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsUUID('4')
