@@ -26,15 +26,8 @@ export function ScopeDropdown() {
     const loadTrusts = async () => {
       try {
         setLoading(true);
-        // TODO: Replace with actual API endpoint when implemented
-        // const response = await apiClient.get('/trusts');
-        // setTrusts(response.data);
-        
-        // Mock data for now
-        setTrusts([
-          { id: 'trust-1', name: 'NHS Trust A' },
-          { id: 'trust-2', name: 'NHS Trust B' },
-        ]);
+        const response = await apiClient.get('/trusts');
+        setTrusts(response.data);
       } catch (error) {
         console.error('Failed to load trusts:', error);
       } finally {
@@ -55,15 +48,8 @@ export function ScopeDropdown() {
     const loadHospitals = async () => {
       try {
         setLoading(true);
-        // TODO: Replace with actual API endpoint when implemented
-        // const response = await apiClient.get(`/hospitals?trustId=${scope.trustId}`);
-        // setHospitals(response.data);
-        
-        // Mock data for now
-        setHospitals([
-          { id: 'hospital-1', name: 'General Hospital', trustId: scope.trustId },
-          { id: 'hospital-2', name: 'Specialist Hospital', trustId: scope.trustId },
-        ]);
+        const response = await apiClient.get(`/hospitals?trustId=${scope.trustId}`);
+        setHospitals(response.data);
       } catch (error) {
         console.error('Failed to load hospitals:', error);
       } finally {

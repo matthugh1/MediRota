@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { HealthModule } from './health/health.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { TrustsModule } from './trusts/trusts.module.js';
+import { HospitalsModule } from './hospitals/hospitals.module.js';
 import { WardsModule } from './wards/wards.module.js';
 import { SkillsModule } from './skills/skills.module.js';
 import { StaffModule } from './staff/staff.module.js';
@@ -22,6 +24,8 @@ import { PolicyModule } from './policy/policy.module.js';
 		}),
 		PrismaModule,
 		HealthModule,
+		TrustsModule,
+		HospitalsModule,
 		WardsModule,
 		SkillsModule,
 		StaffModule,
