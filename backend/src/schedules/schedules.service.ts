@@ -131,12 +131,5 @@ export class SchedulesService {
 		});
 	}
 
-	async updateMetrics(id: string, metrics: any) {
-		await this.findOne(id); // Verify schedule exists
-
-		return this.prisma.schedule.update({
-			where: { id },
-			data: { metrics },
-		});
-	}
+	// updateMetrics method removed - metrics field no longer exists in schema
 }

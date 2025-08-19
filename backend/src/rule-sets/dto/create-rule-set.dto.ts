@@ -3,9 +3,9 @@ import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateRuleDto {
-	@ApiProperty({ description: 'Rule key' })
+	@ApiProperty({ description: 'Rule type' })
 	@IsString()
-	key!: string;
+	type!: string;
 
 	@ApiProperty({ description: 'Rule value' })
 	@IsString()

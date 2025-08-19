@@ -280,12 +280,12 @@ export class SolveService {
 		// Override with actual rules from database
 		for (const ruleSet of ruleSets) {
 			for (const rule of ruleSet.rules) {
-				switch (rule.key) {
+				switch (rule.type) {
 					case 'minRestHours':
-						rules.minRestHours = parseInt(rule.value);
+						rules.minRestHours = parseInt(rule.value as string);
 						break;
 					case 'maxConsecutiveNights':
-						rules.maxConsecutiveNights = parseInt(rule.value);
+						rules.maxConsecutiveNights = parseInt(rule.value as string);
 						break;
 					case 'oneShiftPerDay':
 						rules.oneShiftPerDay = rule.value === 'true';

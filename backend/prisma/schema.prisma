@@ -48,7 +48,7 @@ model Staff {
 	contractHoursPerWeek  Float
 	active                Boolean @default(true)
 
-	// NEW
+	// Relations
 	jobId String @db.Uuid
 	job   Job    @relation(fields: [jobId], references: [id])
 
@@ -102,36 +102,44 @@ model RuleSet {
 	name      String
 	active    Boolean  @default(false)
 	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
 
+	// Rules
+	minRestHours         Int  @default(11)
+	maxConsecutiveNights Int  @default(3)
+	oneShiftPerDay       Boolean @default(true)
+
+	// Relations
 	rules Rule[]
 }
 
 model Rule {
-	id         String  @id @default(uuid()) @db.Uuid
-	ruleSetId  String  @db.Uuid
-	ruleSet    RuleSet @relation(fields: [ruleSetId], references: [id])
-	key        String
-	value      String
-
-	@@index([ruleSetId, key])
+	id        String   @id @default(uuid()) @db.Uuid
+	ruleSetId String   @db.Uuid
+	ruleSet   RuleSet  @relation(fields: [ruleSetId], references: [id])
+	type      String
+	value     Json
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
 }
 
 model Schedule {
-	id            String          @id @default(uuid()) @db.Uuid
-	wardId        String          @db.Uuid
-	ward          Ward            @relation(fields: [wardId], references: [id])
-	horizonStart  DateTime
-	horizonEnd    DateTime
-	status        ScheduleStatus  @default(draft)
-	objective     String?
-	metrics       Json?
-	createdAt     DateTime        @default(now())
+	id           String         @id @default(uuid()) @db.Uuid
+	wardId       String         @db.Uuid
+	ward         Ward           @relation(fields: [wardId], references: [id])
+	horizonStart DateTime
+	horizonEnd   DateTime
+	objective    String?
+	status       ScheduleStatus @default(draft)
+	createdAt    DateTime       @default(now())
+	updatedAt    DateTime       @updatedAt
 
+	// Relations
 	assignments Assignment[]
 	events      Event[]
+	locks       Lock[]
 
-	@@index([wardId])
-	@@unique([wardId, status], name: "unique_published_schedule_per_ward")
+	@@unique([wardId, status])
 }
 
 enum ScheduleStatus {
@@ -140,18 +148,19 @@ enum ScheduleStatus {
 }
 
 model Assignment {
-	id           String    @id @default(uuid()) @db.Uuid
-	scheduleId   String    @db.Uuid
-	schedule     Schedule  @relation(fields: [scheduleId], references: [id])
-	staffId      String    @db.Uuid
-	staff        Staff     @relation(fields: [staffId], references: [id])
-	wardId       String    @db.Uuid
-	ward         Ward      @relation(fields: [wardId], references: [id])
+	id           String     @id @default(uuid()) @db.Uuid
+	scheduleId   String     @db.Uuid
+	schedule     Schedule   @relation(fields: [scheduleId], references: [id])
+	wardId       String     @db.Uuid
+	ward         Ward       @relation(fields: [wardId], references: [id])
+	staffId      String     @db.Uuid
+	staff        Staff      @relation(fields: [staffId], references: [id])
+	shiftTypeId  String     @db.Uuid
+	shiftType    ShiftType  @relation(fields: [shiftTypeId], references: [id])
 	date         DateTime
 	slot         String
-	shiftTypeId  String    @db.Uuid
-	shiftType    ShiftType @relation(fields: [shiftTypeId], references: [id])
-	createdAt    DateTime  @default(now())
+	createdAt    DateTime   @default(now())
+	updatedAt    DateTime   @updatedAt
 
 	@@index([scheduleId])
 	@@index([wardId, date, slot])
@@ -160,6 +169,7 @@ model Assignment {
 model Lock {
 	id         String   @id @default(uuid()) @db.Uuid
 	scheduleId String   @db.Uuid
+	schedule   Schedule @relation(fields: [scheduleId], references: [id])
 	staffId    String   @db.Uuid
 	wardId     String   @db.Uuid
 	date       DateTime
@@ -169,51 +179,39 @@ model Lock {
 }
 
 model Preference {
-	id         String  @id @default(uuid()) @db.Uuid
-	staffId    String  @db.Uuid
-	staff      Staff   @relation(fields: [staffId], references: [id])
-	date       DateTime
-	preferOff  Boolean?
-	preferOn   Boolean?
+	id        String   @id @default(uuid()) @db.Uuid
+	staffId   String   @db.Uuid
+	staff     Staff    @relation(fields: [staffId], references: [id])
+	date      DateTime
+	preferOff Boolean?
+	preferOn  Boolean?
 }
 
 model Event {
-	id         String    @id @default(uuid()) @db.Uuid
-	scheduleId String    @db.Uuid
-	schedule   Schedule  @relation(fields: [scheduleId], references: [id])
+	id         String   @id @default(uuid()) @db.Uuid
+	scheduleId String   @db.Uuid
+	schedule   Schedule @relation(fields: [scheduleId], references: [id])
 	type       String
 	payload    Json
-	createdAt  DateTime  @default(now())
+	createdAt  DateTime @default(now())
 }
 
 model Policy {
-	id              String      @id @default(uuid()) @db.Uuid
-	scope           PolicyScope
-	orgId           String?     // future multi-org, keep nullable for now
-	wardId          String?     @db.VarChar(64)
-	scheduleId      String?     @db.VarChar(64)
+	id           String @id @default(uuid()) @db.Uuid
+	scope        String
+	orgId        String?
+	wardId       String?
+	scheduleId   String?
+	weights      Json
+	limits       Json
+	toggles      Json
+	substitution Json
+	timeBudgetMs Int
+	label        String
+	isActive     Boolean @default(true)
+	createdAt    DateTime @default(now())
+	updatedAt    DateTime @updatedAt
 
-	// Core config blobs (JSONB)
-	weights         Json        // {unmet:int, overtime:int, fairness:int, prefs:int, substitutes:int, flex:int}
-	limits          Json        // {maxOvertimePerWeekMinutes:int, maxFlexShiftsPerWeek:int}
-	toggles         Json        // {enableWardFlex:bool, enableSubstitution:bool}
-	substitution    Json        // {"MRI":["MRI","DoctorMRI"], "XRay":["XRay","DoctorXRay"], ...}
-
-	timeBudgetMs    Int         // default 60000
-	label           String      @db.VarChar(100)
-	isActive        Boolean     @default(true)
-
-	createdAt       DateTime    @default(now())
-	updatedAt       DateTime    @updatedAt
-
-	@@index([scope, wardId, scheduleId, isActive])
-	@@index([orgId])
-	@@unique([scope, orgId, wardId, scheduleId], name: "unique_policy_scope")
-}
-
-enum PolicyScope {
-	ORG
-	WARD
-	SCHEDULE
+	@@unique([scope, orgId, wardId, scheduleId])
 }
 

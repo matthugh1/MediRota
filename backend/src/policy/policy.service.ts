@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreatePolicyDto, UpdatePolicyDto } from './dto/index.js';
-import { Policy, PolicyScope } from '@prisma/client';
+import { Policy } from '@prisma/client';
 
 @Injectable()
 export class PolicyService {
@@ -82,7 +82,7 @@ export class PolicyService {
     if (args.scheduleId) {
       policy = await this.prisma.policy.findFirst({
         where: {
-          scope: PolicyScope.SCHEDULE,
+          scope: 'SCHEDULE',
           scheduleId: args.scheduleId,
           isActive: true,
         },
@@ -94,7 +94,7 @@ export class PolicyService {
     if (!policy && args.wardId) {
       policy = await this.prisma.policy.findFirst({
         where: {
-          scope: PolicyScope.WARD,
+          scope: 'WARD',
           wardId: args.wardId,
           isActive: true,
         },
@@ -106,7 +106,7 @@ export class PolicyService {
     if (!policy) {
       policy = await this.prisma.policy.findFirst({
         where: {
-          scope: PolicyScope.ORG,
+          scope: 'ORG',
           isActive: true,
         },
         orderBy: { createdAt: 'desc' }
@@ -126,7 +126,7 @@ export class PolicyService {
   private getDefaultPolicy(): Policy {
     return {
       id: 'default',
-      scope: PolicyScope.ORG,
+      scope: 'ORG',
       orgId: null,
       wardId: null,
       scheduleId: null,
