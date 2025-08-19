@@ -78,6 +78,11 @@ export interface SolverRequest {
 		enableSubstitution: boolean;
 	};
 	substitution?: Record<string, string[]>;
+	// Organisational context (optional)
+	orgContext?: {
+		trustId?: string;
+		hospitalId?: string;
+	};
 }
 
 export interface SolverResponse {

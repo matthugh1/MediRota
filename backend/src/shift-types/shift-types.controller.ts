@@ -9,7 +9,7 @@ import {
 	Query,
 	UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { ShiftTypesService } from './shift-types.service.js';
 import { CreateShiftTypeDto } from './dto/create-shift-type.dto.js';
 import { UpdateShiftTypeDto } from './dto/update-shift-type.dto.js';
@@ -42,6 +42,16 @@ export class ShiftTypesController {
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
 	findAll(@Query() paginationDto: PaginationDto, @Query() queryDto: QueryShiftTypeDto) {
 		return this.shiftTypesService.findAll(paginationDto, queryDto);
+	}
+
+	@Get('effective')
+	@Roles(Role.ADMIN, Role.PLANNER)
+	@ApiOperation({ summary: 'Get effective shift types for given scope' })
+	@ApiQuery({ name: 'wardId', required: false, description: 'Ward ID for WARD scope' })
+	@ApiResponse({ status: 200, description: 'Effective shift types' })
+	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
+	getEffective(@Query('wardId') wardId?: string) {
+		return this.shiftTypesService.getEffectiveShiftTypes(wardId);
 	}
 
 	@Get(':id')

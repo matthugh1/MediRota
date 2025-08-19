@@ -89,4 +89,73 @@ export class ShiftTypesService {
 			where: { id },
 		});
 	}
+
+	async getEffectiveShiftTypes(wardId?: string) {
+		// If hierarchy is disabled, return current single-source values
+		if (!this.orgCompatService.isHierarchyEnabled()) {
+			return this.prisma.shiftType.findMany({
+				orderBy: { code: 'asc' }
+			});
+		}
+
+		// Resolve organisational context
+		const orgContext = wardId ? 
+			await this.orgCompatService.resolveOrgContext({ wardIds: [wardId] }) : 
+			{};
+
+		let shiftTypes: any[] = [];
+
+		// 1. Try WARD level (highest precedence)
+		if (wardId) {
+			shiftTypes = await this.prisma.shiftType.findMany({
+				where: {
+					scope: 'WARD',
+					wardId,
+				},
+				orderBy: { code: 'asc' }
+			});
+		}
+
+		// 2. Try HOSPITAL level (medium precedence)
+		if (shiftTypes.length === 0 && orgContext.hospitalId) {
+			shiftTypes = await this.prisma.shiftType.findMany({
+				where: {
+					scope: 'HOSPITAL',
+					hospitalId: orgContext.hospitalId,
+				},
+				orderBy: { code: 'asc' }
+			});
+		}
+
+		// 3. Try TRUST level (lowest precedence)
+		if (shiftTypes.length === 0 && orgContext.trustId) {
+			shiftTypes = await this.prisma.shiftType.findMany({
+				where: {
+					scope: 'TRUST',
+					trustId: orgContext.trustId,
+				},
+				orderBy: { code: 'asc' }
+			});
+		}
+
+		// 4. Fallback to all shift types if no scoped ones found
+		if (shiftTypes.length === 0) {
+			shiftTypes = await this.prisma.shiftType.findMany({
+				orderBy: { code: 'asc' }
+			});
+		}
+
+		// De-duplicate by code and add origin information
+		const uniqueShiftTypes = new Map();
+		shiftTypes.forEach(shiftType => {
+			if (!uniqueShiftTypes.has(shiftType.code)) {
+				uniqueShiftTypes.set(shiftType.code, {
+					...shiftType,
+					origin: shiftType.scope || 'GLOBAL'
+				});
+			}
+		});
+
+		return Array.from(uniqueShiftTypes.values());
+	}
 }
