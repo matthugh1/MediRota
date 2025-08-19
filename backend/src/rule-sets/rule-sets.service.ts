@@ -165,6 +165,7 @@ export class RuleSetsService {
 	async getEffectiveRuleSets(wardId?: string) {
 		// For now, return empty array to avoid any database issues
 		// This can be enhanced later when we have proper data
+		// Also handles invalid UUIDs gracefully
 		return [];
 	}
 }
