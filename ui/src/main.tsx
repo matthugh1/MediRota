@@ -11,6 +11,8 @@ import './styles.css';
 // Import route components
 import PlannerLayout from './routes/planner/layout/PlannerLayout';
 import PlannerDashboard from './routes/planner/index';
+import TrustsPage from './routes/planner/config/TrustsPage';
+import HospitalsPage from './routes/planner/config/HospitalsPage';
 import WardsPage from './routes/planner/config/WardsPage';
 import SkillsPage from './routes/planner/config/SkillsPage';
 import ShiftTypesPage from './routes/planner/config/ShiftTypesPage';
@@ -40,6 +42,8 @@ function App() {
 								<Route index element={<PlannerDashboard />} />
 								
 								{/* Config routes */}
+								<Route path="config/trusts" element={<TrustsPage />} />
+								<Route path="config/hospitals" element={<HospitalsPage />} />
 								<Route path="config/wards" element={<WardsPage />} />
 								<Route path="config/skills" element={<SkillsPage />} />
 								<Route path="config/shift-types" element={<ShiftTypesPage />} />

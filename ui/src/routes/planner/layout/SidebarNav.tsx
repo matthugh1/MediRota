@@ -40,6 +40,14 @@ interface NavGroup {
 
 const navGroups: NavGroup[] = [
   {
+    id: 'account',
+    label: 'Account',
+    items: [
+      { id: 'trusts', label: 'Trusts', icon: Building2, href: '/planner/config/trusts' },
+      { id: 'hospitals', label: 'Hospitals', icon: Building2, href: '/planner/config/hospitals' },
+    ]
+  },
+  {
     id: 'configure',
     label: 'Configure',
     items: [
