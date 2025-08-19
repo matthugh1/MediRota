@@ -21,30 +21,28 @@ const OrgScopeContext = createContext<OrgScopeContextType | undefined>(undefined
 const STORAGE_KEY = 'rota-org-scope';
 
 export function OrgScopeProvider({ children }: { children: ReactNode }) {
-  const [scope, setScope] = useState<OrgScope>({});
-  const hasLoadedInitialData = useRef(false);
-
-  // Load scope from localStorage on mount
-  useEffect(() => {
+  const [scope, setScope] = useState<OrgScope>(() => {
+    // Initialize state from localStorage during component creation
+    // This runs only once during the initial render, not on re-renders
     if (!ORG_HIERARCHY_ENABLED) {
-      console.log('Org hierarchy disabled, not loading scope');
-      return;
+      console.log('Org hierarchy disabled, initializing empty scope');
+      return {};
     }
     
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      console.log('Loading org scope from localStorage:', stored);
+      console.log('Initializing scope from localStorage:', stored);
       if (stored) {
         const parsed = JSON.parse(stored);
-        console.log('Parsed org scope:', parsed);
-        setScope(parsed);
+        console.log('Initialized scope:', parsed);
+        return parsed;
       }
-      hasLoadedInitialData.current = true;
     } catch (error) {
-      console.warn('Failed to load org scope from localStorage:', error);
-      hasLoadedInitialData.current = true;
+      console.warn('Failed to initialize scope from localStorage:', error);
     }
-  }, []);
+    
+    return {};
+  });
 
   // Test localStorage on mount
   useEffect(() => {
@@ -59,16 +57,16 @@ export function OrgScopeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Save scope to localStorage when it changes (but not on initial load)
+  // Save scope to localStorage when it changes
   useEffect(() => {
     if (!ORG_HIERARCHY_ENABLED) {
       console.log('Org hierarchy disabled, not saving scope');
       return;
     }
     
-    // Skip saving until we've loaded initial data
-    if (!hasLoadedInitialData.current) {
-      console.log('Skipping save - initial data not loaded yet');
+    // Don't save if scope is empty (initial state)
+    if (Object.keys(scope).length === 0) {
+      console.log('Skipping save - scope is empty');
       return;
     }
     
