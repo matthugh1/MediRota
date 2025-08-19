@@ -25,12 +25,17 @@ export function OrgScopeProvider({ children }: { children: ReactNode }) {
 
   // Load scope from localStorage on mount
   useEffect(() => {
-    if (!ORG_HIERARCHY_ENABLED) return;
+    if (!ORG_HIERARCHY_ENABLED) {
+      console.log('Org hierarchy disabled, not loading scope');
+      return;
+    }
     
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
+      console.log('Loading org scope from localStorage:', stored);
       if (stored) {
         const parsed = JSON.parse(stored);
+        console.log('Parsed org scope:', parsed);
         setScope(parsed);
       }
     } catch (error) {
@@ -40,9 +45,13 @@ export function OrgScopeProvider({ children }: { children: ReactNode }) {
 
   // Save scope to localStorage when it changes
   useEffect(() => {
-    if (!ORG_HIERARCHY_ENABLED) return;
+    if (!ORG_HIERARCHY_ENABLED) {
+      console.log('Org hierarchy disabled, not saving scope');
+      return;
+    }
     
     try {
+      console.log('Saving org scope to localStorage:', scope);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(scope));
     } catch (error) {
       console.warn('Failed to save org scope to localStorage:', error);
