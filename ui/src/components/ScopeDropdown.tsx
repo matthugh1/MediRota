@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useOrgScope } from '../lib/orgScope.js';
-import { apiClient } from '../lib/api.js';
+import api from '../lib/api.js';
 
 interface Trust {
   id: string;
@@ -26,7 +26,7 @@ export function ScopeDropdown() {
     const loadTrusts = async () => {
       try {
         setLoading(true);
-        const response = await apiClient.get('/trusts');
+        const response = await api.get('/trusts');
         setTrusts(response.data);
       } catch (error) {
         console.error('Failed to load trusts:', error);
@@ -48,7 +48,7 @@ export function ScopeDropdown() {
     const loadHospitals = async () => {
       try {
         setLoading(true);
-        const response = await apiClient.get(`/hospitals?trustId=${scope.trustId}`);
+        const response = await api.get(`/hospitals?trustId=${scope.trustId}`);
         setHospitals(response.data);
       } catch (error) {
         console.error('Failed to load hospitals:', error);

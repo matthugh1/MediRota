@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useOrgScope } from '../lib/orgScope.js';
-import apiClient from '../lib/api.js';
+import api from '../lib/api.js';
 
 interface EffectivePolicy {
   id: string;
@@ -43,7 +43,7 @@ export function EffectiveConfigPanel() {
         
         // Load effective policy
         try {
-          const policyResponse = await apiClient.get('/api/policy/effective?wardId=test');
+          const policyResponse = await api.get('/api/policy/effective?wardId=test');
           setPolicy(policyResponse.data);
         } catch (error) {
           console.warn('Failed to load effective policy:', error);
@@ -51,7 +51,7 @@ export function EffectiveConfigPanel() {
 
         // Load effective rule sets
         try {
-          const ruleSetsResponse = await apiClient.get('/rule-sets/effective?wardId=test');
+          const ruleSetsResponse = await api.get('/rule-sets/effective?wardId=test');
           setRuleSets(ruleSetsResponse.data);
         } catch (error) {
           console.warn('Failed to load effective rule sets:', error);
@@ -59,7 +59,7 @@ export function EffectiveConfigPanel() {
 
         // Load effective shift types
         try {
-          const shiftTypesResponse = await apiClient.get('/shift-types/effective?wardId=test');
+          const shiftTypesResponse = await api.get('/shift-types/effective?wardId=test');
           setShiftTypes(shiftTypesResponse.data);
         } catch (error) {
           console.warn('Failed to load effective shift types:', error);
