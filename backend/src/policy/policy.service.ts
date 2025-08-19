@@ -3,17 +3,13 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreatePolicyDto, UpdatePolicyDto } from './dto/index.js';
 import { Policy } from '@prisma/client';
 import { SCOPE_LEVELS } from '../common/constants.js';
-import { OrgCompatService } from '../common/org-compat.service.js';
 
 @Injectable()
 export class PolicyService {
   private readonly logger = new Logger(PolicyService.name);
   private policyCache = new Map<string, Policy>();
 
-  constructor(
-    private prisma: PrismaService,
-    private orgCompatService: OrgCompatService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async create(createPolicyDto: CreatePolicyDto): Promise<Policy> {
     this.logger.log(`Creating policy: ${createPolicyDto.label}`);
@@ -85,11 +81,6 @@ export class PolicyService {
 
     let policy: Policy | null = null;
 
-    // Resolve organisational context if hierarchy is enabled
-    const orgContext = args.wardId ? 
-      await this.orgCompatService.resolveOrgContext({ wardIds: [args.wardId] }) : 
-      {};
-
     // 1. Try SCHEDULE level (highest precedence)
     if (args.scheduleId) {
       policy = await this.prisma.policy.findFirst({
@@ -114,31 +105,7 @@ export class PolicyService {
       });
     }
 
-    // 3. Try HOSPITAL level (if hierarchy enabled)
-    if (!policy && this.orgCompatService.isHierarchyEnabled() && orgContext.hospitalId) {
-      policy = await this.prisma.policy.findFirst({
-        where: {
-          scope: SCOPE_LEVELS.HOSPITAL,
-          hospitalId: orgContext.hospitalId,
-          isActive: true,
-        },
-        orderBy: { createdAt: 'desc' }
-      });
-    }
-
-    // 4. Fall back to TRUST level (lowest precedence)
-    if (!policy && this.orgCompatService.isHierarchyEnabled() && orgContext.trustId) {
-      policy = await this.prisma.policy.findFirst({
-        where: {
-          scope: SCOPE_LEVELS.TRUST,
-          trustId: orgContext.trustId,
-          isActive: true,
-        },
-        orderBy: { createdAt: 'desc' }
-      });
-    }
-
-    // 5. Legacy fallback to any TRUST level policy
+    // 3. Fall back to ORG level (lowest precedence)
     if (!policy) {
       policy = await this.prisma.policy.findFirst({
         where: {

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsUUID } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class QueryLocksDto {
@@ -6,9 +6,4 @@ export class QueryLocksDto {
   @IsOptional()
   @IsString()
   scheduleId?: string;
-
-  @ApiPropertyOptional({ description: 'Filter by hospital ID' })
-  @IsOptional()
-  @IsUUID('4')
-  hospitalId?: string;
 }

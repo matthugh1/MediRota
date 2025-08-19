@@ -48,14 +48,6 @@ export class RuleSetsController {
 		return this.ruleSetsService.findAll(paginationDto, wardId, hospitalId);
 	}
 
-	@Get('effective')
-	@ApiOperation({ summary: 'Get effective rule sets for given scope' })
-	@ApiQuery({ name: 'wardId', required: false, description: 'Ward ID for WARD scope' })
-	@ApiResponse({ status: 200, description: 'Effective rule sets' })
-	getEffective(@Query('wardId') wardId?: string) {
-		return this.ruleSetsService.getEffectiveRuleSets(wardId);
-	}
-
 	@Get(':id')
 	@ApiOperation({ summary: 'Get a rule set by ID' })
 	@ApiResponse({ status: 200, description: 'Rule set retrieved successfully' })

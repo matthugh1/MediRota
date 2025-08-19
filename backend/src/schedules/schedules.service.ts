@@ -2,17 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateScheduleDto } from './dto/create-schedule.dto.js';
 import { UpdateScheduleDto } from './dto/update-schedule.dto.js';
-import { QueryScheduleDto } from './dto/query-schedule.dto.js';
 import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto.js';
 import { ScheduleStatus } from '@prisma/client';
-import { OrgCompatService } from '../common/org-compat.service.js';
 
 @Injectable()
 export class SchedulesService {
-	constructor(
-		private prisma: PrismaService,
-		private orgCompatService: OrgCompatService,
-	) {}
+	constructor(private prisma: PrismaService) {}
 
 	async create(createScheduleDto: CreateScheduleDto) {
 		// Check if there's already a published schedule for this ward
@@ -40,19 +35,14 @@ export class SchedulesService {
 		});
 	}
 
-	async findAll(paginationDto: PaginationDto, queryDto: QueryScheduleDto): Promise<PaginatedResponseDto<any>> {
+	async findAll(paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
 		const { page = 1, limit = 20 } = paginationDto;
-		const { hospitalId } = queryDto;
 		const skip = (page - 1) * limit;
-
-		// Apply hospital filter if provided and hierarchy is enabled
-		const where = this.orgCompatService.applyHospitalFilter({}, hospitalId);
 
 		const [schedules, total] = await Promise.all([
 			this.prisma.schedule.findMany({
 				skip,
 				take: limit,
-				where,
 				include: {
 					ward: true,
 					_count: {
@@ -64,7 +54,7 @@ export class SchedulesService {
 				},
 				orderBy: { createdAt: 'desc' },
 			}),
-			this.prisma.schedule.count({ where }),
+			this.prisma.schedule.count(),
 		]);
 
 		return {

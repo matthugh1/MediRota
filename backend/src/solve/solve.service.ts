@@ -8,7 +8,6 @@ import { SolveDto } from './dto/solve.dto.js';
 import { RepairDto } from './dto/repair.dto.js';
 import { persistAssignments, AssignmentRow } from '../sql/persistAssignments.js';
 import { PolicyService } from '../policy/policy.service.js';
-import { OrgCompatService } from '../common/org-compat.service.js';
 
 @Injectable()
 export class SolveService {
@@ -20,7 +19,6 @@ export class SolveService {
 		private solverClient: SolverClientService,
 		private configService: ConfigService,
 		private policyService: PolicyService,
-		private orgCompatService: OrgCompatService,
 	) {}
 
 	async solve(solveDto: SolveDto) {
@@ -206,15 +204,11 @@ export class SolveService {
 	}
 
 	private async buildSolverRequest(wardId: string, schedule: any): Promise<SolverRequest> {
-		// Resolve organisational context if hierarchy is enabled
-		const orgContext = await this.orgCompatService.resolveOrgContext({ wardIds: [wardId] });
-		
 		// Get effective policy for this schedule
 		const policy = await this.policyService.getEffectivePolicy({ 
 			wardId, 
 			scheduleId: schedule.id 
 		});
-		
 		// Fetch ward
 		const ward = await this.prisma.ward.findUnique({
 			where: { id: wardId },
@@ -244,42 +238,19 @@ export class SolveService {
 			},
 		});
 
-		// Fetch shift types - use effective endpoint if hierarchy enabled
-		let shiftTypes;
-		if (this.orgCompatService.isHierarchyEnabled() && orgContext.hospitalId) {
-			// TODO: Use effective shift types endpoint when implemented
-			shiftTypes = await this.prisma.shiftType.findMany({
-				where: this.orgCompatService.applyHospitalFilter({}, orgContext.hospitalId),
-			});
-		} else {
-			shiftTypes = await this.prisma.shiftType.findMany();
-		}
+		// Fetch shift types
+		const shiftTypes = await this.prisma.shiftType.findMany();
 
-		// Fetch rules for this ward - use effective endpoint if hierarchy enabled
-		let ruleSets;
-		if (this.orgCompatService.isHierarchyEnabled() && orgContext.hospitalId) {
-			// TODO: Use effective rule sets endpoint when implemented
-			ruleSets = await this.prisma.ruleSet.findMany({
-				where: {
-					...this.orgCompatService.applyHospitalFilter({}, orgContext.hospitalId),
-					wardId,
-					active: true,
-				},
-				include: {
-					rules: true,
-				},
-			});
-		} else {
-			ruleSets = await this.prisma.ruleSet.findMany({
-				where: {
-					wardId,
-					active: true,
-				},
-				include: {
-					rules: true,
-				},
-			});
-		}
+		// Fetch rules for this ward
+		const ruleSets = await this.prisma.ruleSet.findMany({
+			where: {
+				wardId,
+				active: true,
+			},
+			include: {
+				rules: true,
+			},
+		});
 
 		// Fetch preferences for the schedule period
 		const preferences = await this.prisma.preference.findMany({
@@ -324,7 +295,7 @@ export class SolveService {
 		}
 
 		// Build solver request
-		const solverRequest: SolverRequest = {
+		return {
 			horizon: {
 				start: schedule.horizonStart.toISOString().split('T')[0],
 				end: schedule.horizonEnd.toISOString().split('T')[0],
@@ -377,15 +348,5 @@ export class SolveService {
 			substitution: policy.substitution as any,
 			timeBudgetMs: policy.timeBudgetMs,
 		};
-
-		// Add organisational context if hierarchy is enabled
-		if (this.orgCompatService.isHierarchyEnabled() && (orgContext.trustId || orgContext.hospitalId)) {
-			solverRequest.orgContext = {
-				trustId: orgContext.trustId,
-				hospitalId: orgContext.hospitalId,
-			};
-		}
-
-		return solverRequest;
 	}
 }
