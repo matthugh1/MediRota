@@ -2,11 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateSkillDto } from './dto/create-skill.dto.js';
 import { UpdateSkillDto } from './dto/update-skill.dto.js';
+import { QuerySkillDto } from './dto/query-skill.dto.js';
 import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto.js';
+import { OrgCompatService } from '../common/org-compat.service.js';
 
 @Injectable()
 export class SkillsService {
-	constructor(private prisma: PrismaService) {}
+	constructor(
+		private prisma: PrismaService,
+		private orgCompatService: OrgCompatService,
+	) {}
 
 	async create(createSkillDto: CreateSkillDto) {
 		return this.prisma.skill.create({
@@ -14,14 +19,19 @@ export class SkillsService {
 		});
 	}
 
-	async findAll(paginationDto: PaginationDto): Promise<PaginatedResponseDto<any>> {
+	async findAll(paginationDto: PaginationDto, queryDto: QuerySkillDto): Promise<PaginatedResponseDto<any>> {
 		const { page = 1, limit = 20 } = paginationDto;
+		const { hospitalId } = queryDto;
 		const skip = (page - 1) * limit;
+
+		// Apply hospital filter if provided and hierarchy is enabled
+		const where = this.orgCompatService.applyHospitalFilter({}, hospitalId);
 
 		const [skills, total] = await Promise.all([
 			this.prisma.skill.findMany({
 				skip,
 				take: limit,
+				where,
 				include: {
 					_count: {
 						select: {
@@ -30,7 +40,7 @@ export class SkillsService {
 					},
 				},
 			}),
-			this.prisma.skill.count(),
+			this.prisma.skill.count({ where }),
 		]);
 
 		return {

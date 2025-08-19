@@ -1,4 +1,4 @@
-import { IsOptional, IsInt, Min, Max, IsString, IsBoolean } from 'class-validator';
+import { IsOptional, IsInt, Min, Max, IsString, IsBoolean, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -43,4 +43,9 @@ export class QueryStaffDto {
 	@Type(() => Boolean)
 	@IsBoolean()
 	active?: boolean;
+
+	@ApiPropertyOptional({ description: 'Filter by hospital ID' })
+	@IsOptional()
+	@IsUUID('4')
+	hospitalId?: string;
 }

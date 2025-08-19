@@ -13,6 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { SkillsService } from './skills.service.js';
 import { CreateSkillDto } from './dto/create-skill.dto.js';
 import { UpdateSkillDto } from './dto/update-skill.dto.js';
+import { QuerySkillDto } from './dto/query-skill.dto.js';
 import { PaginationDto } from '../common/dto/pagination.dto.js';
 import { Roles } from '../auth/roles.decorator.js';
 import { RolesGuard } from '../auth/roles.guard.js';
@@ -39,8 +40,8 @@ export class SkillsController {
 	@ApiOperation({ summary: 'Get all skills with pagination' })
 	@ApiResponse({ status: 200, description: 'Skills retrieved successfully' })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
-	findAll(@Query() paginationDto: PaginationDto) {
-		return this.skillsService.findAll(paginationDto);
+	findAll(@Query() paginationDto: PaginationDto, @Query() queryDto: QuerySkillDto) {
+		return this.skillsService.findAll(paginationDto, queryDto);
 	}
 
 	@Get(':id')
