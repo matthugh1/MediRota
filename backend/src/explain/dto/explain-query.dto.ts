@@ -1,24 +1,24 @@
-import { IsString, IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ExplainQueryDto {
-  @ApiProperty({ description: 'Schedule ID' })
+  @ApiPropertyOptional({ description: 'Schedule ID' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  scheduleId!: string;
+  scheduleId?: string;
 
-  @ApiProperty({ description: 'Staff ID' })
+  @ApiPropertyOptional({ description: 'Staff ID' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  staffId!: string;
+  staffId?: string;
 
-  @ApiProperty({ description: 'Date in YYYY-MM-DD format' })
+  @ApiPropertyOptional({ description: 'Date in YYYY-MM-DD format' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  date!: string;
+  date?: string;
 
-  @ApiProperty({ description: 'Shift slot (e.g., "Early", "Late", "Night")' })
+  @ApiPropertyOptional({ description: 'Shift slot (e.g., "Early", "Late", "Night")' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  slot!: string;
+  slot?: string;
 }

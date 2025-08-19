@@ -161,4 +161,71 @@ export class RuleSetsService {
 			where: { id },
 		});
 	}
+
+	async getEffectiveRuleSets(wardId?: string) {
+		// If hierarchy is disabled, return current single-source values
+		if (!this.orgCompatService.isHierarchyEnabled()) {
+			if (!wardId) {
+				return [];
+			}
+			
+			return this.prisma.ruleSet.findMany({
+				where: { wardId, active: true },
+				include: { rules: true },
+				orderBy: { createdAt: 'desc' }
+			});
+		}
+
+		// Resolve organisational context
+		const orgContext = wardId ? 
+			await this.orgCompatService.resolveOrgContext({ wardIds: [wardId] }) : 
+			{};
+
+		let ruleSets: any[] = [];
+
+		// 1. Try WARD level (highest precedence)
+		if (wardId) {
+			ruleSets = await this.prisma.ruleSet.findMany({
+				where: {
+					scope: 'WARD',
+					wardId,
+					active: true,
+				},
+				include: { rules: true },
+				orderBy: { createdAt: 'desc' }
+			});
+		}
+
+		// 2. Try HOSPITAL level (medium precedence)
+		if (ruleSets.length === 0 && orgContext.hospitalId) {
+			ruleSets = await this.prisma.ruleSet.findMany({
+				where: {
+					scope: 'HOSPITAL',
+					hospitalId: orgContext.hospitalId,
+					active: true,
+				},
+				include: { rules: true },
+				orderBy: { createdAt: 'desc' }
+			});
+		}
+
+		// 3. Try TRUST level (lowest precedence)
+		if (ruleSets.length === 0 && orgContext.trustId) {
+			ruleSets = await this.prisma.ruleSet.findMany({
+				where: {
+					scope: 'TRUST',
+					trustId: orgContext.trustId,
+					active: true,
+				},
+				include: { rules: true },
+				orderBy: { createdAt: 'desc' }
+			});
+		}
+
+		// Add origin information
+		return ruleSets.map(ruleSet => ({
+			...ruleSet,
+			origin: ruleSet.scope || 'WARD'
+		}));
+	}
 }
