@@ -13,6 +13,7 @@ import {
   ToggleLeft,
   Plus,
   X,
+  Edit,
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
@@ -64,16 +65,59 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
   const [testResults, setTestResults] = useState<any>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [selectedRuleType, setSelectedRuleType] = useState<string>('');
+  const [ruleParams, setRuleParams] = useState<Record<string, any>>({});
   const queryClient = useQueryClient();
 
-  // Define available rule types
+  // Define available rule types with parameter schemas
   const availableRuleTypes = [
-    { type: 'MIN_REST_HOURS', name: 'Minimum Rest Hours', params: { hours: 11 } },
-    { type: 'MAX_CONSEC_NIGHTS', name: 'Maximum Consecutive Nights', params: { nights: 3 } },
-    { type: 'ONE_SHIFT_PER_DAY', name: 'One Shift Per Day', params: { enabled: true } },
-    { type: 'WEEKLY_CONTRACT_LIMITS', name: 'Weekly Contract Limits', params: { maxHours: 48 } },
-    { type: 'WEEKEND_FAIRNESS', name: 'Weekend Fairness', params: { enabled: true } },
-    { type: 'PREFERENCES', name: 'Staff Preferences', params: { weight: 5 } },
+    { 
+      type: 'MIN_REST_HOURS', 
+      name: 'Minimum Rest Hours', 
+      params: { hours: 11 },
+      paramSchema: [
+        { key: 'hours', label: 'Minimum Hours', type: 'number', min: 8, max: 24, step: 1 }
+      ]
+    },
+    { 
+      type: 'MAX_CONSEC_NIGHTS', 
+      name: 'Maximum Consecutive Nights', 
+      params: { nights: 3 },
+      paramSchema: [
+        { key: 'nights', label: 'Maximum Nights', type: 'number', min: 1, max: 7, step: 1 }
+      ]
+    },
+    { 
+      type: 'ONE_SHIFT_PER_DAY', 
+      name: 'One Shift Per Day', 
+      params: { enabled: true },
+      paramSchema: [
+        { key: 'enabled', label: 'Enabled', type: 'boolean' }
+      ]
+    },
+    { 
+      type: 'WEEKLY_CONTRACT_LIMITS', 
+      name: 'Weekly Contract Limits', 
+      params: { maxHours: 48 },
+      paramSchema: [
+        { key: 'maxHours', label: 'Maximum Hours', type: 'number', min: 20, max: 80, step: 1 }
+      ]
+    },
+    { 
+      type: 'WEEKEND_FAIRNESS', 
+      name: 'Weekend Fairness', 
+      params: { enabled: true },
+      paramSchema: [
+        { key: 'enabled', label: 'Enabled', type: 'boolean' }
+      ]
+    },
+    { 
+      type: 'PREFERENCES', 
+      name: 'Staff Preferences', 
+      params: { weight: 5 },
+      paramSchema: [
+        { key: 'weight', label: 'Preference Weight', type: 'number', min: 1, max: 10, step: 1 }
+      ]
+    },
   ];
 
   const isEditing = !!policyId;
@@ -351,20 +395,34 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                   <h4 className="text-md font-medium text-neutral-800">Current Rules</h4>
                   {watch('rules')?.length ? (
                     <div className="space-y-2">
-                      {watch('rules')?.map((rule, index) => {
-                        const ruleType = availableRuleTypes.find(t => t.type === rule.type);
-                        return (
-                          <div key={index} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
-                            <div className="flex-1">
-                              <div className="font-medium text-neutral-900">{ruleType?.name || rule.type}</div>
-                              <div className="text-sm text-neutral-600">
-                                {rule.kind} rule
-                                {rule.weight && ` (weight: ${rule.weight})`}
-                              </div>
-                              <div className="text-xs text-neutral-500">
-                                {JSON.stringify(rule.params)}
-                              </div>
+                                        {watch('rules')?.map((rule, index) => {
+                    const ruleType = availableRuleTypes.find(t => t.type === rule.type);
+                    return (
+                      <div key={index} className="p-3 bg-neutral-50 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="font-medium text-neutral-900">{ruleType?.name || rule.type}</div>
+                            <div className="text-sm text-neutral-600">
+                              {rule.kind} rule
+                              {rule.weight && ` (weight: ${rule.weight})`}
                             </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // Populate form for editing
+                                setSelectedRuleType(rule.type);
+                                setRuleParams({ ...rule.params });
+                                
+                                // Remove the current rule
+                                const currentRules = watch('rules') || [];
+                                setValue('rules', currentRules.filter((_, i) => i !== index));
+                              }}
+                              className="p-1 text-blue-500 hover:text-blue-700"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
                             <button
                               type="button"
                               onClick={() => {
@@ -376,8 +434,18 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                               <X className="w-4 h-4" />
                             </button>
                           </div>
-                        );
-                      })}
+                        </div>
+                        <div className="text-xs text-neutral-500">
+                          {Object.entries(rule.params).map(([key, value]) => (
+                            <div key={key} className="flex justify-between">
+                              <span className="font-medium">{key}:</span>
+                              <span>{String(value)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                     </div>
                   ) : (
                     <p className="text-neutral-500 text-sm">No rules configured</p>
@@ -387,14 +455,24 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                 {/* Add New Rule */}
                 <div className="space-y-3">
                   <h4 className="text-md font-medium text-neutral-800">Add New Rule</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-neutral-700 mb-2">
                         Rule Type
                       </label>
                       <select
                         value={selectedRuleType}
-                        onChange={(e) => setSelectedRuleType(e.target.value)}
+                        onChange={(e) => {
+                          setSelectedRuleType(e.target.value);
+                          if (e.target.value) {
+                            const selectedType = availableRuleTypes.find(t => t.type === e.target.value);
+                            if (selectedType) {
+                              setRuleParams({ ...selectedType.params });
+                            }
+                          } else {
+                            setRuleParams({});
+                          }
+                        }}
                         className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       >
                         <option value="">Select a rule type</option>
@@ -418,20 +496,65 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                         <option value="SOFT">Soft Preference</option>
                       </select>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Weight (for soft rules)
-                      </label>
-                      <input
-                        id="ruleWeight"
-                        type="number"
-                        min="1"
-                        max="10"
-                        defaultValue="5"
-                        className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      />
-                    </div>
                   </div>
+
+                  {/* Rule Parameters */}
+                  {selectedRuleType && (
+                    <div className="space-y-3">
+                      <h5 className="text-sm font-medium text-neutral-700">Parameters</h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {availableRuleTypes.find(t => t.type === selectedRuleType)?.paramSchema.map((param) => (
+                          <div key={param.key}>
+                            <label className="block text-sm font-medium text-neutral-700 mb-2">
+                              {param.label}
+                            </label>
+                            {param.type === 'boolean' ? (
+                              <select
+                                value={ruleParams[param.key]?.toString() || 'true'}
+                                onChange={(e) => setRuleParams({
+                                  ...ruleParams,
+                                  [param.key]: e.target.value === 'true'
+                                })}
+                                className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                              >
+                                <option value="true">Enabled</option>
+                                <option value="false">Disabled</option>
+                              </select>
+                            ) : (
+                              <input
+                                type={param.type}
+                                min={param.min}
+                                max={param.max}
+                                step={param.step}
+                                value={ruleParams[param.key] || ''}
+                                onChange={(e) => setRuleParams({
+                                  ...ruleParams,
+                                  [param.key]: param.type === 'number' ? parseInt(e.target.value) : e.target.value
+                                })}
+                                className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Weight for Soft Rules */}
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Weight (for soft rules)
+                    </label>
+                    <input
+                      id="ruleWeight"
+                      type="number"
+                      min="1"
+                      max="10"
+                      defaultValue="5"
+                      className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -447,12 +570,13 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                       const newRule = {
                         type: selectedRuleType,
                         kind: kindSelect.value as 'HARD' | 'SOFT',
-                        params: { ...selectedType.params },
+                        params: { ...ruleParams },
                         weight: kindSelect.value === 'SOFT' ? parseInt(weightInput.value) : undefined,
                       };
                       
                       setValue('rules', [...currentRules, newRule]);
                       setSelectedRuleType('');
+                      setRuleParams({});
                     }}
                     disabled={!selectedRuleType}
                     className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
