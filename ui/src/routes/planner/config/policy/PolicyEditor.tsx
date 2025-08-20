@@ -17,7 +17,7 @@ import {
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { policyApi } from '../../../../lib/api/policy';
 import { queryKeys, invalidateQueries } from '../../../../lib/query';
 
@@ -122,11 +122,19 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
 
   const isEditing = !!policyId;
 
+  // Fetch existing policy data when editing
+  const { data: existingPolicy, isLoading } = useQuery({
+    queryKey: ['policy', policyId],
+    queryFn: () => policyApi.getPolicy(policyId!),
+    enabled: !!policyId,
+  });
+
   const {
     control,
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<PolicyFormData>({
     resolver: zodResolver(policySchema),
@@ -158,6 +166,25 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
       timeBudgetMs: 60000,
     },
   });
+
+  // Populate form with existing policy data when it loads
+  React.useEffect(() => {
+    if (existingPolicy) {
+      reset({
+        scope: existingPolicy.scope,
+        orgId: existingPolicy.orgId,
+        wardId: existingPolicy.wardId,
+        label: existingPolicy.label,
+        isActive: existingPolicy.isActive,
+        weights: existingPolicy.weights,
+        limits: existingPolicy.limits,
+        toggles: existingPolicy.toggles,
+        substitution: existingPolicy.substitution,
+        timeBudgetMs: existingPolicy.timeBudgetMs,
+        rules: existingPolicy.rules || [],
+      });
+    }
+  }, [existingPolicy, reset]);
 
   const watchedScope = watch('scope');
 
@@ -251,6 +278,18 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
     { id: 'scope', label: 'Scope', icon: Shield },
     { id: 'time', label: 'Time Budget', icon: Clock },
   ];
+
+  // Show loading state while fetching existing policy
+  if (isEditing && isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-neutral-600">Loading policy...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
