@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PolicyWeightsDto, PolicyLimitsDto, PolicyTogglesDto } from '../dto/create-policy.dto.js';
+import { PolicyRuleDto } from '../dto/policy-rule.dto.js';
 
 export class PolicyEntity {
   @ApiProperty()
@@ -43,4 +44,11 @@ export class PolicyEntity {
 
   @ApiProperty()
   updatedAt!: Date;
+
+  @ApiProperty({ 
+    type: [PolicyRuleDto], 
+    required: false, 
+    description: 'Policy rules' 
+  })
+  policyRules?: PolicyRuleDto[];
 }

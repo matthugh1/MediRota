@@ -15,15 +15,32 @@ export class PolicyService {
     this.logger.log(`Creating policy: ${createPolicyDto.label}`);
     this.invalidateCache();
     
+    const { policyRules, ...policyData } = createPolicyDto;
+    
     return this.prisma.policy.create({
       data: {
-        ...createPolicyDto,
-        weights: createPolicyDto.weights as any,
-        limits: createPolicyDto.limits as any,
-        toggles: createPolicyDto.toggles as any,
-        substitution: createPolicyDto.substitution as any,
+        ...policyData,
+        weights: policyData.weights as any,
+        limits: policyData.limits as any,
+        toggles: policyData.toggles as any,
+        substitution: policyData.substitution as any,
         trustId: null,
         hospitalId: null,
+        policyRules: policyRules ? {
+          create: policyRules.map(rule => ({
+            ruleTemplateId: rule.ruleTemplateId,
+            kind: rule.kind,
+            params: rule.params as any,
+            weight: rule.weight,
+          }))
+        } : undefined,
+      },
+      include: {
+        policyRules: {
+          include: {
+            ruleTemplate: true,
+          },
+        },
       },
     });
   }
@@ -33,13 +50,27 @@ export class PolicyService {
       orderBy: [
         { scope: 'asc' },
         { createdAt: 'desc' }
-      ]
+      ],
+      include: {
+        policyRules: {
+          include: {
+            ruleTemplate: true,
+          },
+        },
+      },
     });
   }
 
   async findOne(id: string): Promise<Policy> {
     return this.prisma.policy.findUniqueOrThrow({
       where: { id },
+      include: {
+        policyRules: {
+          include: {
+            ruleTemplate: true,
+          },
+        },
+      },
     });
   }
 
@@ -89,7 +120,14 @@ export class PolicyService {
           scheduleId: args.scheduleId,
           isActive: true,
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
+        include: {
+          policyRules: {
+            include: {
+              ruleTemplate: true,
+            },
+          },
+        },
       });
     }
 
@@ -101,7 +139,14 @@ export class PolicyService {
           wardId: args.wardId,
           isActive: true,
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
+        include: {
+          policyRules: {
+            include: {
+              ruleTemplate: true,
+            },
+          },
+        },
       });
     }
 
@@ -112,7 +157,14 @@ export class PolicyService {
           scope: SCOPE_LEVELS.TRUST,
           isActive: true,
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
+        include: {
+          policyRules: {
+            include: {
+              ruleTemplate: true,
+            },
+          },
+        },
       });
     }
 

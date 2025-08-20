@@ -2,6 +2,7 @@ import { IsEnum, IsOptional, IsString, IsNumber, IsBoolean, IsObject, ValidateNe
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { VALID_SCOPE_LEVELS, ScopeLevel } from '../../common/constants.js';
+import { CreatePolicyRuleDto } from './policy-rule.dto.js';
 
 export class PolicyWeightsDto {
   @ApiProperty({ description: 'Weight for unmet demand penalty' })
@@ -100,4 +101,15 @@ export class CreatePolicyDto {
   @ApiProperty({ description: 'Whether policy is active' })
   @IsBoolean()
   isActive!: boolean;
+
+  @ApiProperty({ 
+    type: [CreatePolicyRuleDto], 
+    required: false, 
+    description: 'Policy rules' 
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreatePolicyRuleDto)
+  policyRules?: CreatePolicyRuleDto[];
 }
