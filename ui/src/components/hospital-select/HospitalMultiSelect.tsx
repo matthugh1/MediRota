@@ -150,20 +150,22 @@ export function HospitalMultiSelect({
 		const handleClickOutside = (event: MouseEvent) => {
 			const target = event.target as Node;
 			if (triggerRef.current && !triggerRef.current.contains(target)) {
-				// Check if click is inside the dropdown
-				const dropdown = document.querySelector(`[data-testid="${testId}"] .absolute`);
-				if (dropdown && !dropdown.contains(target)) {
-					close();
-				}
+				close();
 			}
 		};
 
 		if (open) {
-			document.addEventListener('mousedown', handleClickOutside);
-		}
+			// Use a small delay to avoid immediate closing
+			const timeoutId = setTimeout(() => {
+				document.addEventListener('mousedown', handleClickOutside);
+			}, 100);
 
-		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, [open, testId]);
+			return () => {
+				clearTimeout(timeoutId);
+				document.removeEventListener('mousedown', handleClickOutside);
+			};
+		}
+	}, [open]);
 
 	if (loading) {
 		return (
@@ -246,6 +248,7 @@ export function HospitalMultiSelect({
 					role="dialog"
 					aria-modal="false"
 					className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg"
+					onMouseDown={(e) => e.preventDefault()}
 				>
 					{/* Search */}
 					<div className="p-2 border-b">
@@ -305,10 +308,8 @@ export function HospitalMultiSelect({
 												role="option"
 												aria-selected={selected.has(opt.id)}
 												tabIndex={-1}
-												onMouseDown={(e) => e.preventDefault()}
-												onClick={(e) => {
-													e.preventDefault();
-													e.stopPropagation();
+												onClick={() => {
+													console.log('Hospital option clicked:', opt.id, opt.name);
 													toggle(opt.id);
 												}}
 												onKeyDown={(e) => {
@@ -348,10 +349,8 @@ export function HospitalMultiSelect({
 									role="option"
 									aria-selected={selected.has(opt.id)}
 									tabIndex={-1}
-									onMouseDown={(e) => e.preventDefault()}
-									onClick={(e) => {
-										e.preventDefault();
-										e.stopPropagation();
+									onClick={() => {
+										console.log('Hospital option clicked:', opt.id, opt.name);
 										toggle(opt.id);
 									}}
 									onKeyDown={(e) => {
