@@ -1,5 +1,6 @@
 import React from 'react';
 import { Clock, AlertTriangle, TrendingUp, Zap } from 'lucide-react';
+import { CollapsiblePanel } from '../../../../components/CollapsiblePanel';
 
 interface Metrics {
   hardViolations?: number;
@@ -44,9 +45,12 @@ export function MetricsPanel({ metrics, isRunning = false, lastRunTime }: Metric
   };
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg p-4">
+    <CollapsiblePanel 
+      title="Solve Metrics" 
+      defaultCollapsed={true}
+      headerClassName="flex items-center justify-between"
+    >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-zinc-700">Solve Metrics</h3>
         {isRunning && (
           <div className="flex items-center text-indigo-600">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600 mr-2"></div>
@@ -141,6 +145,6 @@ export function MetricsPanel({ metrics, isRunning = false, lastRunTime }: Metric
           <p className="text-xs">Run solve to see metrics</p>
         </div>
       )}
-    </div>
+    </CollapsiblePanel>
   );
 }

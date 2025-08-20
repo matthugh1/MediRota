@@ -1,6 +1,7 @@
 import React from 'react';
 import { Shield, Building2, Calendar, Globe, Clock, ArrowRight } from 'lucide-react';
 import { useEffectivePolicy } from '../../../../lib/hooks';
+import { CollapsiblePanel } from '../../../../components/CollapsiblePanel';
 
 interface EffectivePolicyDisplayProps {
   wardId?: string;
@@ -15,23 +16,23 @@ const EffectivePolicyDisplay: React.FC<EffectivePolicyDisplayProps> = ({
 
   if (isLoading) {
     return (
-      <div className="bg-white border border-neutral-200 rounded-lg p-4">
+      <CollapsiblePanel title="Effective Policy" defaultCollapsed={true}>
         <div className="animate-pulse">
           <div className="h-4 bg-neutral-200 rounded w-1/3 mb-2"></div>
           <div className="h-3 bg-neutral-200 rounded w-1/2"></div>
         </div>
-      </div>
+      </CollapsiblePanel>
     );
   }
 
   if (error || !policy) {
     return (
-      <div className="bg-white border border-neutral-200 rounded-lg p-4">
+      <CollapsiblePanel title="Effective Policy" defaultCollapsed={true}>
         <div className="flex items-center space-x-2 text-neutral-600">
           <Shield className="w-4 h-4" />
           <span className="text-sm">No policy information available</span>
         </div>
-      </div>
+      </CollapsiblePanel>
     );
   }
 
@@ -72,9 +73,12 @@ const EffectivePolicyDisplay: React.FC<EffectivePolicyDisplayProps> = ({
   };
 
   return (
-    <div className="bg-white border border-neutral-200 rounded-lg p-4">
+    <CollapsiblePanel 
+      title="Effective Policy" 
+      defaultCollapsed={true}
+      headerClassName="flex items-center justify-between"
+    >
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-neutral-900">Effective Policy</h3>
         <div className="flex items-center space-x-2 text-xs text-neutral-600">
           <Clock className="w-3 h-3" />
           <span>Timeout: {formatTimeBudget(policy.timeBudgetMs)}</span>
@@ -145,7 +149,7 @@ const EffectivePolicyDisplay: React.FC<EffectivePolicyDisplayProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </CollapsiblePanel>
   );
 };
 
