@@ -19,7 +19,7 @@ import WardsPage from './routes/planner/config/WardsPage';
 import SkillsPage from './routes/planner/config/SkillsPage';
 import JobRoleList from './routes/planner/config/job-roles/JobRoleList';
 import ShiftTypesPage from './routes/planner/config/ShiftTypesPage';
-import RuleSetsPage from './routes/planner/config/RuleSetsPage';
+
 import StaffPage from './routes/planner/staff/StaffPage';
 import DemandPage from './routes/planner/demand/DemandPage';
 import SchedulePage from './routes/planner/schedule/SchedulePage';
@@ -51,7 +51,7 @@ function App() {
 								<Route path="config/skills" element={<SkillsPage />} />
 								<Route path="config/job-roles" element={<JobRoleList />} />
 								<Route path="config/shift-types" element={<ShiftTypesPage />} />
-								<Route path="config/rule-sets" element={<RuleSetsPage />} />
+								
 								<Route path="config/policy" element={<PolicyList />} />
 								<Route path="config/policy/new" element={<PolicyEditor />} />
 								<Route path="config/policy/:id" element={<PolicyEditor />} />

@@ -25,14 +25,14 @@ interface EffectiveShiftType {
 export function EffectiveConfigPanel() {
   const { scope, isHierarchyEnabled } = useOrgScope();
   const [policy, setPolicy] = useState<EffectivePolicy | null>(null);
-  const [ruleSets, setRuleSets] = useState<EffectiveRuleSet[]>([]);
+
   const [shiftTypes, setShiftTypes] = useState<EffectiveShiftType[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isHierarchyEnabled || !scope.hospitalId) {
       setPolicy(null);
-      setRuleSets([]);
+
       setShiftTypes([]);
       return;
     }
@@ -49,13 +49,7 @@ export function EffectiveConfigPanel() {
           console.warn('Failed to load effective policy:', error);
         }
 
-        // Load effective rule sets
-        try {
-          const ruleSetsResponse = await api.get('/rule-sets/effective?wardId=test');
-          setRuleSets(ruleSetsResponse.data);
-        } catch (error) {
-          console.warn('Failed to load effective rule sets:', error);
-        }
+
 
         // Load effective shift types
         try {
@@ -107,15 +101,7 @@ export function EffectiveConfigPanel() {
             </div>
           )}
           
-          {ruleSets.length > 0 && (
-            <div>
-              <div className="text-xs font-medium text-blue-700">Rule Sets</div>
-              <div className="text-xs text-blue-600">
-                {ruleSets.length} active rule set(s)
-                {ruleSets[0]?.origin && ` (from ${ruleSets[0].origin})`}
-              </div>
-            </div>
-          )}
+
           
           {shiftTypes.length > 0 && (
             <div>

@@ -52,13 +52,7 @@ export const queryKeys = {
     details: () => [...queryKeys.shiftTypes.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.shiftTypes.details(), id] as const,
   },
-  ruleSets: {
-    all: ['ruleSets'] as const,
-    lists: () => [...queryKeys.ruleSets.all, 'list'] as const,
-    list: (wardId: string) => [...queryKeys.ruleSets.lists(), { wardId }] as const,
-    details: () => [...queryKeys.ruleSets.all, 'detail'] as const,
-    detail: (id: string) => [...queryKeys.ruleSets.details(), id] as const,
-  },
+  
   demand: {
     all: ['demand'] as const,
     lists: () => [...queryKeys.demand.all, 'list'] as const,
@@ -102,7 +96,7 @@ export const invalidateQueries = {
   skills: () => queryClient.invalidateQueries({ queryKey: queryKeys.skills.all }),
   staff: () => queryClient.invalidateQueries({ queryKey: queryKeys.staff.all }),
   shiftTypes: () => queryClient.invalidateQueries({ queryKey: queryKeys.shiftTypes.all }),
-  ruleSets: () => queryClient.invalidateQueries({ queryKey: queryKeys.ruleSets.all }),
+  
   demand: () => queryClient.invalidateQueries({ queryKey: queryKeys.demand.all }),
   schedules: () => queryClient.invalidateQueries({ queryKey: queryKeys.schedules.all }),
   locks: () => queryClient.invalidateQueries({ queryKey: queryKeys.locks.all }),

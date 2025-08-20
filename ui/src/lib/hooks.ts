@@ -56,25 +56,7 @@ export interface ShiftType {
   updatedAt: string;
 }
 
-export interface RuleSet {
-  id: string;
-  name: string;
-  description?: string;
-  active: boolean;
-  wardId: string;
-  rules: Rule[];
-  createdAt: string;
-  updatedAt: string;
-}
 
-export interface Rule {
-  id: string;
-  key: string;
-  value: string;
-  ruleSetId: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface Demand {
   id: string;
@@ -245,28 +227,7 @@ export const useShiftType = (id: string) => {
   });
 };
 
-// Rule Sets hooks
-export const useRuleSets = (wardId: string) => {
-  return useQuery({
-    queryKey: queryKeys.ruleSets.list(wardId),
-    queryFn: async (): Promise<PaginatedResponse<RuleSet>> => {
-      const response = await apiClient.get('/rule-sets', { params: { wardId } });
-      return response.data;
-    },
-    enabled: !!wardId,
-  });
-};
 
-export const useRuleSet = (id: string) => {
-  return useQuery({
-    queryKey: queryKeys.ruleSets.detail(id),
-    queryFn: async (): Promise<RuleSet> => {
-      const response = await apiClient.get(`/rule-sets/${id}`);
-      return response.data;
-    },
-    enabled: !!id,
-  });
-};
 
 // Demand hooks
 export const useDemand = (wardId: string, dateRange?: { start: string; end: string }) => {
@@ -509,46 +470,7 @@ export const useDeleteShiftType = () => {
   });
 };
 
-export const useCreateRuleSet = () => {
-  return useMutation({
-    mutationFn: async (data: Partial<RuleSet>) => {
-      const response = await apiClient.post('/rule-sets', data);
-      return response.data;
-    },
-    onSuccess: () => {
-      invalidateQueries.ruleSets();
-    },
-  });
-};
 
-export const useUpdateRuleSet = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<RuleSet> }) => {
-      const response = await apiClient.patch(`/rule-sets/${id}`, data);
-      return response.data;
-    },
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.ruleSets.detail(id) });
-      invalidateQueries.ruleSets();
-    },
-  });
-};
-
-export const useDeleteRuleSet = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (id: string) => {
-      await apiClient.delete(`/rule-sets/${id}`);
-    },
-    onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.ruleSets.detail(id) });
-      invalidateQueries.ruleSets();
-    },
-  });
-};
 
 export const useCreateDemand = () => {
   return useMutation({

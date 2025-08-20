@@ -42,7 +42,7 @@ const TopBar: React.FC<TopBarProps> = ({ navCollapsed }) => {
     if (path.includes('/planner/wards')) return 'Wards';
     if (path.includes('/planner/skills')) return 'Skills';
     if (path.includes('/planner/shift-types')) return 'Shift Types';
-    if (path.includes('/planner/rule-sets')) return 'Rule Sets';
+    
     if (path.includes('/planner/locks')) return 'Locks';
     if (path.includes('/planner/metrics')) return 'Metrics';
     if (path.includes('/planner/explain')) return 'Explain';
