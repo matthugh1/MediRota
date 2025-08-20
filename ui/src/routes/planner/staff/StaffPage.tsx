@@ -212,7 +212,7 @@ const StaffPage: React.FC = () => {
                 <Users className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
                 <h3 className="h4 text-neutral-900 mb-2">No Staff Members</h3>
                 <p className="body text-neutral-600 mb-6">
-                  {searchTerm || selectedJob || selectedWard 
+                  {searchTerm || selectedWard 
                     ? 'No staff found matching your filters'
                     : 'Get started by adding your first staff member'
                   }
