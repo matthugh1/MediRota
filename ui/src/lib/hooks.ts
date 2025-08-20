@@ -390,15 +390,9 @@ export const useDeleteWard = () => {
 
 // Similar mutation hooks for other entities...
 export const useCreateSkill = () => {
-  const { scope, isHierarchyEnabled } = useOrgScope();
-  
   return useMutation({
     mutationFn: async (data: Partial<Skill>) => {
-      const skillData = {
-        ...data,
-        ...(isHierarchyEnabled && scope.hospitalId && { hospitalId: scope.hospitalId }),
-      };
-      const response = await apiClient.post('/skills', skillData);
+      const response = await apiClient.post('/skills', data);
       return response.data;
     },
     onSuccess: () => {
