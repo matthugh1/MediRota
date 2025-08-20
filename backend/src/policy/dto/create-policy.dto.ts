@@ -2,7 +2,6 @@ import { IsEnum, IsOptional, IsString, IsNumber, IsBoolean, IsObject, ValidateNe
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { VALID_SCOPE_LEVELS, ScopeLevel } from '../../common/constants.js';
-import { CreatePolicyRuleDto } from './policy-rule.dto.js';
 
 export class PolicyWeightsDto {
   @ApiProperty({ description: 'Weight for unmet demand penalty' })
@@ -103,13 +102,25 @@ export class CreatePolicyDto {
   isActive!: boolean;
 
   @ApiProperty({ 
-    type: [CreatePolicyRuleDto], 
+    type: 'array', 
     required: false, 
-    description: 'Policy rules' 
+    description: 'Business rules array',
+    items: {
+      type: 'object',
+      properties: {
+        type: { type: 'string', description: 'Rule type' },
+        kind: { type: 'string', enum: ['HARD', 'SOFT'], description: 'Rule kind' },
+        params: { type: 'object', description: 'Rule parameters' },
+        weight: { type: 'number', description: 'Weight for soft rules' }
+      }
+    }
   })
   @IsOptional()
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreatePolicyRuleDto)
-  policyRules?: CreatePolicyRuleDto[];
+  rules?: Array<{
+    type: string;
+    kind: 'HARD' | 'SOFT';
+    params: Record<string, any>;
+    weight?: number;
+  }>;
 }

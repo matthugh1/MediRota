@@ -207,7 +207,7 @@ export class SolveService {
 		// Get effective policy for this schedule
 		const policy = await this.policyService.getEffectivePolicy({ 
 			wardId, 
-			scheduleId: schedule.id 
+	 
 		});
 		// Fetch ward with hospital and trust info
 		const ward = await this.prisma.ward.findUnique({
@@ -264,13 +264,6 @@ export class SolveService {
 				],
 				isActive: true,
 			},
-			include: {
-				policyRules: {
-					include: {
-						ruleTemplate: true,
-					},
-				},
-			},
 			orderBy: {
 				scope: 'asc',
 			},
@@ -303,17 +296,17 @@ export class SolveService {
 
 		// Override with actual rules from policies (most specific first)
 		for (const policy of policies) {
-			if (policy.policyRules) {
-				for (const policyRule of policy.policyRules) {
-					switch (policyRule.ruleTemplate.code) {
+			if (policy.rules) {
+				for (const rule of policy.rules as any[]) {
+					switch (rule.type) {
 						case 'MIN_REST_HOURS':
-							rules.minRestHours = (policyRule.params as any).hours || 11;
+							rules.minRestHours = rule.params.hours || 11;
 							break;
 						case 'MAX_CONSEC_NIGHTS':
-							rules.maxConsecutiveNights = (policyRule.params as any).nights || 3;
+							rules.maxConsecutiveNights = rule.params.nights || 3;
 							break;
 						case 'ONE_SHIFT_PER_DAY':
-							rules.oneShiftPerDay = (policyRule.params as any).enabled !== false;
+							rules.oneShiftPerDay = rule.params.enabled !== false;
 							break;
 					}
 				}

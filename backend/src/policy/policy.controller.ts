@@ -45,13 +45,11 @@ export class PolicyController {
   @Get('effective')
   @ApiOperation({ summary: 'Get effective policy for given scope' })
   @ApiQuery({ name: 'wardId', required: false, description: 'Ward ID for WARD scope' })
-  @ApiQuery({ name: 'scheduleId', required: false, description: 'Schedule ID for SCHEDULE scope' })
   @ApiResponse({ status: 200, description: 'Effective policy', type: PolicyEntity })
   getEffective(
     @Query('wardId') wardId?: string,
-    @Query('scheduleId') scheduleId?: string,
   ) {
-    return this.policyService.getEffectivePolicy({ wardId, scheduleId });
+    return this.policyService.getEffectivePolicy({ wardId });
   }
 
   @Get(':id')

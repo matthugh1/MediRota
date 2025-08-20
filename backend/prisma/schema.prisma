@@ -228,10 +228,9 @@ model Event {
 
 model Policy {
 	id           String @id @default(uuid()) @db.Uuid
-	scope        String @db.VarChar(20) // 'TRUST', 'HOSPITAL', 'WARD', 'SCHEDULE'
+	scope        String @db.VarChar(20) // 'TRUST', 'HOSPITAL', 'WARD'
 	orgId        String?
 	wardId       String?
-	scheduleId   String?
 	weights      Json
 	limits       Json
 	toggles      Json
@@ -246,48 +245,11 @@ model Policy {
 	trustId    String? @db.Uuid
 	hospitalId String? @db.Uuid
 
-	// Relations
-	policyRules PolicyRule[]
+	// Rules directly embedded in Policy
+	rules      Json     // Array of rule objects
 
-	@@unique([scope, orgId, wardId, scheduleId])
-	@@index([scope, trustId, hospitalId, wardId, scheduleId, isActive])
-}
-
-model RuleTemplate {
-	id           String @id @default(uuid()) @db.Uuid
-	code         String @unique @db.VarChar(64) // e.g., "MIN_REST_HOURS"
-	name         String @db.VarChar(160)
-	description  String @db.Text
-	paramsSchema Json?  // JSON schema for rule parameters
-	createdAt    DateTime @default(now())
-	updatedAt    DateTime @updatedAt
-
-	// Relations
-	policyRules PolicyRule[]
-
-	@@index([code])
-}
-
-model PolicyRule {
-	id              String @id @default(uuid()) @db.Uuid
-	policyId        String @db.Uuid
-	policy          Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
-	ruleTemplateId  String @db.Uuid
-	ruleTemplate    RuleTemplate @relation(fields: [ruleTemplateId], references: [id])
-	kind            PolicyRuleKind
-	params          Json
-	weight          Int?   // For soft rules only
-	createdAt       DateTime @default(now())
-	updatedAt       DateTime @updatedAt
-
-	@@index([policyId])
-	@@index([ruleTemplateId])
-	@@unique([policyId, ruleTemplateId])
-}
-
-enum PolicyRuleKind {
-	HARD
-	SOFT
+	@@unique([scope, orgId, wardId])
+	@@index([scope, trustId, hospitalId, wardId, isActive])
 }
 
 // ============================================================================

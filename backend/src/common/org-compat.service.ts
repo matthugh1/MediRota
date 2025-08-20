@@ -26,7 +26,30 @@ export class OrgCompatService {
       return where;
     }
 
-    return { ...where, hospitalId };
+    // For Staff model, filter through wards that belong to the hospital
+    if (where.wards) {
+      // If there's already a wards filter, combine it
+      const existingWardsFilter = where.wards;
+      return {
+        ...where,
+        wards: {
+          some: {
+            hospitalId,
+            ...existingWardsFilter.some
+          }
+        }
+      };
+    } else {
+      // Add new wards filter for hospital
+      return {
+        ...where,
+        wards: {
+          some: {
+            hospitalId
+          }
+        }
+      };
+    }
   }
 
   /**

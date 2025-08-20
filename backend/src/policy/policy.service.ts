@@ -15,7 +15,7 @@ export class PolicyService {
     this.logger.log(`Creating policy: ${createPolicyDto.label}`);
     this.invalidateCache();
     
-    const { policyRules, ...policyData } = createPolicyDto;
+    const { rules, ...policyData } = createPolicyDto;
     
     return this.prisma.policy.create({
       data: {
@@ -24,23 +24,9 @@ export class PolicyService {
         limits: policyData.limits as any,
         toggles: policyData.toggles as any,
         substitution: policyData.substitution as any,
+        rules: rules as any,
         trustId: null,
         hospitalId: null,
-        policyRules: policyRules ? {
-          create: policyRules.map(rule => ({
-            ruleTemplateId: rule.ruleTemplateId,
-            kind: rule.kind,
-            params: rule.params as any,
-            weight: rule.weight,
-          }))
-        } : undefined,
-      },
-      include: {
-        policyRules: {
-          include: {
-            ruleTemplate: true,
-          },
-        },
       },
     });
   }
@@ -51,26 +37,12 @@ export class PolicyService {
         { scope: 'asc' },
         { createdAt: 'desc' }
       ],
-      include: {
-        policyRules: {
-          include: {
-            ruleTemplate: true,
-          },
-        },
-      },
     });
   }
 
   async findOne(id: string): Promise<Policy> {
     return this.prisma.policy.findUniqueOrThrow({
       where: { id },
-      include: {
-        policyRules: {
-          include: {
-            ruleTemplate: true,
-          },
-        },
-      },
     });
   }
 
@@ -102,9 +74,8 @@ export class PolicyService {
 
   async getEffectivePolicy(args: { 
     wardId?: string; 
-    scheduleId?: string; 
   }): Promise<Policy> {
-    const cacheKey = `${args.wardId || 'none'}-${args.scheduleId || 'none'}`;
+    const cacheKey = `${args.wardId || 'none'}`;
     
     if (this.policyCache.has(cacheKey)) {
       return this.policyCache.get(cacheKey)!;
@@ -112,27 +83,8 @@ export class PolicyService {
 
     let policy: Policy | null = null;
 
-    // 1. Try SCHEDULE level (highest precedence)
-    if (args.scheduleId) {
-      policy = await this.prisma.policy.findFirst({
-        where: {
-          scope: SCOPE_LEVELS.SCHEDULE,
-          scheduleId: args.scheduleId,
-          isActive: true,
-        },
-        orderBy: { createdAt: 'desc' },
-        include: {
-          policyRules: {
-            include: {
-              ruleTemplate: true,
-            },
-          },
-        },
-      });
-    }
-
-    // 2. Try WARD level (medium precedence)
-    if (!policy && args.wardId) {
+    // 1. Try WARD level (highest precedence)
+    if (args.wardId) {
       policy = await this.prisma.policy.findFirst({
         where: {
           scope: SCOPE_LEVELS.WARD,
@@ -140,17 +92,10 @@ export class PolicyService {
           isActive: true,
         },
         orderBy: { createdAt: 'desc' },
-        include: {
-          policyRules: {
-            include: {
-              ruleTemplate: true,
-            },
-          },
-        },
       });
     }
 
-    // 3. Fall back to ORG level (lowest precedence)
+    // 2. Fall back to TRUST level (lowest precedence)
     if (!policy) {
       policy = await this.prisma.policy.findFirst({
         where: {
@@ -158,17 +103,10 @@ export class PolicyService {
           isActive: true,
         },
         orderBy: { createdAt: 'desc' },
-        include: {
-          policyRules: {
-            include: {
-              ruleTemplate: true,
-            },
-          },
-        },
       });
     }
 
-    // 4. If no policy exists, return default values
+    // 3. If no policy exists, return default values
     if (!policy) {
       this.logger.warn('No active policy found, using defaults');
       policy = this.getDefaultPolicy();
@@ -184,9 +122,9 @@ export class PolicyService {
       scope: SCOPE_LEVELS.TRUST,
       orgId: null,
       wardId: null,
-      scheduleId: null,
       trustId: null,
       hospitalId: null,
+      rules: [],
       weights: {
         unmet: 1000000,
         overtime: 10000,
