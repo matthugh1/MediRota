@@ -26,9 +26,9 @@ export class OrgCompatService {
       return where;
     }
 
-    // For Staff model, filter through wards that belong to the hospital
-    if (where.wards) {
-      // If there's already a wards filter, combine it
+    // Check if this is a Staff model (has wards relation)
+    if (where.wards !== undefined) {
+      // For Staff model, filter through wards that belong to the hospital
       const existingWardsFilter = where.wards;
       return {
         ...where,
@@ -40,15 +40,8 @@ export class OrgCompatService {
         }
       };
     } else {
-      // Add new wards filter for hospital
-      return {
-        ...where,
-        wards: {
-          some: {
-            hospitalId
-          }
-        }
-      };
+      // For models with direct hospitalId field (like ShiftType), filter directly
+      return { ...where, hospitalId };
     }
   }
 
