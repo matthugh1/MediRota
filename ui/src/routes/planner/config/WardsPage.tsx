@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ColumnDef } from '@tanstack/react-table';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { format } from 'date-fns';
 import { DataTable } from './components/DataTable';
 import { DrawerForm } from './components/DrawerForm';
 import { FormField } from './components/FormFields';
@@ -23,11 +24,20 @@ const columns: ColumnDef<Ward>[] = [
     accessorKey: 'name',
     header: 'Ward Name',
     cell: ({ row }) => (
-      <div>
-        <div className="font-medium text-zinc-900">{row.getValue('name')}</div>
-        <div className="text-sm text-zinc-500">ID: {row.original.id}</div>
-      </div>
+      <div className="font-medium text-zinc-900">{row.getValue('name')}</div>
     ),
+  },
+  {
+    accessorKey: 'hospital',
+    header: 'Hospital',
+    cell: ({ row }) => {
+      const hospital = row.original.hospital;
+      return (
+        <div className="text-sm text-zinc-600">
+          {hospital ? hospital.name : '—'}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'hourlyGranularity',
@@ -45,11 +55,15 @@ const columns: ColumnDef<Ward>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Created',
-    cell: ({ row }) => (
-      <div className="text-sm text-zinc-500">
-        {new Date(row.getValue('createdAt')).toLocaleDateString()}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const createdAt = row.getValue('createdAt') as string;
+      const formattedDate = createdAt ? format(new Date(createdAt), 'dd MMM yyyy') : '—';
+      return (
+        <div className="text-sm text-zinc-500">
+          {formattedDate}
+        </div>
+      );
+    },
   },
 ];
 
@@ -208,11 +222,38 @@ export default function WardsPage() {
               required
             />
             
+            {/* Hospital Information */}
+            {isHierarchyEnabled && scope.hospitalId ? (
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-2">
+                  Hospital
+                </label>
+                <div className="text-sm text-zinc-600 bg-zinc-50 px-3 py-2 rounded-md border">
+                  {scope.hospitalName}
+                </div>
+                <p className="text-xs text-zinc-500 mt-1">
+                  This ward will be assigned to the selected hospital.
+                </p>
+              </div>
+            ) : null}
+            
             <FormField
               name="hourlyGranularity"
               label="Use Hourly Granularity"
               type="checkbox"
             />
+            
+            {/* Created Date for Edit Mode */}
+            {editingWard && editingWard.createdAt && (
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-2">
+                  Created
+                </label>
+                <div className="text-sm text-zinc-600">
+                  {format(new Date(editingWard.createdAt), 'dd MMM yyyy')}
+                </div>
+              </div>
+            )}
             
             <div className="text-sm text-zinc-500">
               <p>When enabled, this ward will use hourly time slots instead of daily shifts.</p>

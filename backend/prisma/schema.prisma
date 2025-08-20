@@ -10,13 +10,17 @@ generator client {
 }
 
 model Ward {
-	id                 String  @id @default(uuid()) @db.Uuid
+	id                 String   @id @default(uuid()) @db.Uuid
 	name               String
-	hourlyGranularity  Boolean @default(false)
+	hourlyGranularity  Boolean  @default(false)
 
 	// Organisational hierarchy (nullable)
 	hospitalId String? @db.Uuid
 	hospital   Hospital? @relation(fields: [hospitalId], references: [id], onDelete: SetNull)
+
+	// Timestamps
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
 
 	// Relations
 	staff     Staff[] @relation("StaffWards")

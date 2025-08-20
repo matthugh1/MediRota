@@ -14,6 +14,7 @@ import { WardsService } from './wards.service.js';
 import { CreateWardDto } from './dto/create-ward.dto.js';
 import { UpdateWardDto } from './dto/update-ward.dto.js';
 import { QueryWardDto } from './dto/query-ward.dto.js';
+import { WardResponseDto } from './dto/ward-response.dto.js';
 import { PaginationDto } from '../common/dto/pagination.dto.js';
 import { Roles } from '../auth/roles.decorator.js';
 import { RolesGuard } from '../auth/roles.guard.js';
@@ -38,7 +39,11 @@ export class WardsController {
 	@Get()
 	@Roles(Role.ADMIN, Role.PLANNER)
 	@ApiOperation({ summary: 'Get all wards with pagination' })
-	@ApiResponse({ status: 200, description: 'Wards retrieved successfully' })
+	@ApiResponse({ 
+		status: 200, 
+		description: 'Wards retrieved successfully',
+		type: [WardResponseDto]
+	})
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
 	findAll(@Query() queryDto: QueryWardDto) {
 		return this.wardsService.findAll(queryDto);
@@ -47,7 +52,11 @@ export class WardsController {
 	@Get(':id')
 	@Roles(Role.ADMIN, Role.PLANNER)
 	@ApiOperation({ summary: 'Get a ward by ID' })
-	@ApiResponse({ status: 200, description: 'Ward retrieved successfully' })
+	@ApiResponse({ 
+		status: 200, 
+		description: 'Ward retrieved successfully',
+		type: WardResponseDto
+	})
 	@ApiResponse({ status: 404, description: 'Ward not found' })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
 	findOne(@Param('id') id: string) {

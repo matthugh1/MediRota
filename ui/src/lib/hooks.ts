@@ -7,12 +7,18 @@ import { useOrgScope } from './orgScope.js';
 import { ORG_HIERARCHY_ENABLED } from './flags.js';
 
 // Types for API responses
+export interface Hospital {
+  id: string;
+  name: string;
+}
+
 export interface Ward {
   id: string;
   name: string;
   hourlyGranularity: boolean;
   createdAt: string;
   updatedAt: string;
+  hospital?: Hospital | null;
 }
 
 export interface Skill {
