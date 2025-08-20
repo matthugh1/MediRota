@@ -16,11 +16,17 @@ export class RuleSetsService {
 	async create(createRuleSetDto: CreateRuleSetDto) {
 		const { rules, ...ruleSetData } = createRuleSetDto;
 
-		return this.prisma.ruleSet.create({
+		// Map key to type for the old Rule model
+		const mappedRules = rules.map(rule => ({
+			type: rule.key,
+			value: rule.value,
+		}));
+
+		const ruleSet = await this.prisma.ruleSet.create({
 			data: {
 				...ruleSetData,
 				rules: {
-					create: rules,
+					create: mappedRules,
 				},
 			},
 			include: {
@@ -33,6 +39,15 @@ export class RuleSetsService {
 				},
 			},
 		});
+
+		// Map type back to key for UI compatibility
+		return {
+			...ruleSet,
+			rules: ruleSet.rules.map(rule => ({
+				...rule,
+				key: rule.type,
+			})),
+		};
 	}
 
 	async findAll(paginationDto: PaginationDto, wardId?: string, hospitalId?: string): Promise<PaginatedResponseDto<any>> {
@@ -70,8 +85,17 @@ export class RuleSetsService {
 			this.prisma.ruleSet.count({ where }),
 		]);
 
+		// Map type back to key for UI compatibility
+		const mappedRuleSets = ruleSets.map(ruleSet => ({
+			...ruleSet,
+			rules: ruleSet.rules.map(rule => ({
+				...rule,
+				key: rule.type,
+			})),
+		}));
+
 		return {
-			data: ruleSets,
+			data: mappedRuleSets,
 			total,
 			page,
 			limit,
@@ -97,7 +121,14 @@ export class RuleSetsService {
 			throw new NotFoundException(`Rule set with ID ${id} not found`);
 		}
 
-		return ruleSet;
+		// Map type back to key for UI compatibility
+		return {
+			...ruleSet,
+			rules: ruleSet.rules.map(rule => ({
+				...rule,
+				key: rule.type,
+			})),
+		};
 	}
 
 	async update(id: string, updateRuleSetDto: UpdateRuleSetDto) {
@@ -112,13 +143,19 @@ export class RuleSetsService {
 				where: { ruleSetId: id },
 			});
 
+			// Map key to type for the old Rule model
+			const mappedRules = rules.map(rule => ({
+				type: rule.key,
+				value: rule.value,
+			}));
+
 			// Create new rules
-			return this.prisma.ruleSet.update({
+			const ruleSet = await this.prisma.ruleSet.update({
 				where: { id },
 				data: {
 					...ruleSetData,
 					rules: {
-						create: rules,
+						create: mappedRules,
 					},
 				},
 				include: {
@@ -131,10 +168,19 @@ export class RuleSetsService {
 					},
 				},
 			});
+
+			// Map type back to key for UI compatibility
+			return {
+				...ruleSet,
+				rules: ruleSet.rules.map(rule => ({
+					...rule,
+					key: rule.type,
+				})),
+			};
 		}
 
 		// Update without changing rules
-		return this.prisma.ruleSet.update({
+		const ruleSet = await this.prisma.ruleSet.update({
 			where: { id },
 			data: ruleSetData,
 			include: {
@@ -147,6 +193,15 @@ export class RuleSetsService {
 				},
 			},
 		});
+
+		// Map type back to key for UI compatibility
+		return {
+			...ruleSet,
+			rules: ruleSet.rules.map(rule => ({
+				...rule,
+				key: rule.type,
+			})),
+		};
 	}
 
 	async remove(id: string) {
