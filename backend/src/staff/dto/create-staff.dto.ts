@@ -45,4 +45,9 @@ export class CreateStaffDto {
 	@IsOptional()
 	@IsUUID('4')
 	hospitalId?: string;
+
+	@ApiPropertyOptional({ description: 'Job role ID to assign to the staff' })
+	@IsOptional()
+	@IsUUID('4')
+	jobRoleId?: string;
 }

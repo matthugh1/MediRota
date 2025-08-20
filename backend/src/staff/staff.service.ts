@@ -26,6 +26,13 @@ export class StaffService {
 				wards: true,
 				skills: true,
 				job: true,
+				jobRole: {
+					select: {
+						id: true,
+						code: true,
+						name: true,
+					},
+				},
 			},
 		});
 	}
@@ -69,6 +76,13 @@ export class StaffService {
 					wards: true,
 					skills: true,
 					job: true,
+					jobRole: {
+						select: {
+							id: true,
+							code: true,
+							name: true,
+						},
+					},
 					_count: {
 						select: {
 							assignments: true,
@@ -99,6 +113,13 @@ export class StaffService {
 				wards: true,
 				skills: true,
 				job: true,
+				jobRole: {
+					select: {
+						id: true,
+						code: true,
+						name: true,
+					},
+				},
 				assignments: {
 					include: {
 						ward: true,
@@ -133,6 +154,13 @@ export class StaffService {
 				wards: true,
 				skills: true,
 				job: true,
+				jobRole: {
+					select: {
+						id: true,
+						code: true,
+						name: true,
+					},
+				},
 			},
 		});
 	}

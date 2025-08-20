@@ -16,6 +16,7 @@ import { DemandModule } from './demand/demand.module.js';
 import { LocksModule } from './locks/locks.module.js';
 import { ExplainModule } from './explain/explain.module.js';
 import { PolicyModule } from './policy/policy.module.js';
+import { JobRolesModule } from './job-roles/job-roles.module.js';
 
 @Module({
 	imports: [
@@ -38,6 +39,7 @@ import { PolicyModule } from './policy/policy.module.js';
 		LocksModule,
 		ExplainModule,
 		PolicyModule,
+		JobRolesModule,
 	],
 })
 export class AppModule {}

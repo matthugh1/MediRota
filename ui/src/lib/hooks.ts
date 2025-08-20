@@ -39,6 +39,7 @@ export interface Staff {
   active: boolean;
   wards: Ward[];
   skills: Skill[];
+  jobRole?: { id: string; code: string; name: string } | null;
   createdAt: string;
   updatedAt: string;
 }

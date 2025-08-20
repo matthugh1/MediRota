@@ -56,6 +56,17 @@ model Skill {
 	wards     WardSkill[]
 }
 
+model JobRole {
+	id        String @id @default(uuid()) @db.Uuid
+	code      String @unique @db.VarChar(64)
+	name      String @db.VarChar(160)
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	// Relations
+	staff Staff[]
+}
+
 model WardSkill {
 	wardId    String @db.Uuid
 	skillId   String @db.Uuid
@@ -79,6 +90,10 @@ model Staff {
 	jobId String @db.Uuid
 	job   Job    @relation(fields: [jobId], references: [id])
 
+	// Job Role (new)
+	jobRoleId String? @db.Uuid
+	jobRole   JobRole? @relation(fields: [jobRoleId], references: [id], onDelete: SetNull)
+
 	// Many-to-many
 	wards  Ward[] @relation("StaffWards")
 	skills Skill[] @relation("StaffSkills")
@@ -86,6 +101,8 @@ model Staff {
 	// Relations
 	assignments Assignment[]
 	preferences Preference[]
+
+	@@index([jobRoleId])
 }
 
 enum StaffRole {

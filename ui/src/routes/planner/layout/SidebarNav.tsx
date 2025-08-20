@@ -53,6 +53,7 @@ const navGroups: NavGroup[] = [
     items: [
       { id: 'wards', label: 'Wards', icon: Building2, href: '/planner/config/wards' },
       { id: 'skills', label: 'Skills', icon: Users, href: '/planner/config/skills' },
+      { id: 'job-roles', label: 'Job Roles', icon: Users, href: '/planner/config/job-roles' },
       { id: 'staff', label: 'Staff', icon: Users, href: '/planner/staff' },
       { id: 'shift-types', label: 'Shift Types', icon: Clock, href: '/planner/config/shift-types' },
       { id: 'rule-sets', label: 'Rule Sets', icon: FileText, href: '/planner/config/rule-sets' },

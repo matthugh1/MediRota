@@ -15,6 +15,7 @@ import TrustsPage from './routes/planner/config/TrustsPage';
 import HospitalsPage from './routes/planner/config/HospitalsPage';
 import WardsPage from './routes/planner/config/WardsPage';
 import SkillsPage from './routes/planner/config/SkillsPage';
+import JobRoleList from './routes/planner/config/job-roles/JobRoleList';
 import ShiftTypesPage from './routes/planner/config/ShiftTypesPage';
 import RuleSetsPage from './routes/planner/config/RuleSetsPage';
 import StaffPage from './routes/planner/staff/StaffPage';
@@ -46,6 +47,7 @@ function App() {
 								<Route path="config/hospitals" element={<HospitalsPage />} />
 								<Route path="config/wards" element={<WardsPage />} />
 								<Route path="config/skills" element={<SkillsPage />} />
+								<Route path="config/job-roles" element={<JobRoleList />} />
 								<Route path="config/shift-types" element={<ShiftTypesPage />} />
 								<Route path="config/rule-sets" element={<RuleSetsPage />} />
 								<Route path="config/policy" element={<PolicyList />} />
