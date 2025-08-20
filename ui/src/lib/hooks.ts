@@ -27,6 +27,7 @@ export interface Skill {
   name: string;
   createdAt: string;
   updatedAt: string;
+  wards: { id: string; name: string; hospitalId?: string | null }[];
 }
 
 export interface Staff {

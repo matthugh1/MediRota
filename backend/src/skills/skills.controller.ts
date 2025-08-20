@@ -14,6 +14,7 @@ import { SkillsService } from './skills.service.js';
 import { CreateSkillDto } from './dto/create-skill.dto.js';
 import { UpdateSkillDto } from './dto/update-skill.dto.js';
 import { QuerySkillDto } from './dto/query-skill.dto.js';
+import { SkillResponseDto } from './dto/skill-response.dto.js';
 import { PaginationDto } from '../common/dto/pagination.dto.js';
 import { Roles } from '../auth/roles.decorator.js';
 import { RolesGuard } from '../auth/roles.guard.js';
@@ -29,9 +30,9 @@ export class SkillsController {
 	@Post()
 	@Roles(Role.ADMIN)
 	@ApiOperation({ summary: 'Create a new skill' })
-	@ApiResponse({ status: 201, description: 'Skill created successfully' })
+	@ApiResponse({ status: 201, description: 'Skill created successfully', type: SkillResponseDto })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
-	create(@Body() createSkillDto: CreateSkillDto) {
+	create(@Body() createSkillDto: CreateSkillDto): Promise<SkillResponseDto> {
 		return this.skillsService.create(createSkillDto);
 	}
 
@@ -47,20 +48,20 @@ export class SkillsController {
 	@Get(':id')
 	@Roles(Role.ADMIN, Role.PLANNER)
 	@ApiOperation({ summary: 'Get a skill by ID' })
-	@ApiResponse({ status: 200, description: 'Skill retrieved successfully' })
+	@ApiResponse({ status: 200, description: 'Skill retrieved successfully', type: SkillResponseDto })
 	@ApiResponse({ status: 404, description: 'Skill not found' })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
-	findOne(@Param('id') id: string) {
+	findOne(@Param('id') id: string): Promise<SkillResponseDto> {
 		return this.skillsService.findOne(id);
 	}
 
 	@Patch(':id')
 	@Roles(Role.ADMIN)
 	@ApiOperation({ summary: 'Update a skill' })
-	@ApiResponse({ status: 200, description: 'Skill updated successfully' })
+	@ApiResponse({ status: 200, description: 'Skill updated successfully', type: SkillResponseDto })
 	@ApiResponse({ status: 404, description: 'Skill not found' })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
-	update(@Param('id') id: string, @Body() updateSkillDto: UpdateSkillDto) {
+	update(@Param('id') id: string, @Body() updateSkillDto: UpdateSkillDto): Promise<SkillResponseDto> {
 		return this.skillsService.update(id, updateSkillDto);
 	}
 
