@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DateTime } from 'luxon';
+import { DateRangeCalendar } from '../../../../components/DateRangeCalendar';
 
 interface Ward {
   id: string;
@@ -58,8 +59,8 @@ export function CreateScheduleForm({
     resolver: zodResolver(createScheduleSchema),
     defaultValues: {
       wardId: '',
-      horizonStart: DateTime.now().toISODate(),
-      horizonEnd: DateTime.now().plus({ weeks: 2 }).toISODate(),
+      horizonStart: '',
+      horizonEnd: '',
     },
   });
 
@@ -71,6 +72,12 @@ export function CreateScheduleForm({
   const watchedWardId = form.watch('wardId');
   const watchedStartDate = form.watch('horizonStart');
   const watchedEndDate = form.watch('horizonEnd');
+
+  // Handle date range changes from calendar
+  const handleDateRangeChange = (startDate: string, endDate: string) => {
+    form.setValue('horizonStart', startDate);
+    form.setValue('horizonEnd', endDate);
+  };
 
   // Find overlapping schedules for the selected ward and date range
   const overlappingSchedules = useMemo(() => {
@@ -170,35 +177,28 @@ export function CreateScheduleForm({
                   )}
                 </div>
 
-                {/* Date Range */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-zinc-700">
-                      Start Date
-                    </label>
-                    <input
-                      {...form.register('horizonStart')}
-                      type="date"
-                      className="w-full px-3 py-2 text-sm border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    />
-                    {form.formState.errors.horizonStart && (
-                      <p className="text-sm text-red-600">{form.formState.errors.horizonStart.message}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-zinc-700">
-                      End Date
-                    </label>
-                    <input
-                      {...form.register('horizonEnd')}
-                      type="date"
-                      className="w-full px-3 py-2 text-sm border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    />
-                    {form.formState.errors.horizonEnd && (
-                      <p className="text-sm text-red-600">{form.formState.errors.horizonEnd.message}</p>
-                    )}
-                  </div>
+                {/* Date Range Calendar */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-zinc-700">
+                    Schedule Date Range
+                  </label>
+                  <DateRangeCalendar
+                    selectedStartDate={watchedStartDate || null}
+                    selectedEndDate={watchedEndDate || null}
+                    onDateRangeChange={handleDateRangeChange}
+                    existingSchedules={schedules}
+                    wardId={watchedWardId || null}
+                  />
+                  {(form.formState.errors.horizonStart || form.formState.errors.horizonEnd) && (
+                    <div className="space-y-1">
+                      {form.formState.errors.horizonStart && (
+                        <p className="text-sm text-red-600">{form.formState.errors.horizonStart.message}</p>
+                      )}
+                      {form.formState.errors.horizonEnd && (
+                        <p className="text-sm text-red-600">{form.formState.errors.horizonEnd.message}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Overlapping Schedules Warning */}
