@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { X, ChevronDown, Check, Search } from 'lucide-react';
+import { X, ChevronDown, Search } from 'lucide-react';
 import { WardOption } from './useWardOptions.js';
 
 type Props = {
@@ -29,9 +29,11 @@ export const WardMultiSelect: React.FC<Props> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [focusedIndex, setFocusedIndex] = useState(-1);
   
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  
+  const listId = `${testId}-list`;
 
   // Filter options based on search term
   const filteredOptions = React.useMemo(() => {
@@ -91,53 +93,65 @@ export const WardMultiSelect: React.FC<Props> = ({
     onChange(value.filter(id => id !== optionId));
   }, [value, onChange]);
 
-  // Keyboard navigation
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+  // Focus management helpers
+  const focusFirstOption = useCallback(() => {
+    setFocusedIndex(0);
+  }, []);
+
+  const focusOption = useCallback((index: number) => {
+    const maxIndex = filteredOptions.length - 1;
+    if (index < 0) setFocusedIndex(maxIndex);
+    else if (index > maxIndex) setFocusedIndex(0);
+    else setFocusedIndex(index);
+  }, [filteredOptions.length]);
+
+  // Keyboard navigation for trigger
+  const handleTriggerKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setIsOpen(!isOpen);
+      if (!isOpen) {
+        setTimeout(() => searchInputRef.current?.focus(), 0);
+      }
+    }
+    if (e.key === 'ArrowDown' && isOpen) {
+      e.preventDefault();
+      focusFirstOption();
+    }
+  }, [isOpen, focusFirstOption]);
+
+  // Keyboard navigation for options
+  const handleOptionKeyDown = useCallback((e: React.KeyboardEvent, optionId: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleOptionToggle(optionId);
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const currentIndex = filteredOptions.findIndex(opt => opt.id === optionId);
+      focusOption(currentIndex + 1);
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const currentIndex = filteredOptions.findIndex(opt => opt.id === optionId);
+      focusOption(currentIndex - 1);
+    }
     if (e.key === 'Escape') {
+      e.preventDefault();
       setIsOpen(false);
       setFocusedIndex(-1);
       triggerRef.current?.focus();
-      return;
     }
+  }, [filteredOptions, handleOptionToggle, focusOption]);
 
-    if (!isOpen) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        setIsOpen(true);
-        setTimeout(() => searchInputRef.current?.focus(), 0);
-        return;
-      }
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setIsOpen(true);
-        setFocusedIndex(0);
-        setTimeout(() => searchInputRef.current?.focus(), 0);
-        return;
-      }
-      return;
-    }
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setFocusedIndex(prev => 
-        prev < filteredOptions.length - 1 ? prev + 1 : 0
-      );
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setFocusedIndex(prev => 
-        prev > 0 ? prev - 1 : filteredOptions.length - 1
-      );
-    } else if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
-        handleOptionToggle(filteredOptions[focusedIndex].id);
-      }
-    } else if (e.key === 'Backspace' && !searchTerm && selectedOptions.length > 0) {
+  // Handle backspace in search input
+  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !searchTerm && selectedOptions.length > 0) {
       e.preventDefault();
       const lastSelected = selectedOptions[selectedOptions.length - 1];
       handleChipRemove(lastSelected.id);
     }
-  }, [isOpen, focusedIndex, filteredOptions, searchTerm, selectedOptions, handleOptionToggle, handleChipRemove]);
+  }, [searchTerm, selectedOptions, handleChipRemove]);
 
   // Reset focus when opening/closing
   useEffect(() => {
@@ -161,21 +175,19 @@ export const WardMultiSelect: React.FC<Props> = ({
 
   return (
     <div className="relative" data-testid={testId}>
-      {/* Trigger button */}
-      <button
+      {/* Trigger div */}
+      <div
         ref={triggerRef}
-        type="button"
         role="combobox"
         aria-expanded={isOpen}
-        aria-haspopup="listbox"
-        aria-controls={`${testId}-list`}
-        disabled={disabled || loading}
+        aria-controls={listId}
+        tabIndex={0}
         onClick={() => setIsOpen(!isOpen)}
-        onKeyDown={handleKeyDown}
+        onKeyDown={handleTriggerKeyDown}
         className={`
           w-full min-h-[40px] px-3 py-2 text-left border rounded-md
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-          ${disabled || loading ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white hover:border-gray-400'}
+          ${disabled || loading ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white hover:border-gray-400 cursor-pointer'}
         `}
         data-testid="ward-ms-trigger"
       >
@@ -189,6 +201,7 @@ export const WardMultiSelect: React.FC<Props> = ({
                 <span className="truncate max-w-[120px]">{option.name}</span>
                 <button
                   type="button"
+                  aria-label={`Remove ${option.name}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleChipRemove(option.id);
@@ -211,7 +224,7 @@ export const WardMultiSelect: React.FC<Props> = ({
             isOpen ? 'rotate-180' : ''
           }`} 
         />
-      </button>
+      </div>
 
       {/* Error message */}
       {error && (
@@ -220,7 +233,7 @@ export const WardMultiSelect: React.FC<Props> = ({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+        <div role="dialog" aria-modal="false" className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
           {/* Search input */}
           <div className="p-2 border-b border-gray-200">
             <div className="relative">
@@ -230,7 +243,9 @@ export const WardMultiSelect: React.FC<Props> = ({
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search wards..."
+                aria-label="Search wards"
                 className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 data-testid="ward-ms-search"
               />
@@ -258,16 +273,16 @@ export const WardMultiSelect: React.FC<Props> = ({
           </div>
 
           {/* Options list */}
-          <div
+          <ul
             ref={listRef}
-            className="max-h-56 overflow-auto"
+            id={listId}
             role="listbox"
+            aria-multiselectable="true"
+            className="max-h-56 overflow-auto"
             data-testid="ward-ms-list"
           >
             {filteredOptions.length === 0 ? (
-              <div className="px-3 py-2 text-sm text-gray-500">
-                No wards match your search
-              </div>
+              <li className="px-3 py-2 text-sm text-gray-500">No wards match your search</li>
             ) : hasMultipleHospitals ? (
               // Grouped by hospital
               Object.entries(groupedFilteredOptions).map(([hospitalName, hospitalWards]) => (
@@ -281,24 +296,34 @@ export const WardMultiSelect: React.FC<Props> = ({
                     const isFocused = focusedIndex === globalIndex;
                     
                     return (
-                      <div
+                      <li
                         key={option.id}
+                        id={`ward-opt-${option.id}`}
                         data-index={globalIndex}
                         role="option"
                         aria-selected={isSelected}
-                        className={`
-                          px-3 py-2 cursor-pointer flex items-center gap-2
-                          ${isFocused ? 'bg-blue-50 ring-1 ring-blue-500' : 'hover:bg-gray-50'}
-                          ${isSelected ? 'bg-blue-50' : ''}
-                        `}
+                        tabIndex={-1}
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => handleOptionToggle(option.id)}
+                        onKeyDown={(e) => handleOptionKeyDown(e, option.id)}
+                        className={`
+                          flex items-center gap-2 px-3 py-2 cursor-pointer
+                          ${isFocused ? 'bg-blue-50 ring-1 ring-blue-500' : 'hover:bg-gray-50'}
+                          ${isSelected ? 'bg-gray-50' : ''}
+                        `}
                         data-testid={`ward-ms-opt-${option.id}`}
                       >
-                        <div className="flex-shrink-0 w-4 h-4 border border-gray-300 rounded flex items-center justify-center">
-                          {isSelected && <Check size={12} className="text-blue-600" />}
-                        </div>
-                        <span className="flex-1">{option.name}</span>
-                      </div>
+                        <input 
+                          type="checkbox" 
+                          readOnly 
+                          checked={isSelected} 
+                          className="pointer-events-none" 
+                        />
+                        <span className="truncate">{option.name}</span>
+                        {option.hospital?.name && (
+                          <span className="ml-auto text-xs text-gray-500">{option.hospital.name}</span>
+                        )}
+                      </li>
                     );
                   })}
                 </div>
@@ -310,28 +335,38 @@ export const WardMultiSelect: React.FC<Props> = ({
                 const isFocused = focusedIndex === index;
                 
                 return (
-                  <div
+                  <li
                     key={option.id}
+                    id={`ward-opt-${option.id}`}
                     data-index={index}
                     role="option"
                     aria-selected={isSelected}
-                    className={`
-                      px-3 py-2 cursor-pointer flex items-center gap-2
-                      ${isFocused ? 'bg-blue-50 ring-1 ring-blue-500' : 'hover:bg-gray-50'}
-                      ${isSelected ? 'bg-blue-50' : ''}
-                    `}
+                    tabIndex={-1}
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleOptionToggle(option.id)}
+                    onKeyDown={(e) => handleOptionKeyDown(e, option.id)}
+                    className={`
+                      flex items-center gap-2 px-3 py-2 cursor-pointer
+                      ${isFocused ? 'bg-blue-50 ring-1 ring-blue-500' : 'hover:bg-gray-50'}
+                      ${isSelected ? 'bg-gray-50' : ''}
+                    `}
                     data-testid={`ward-ms-opt-${option.id}`}
                   >
-                    <div className="flex-shrink-0 w-4 h-4 border border-gray-300 rounded flex items-center justify-center">
-                      {isSelected && <Check size={12} className="text-blue-600" />}
-                    </div>
-                    <span className="flex-1">{option.name}</span>
-                  </div>
+                    <input 
+                      type="checkbox" 
+                      readOnly 
+                      checked={isSelected} 
+                      className="pointer-events-none" 
+                    />
+                    <span className="truncate">{option.name}</span>
+                    {option.hospital?.name && (
+                      <span className="ml-auto text-xs text-gray-500">{option.hospital.name}</span>
+                    )}
+                  </li>
                 );
               })
             )}
-          </div>
+          </ul>
         </div>
       )}
     </div>
