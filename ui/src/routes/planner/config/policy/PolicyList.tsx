@@ -26,20 +26,15 @@ interface Policy {
   wardId?: string;
   label: string;
   isActive: boolean;
-  policyRules?: PolicyRule[];
+  rules?: PolicyRule[];
   createdAt: string;
   updatedAt: string;
 }
 
 interface PolicyRule {
-  id: string;
-  ruleTemplate: {
-    id: string;
-    code: string;
-    name: string;
-  };
+  type: string;
   kind: 'HARD' | 'SOFT';
-  params: any;
+  params: Record<string, any>;
   weight?: number;
 }
 
@@ -222,9 +217,9 @@ const PolicyList: React.FC = () => {
                         {policy.orgId && !policy.wardId && `Org ID: ${policy.orgId}`}
                         {!policy.wardId && !policy.orgId && 'Global'}
                       </p>
-                      {policy.policyRules && (
+                      {policy.rules && (
                         <p className="text-xs text-neutral-500">
-                          {policy.policyRules.length} rule{policy.policyRules.length !== 1 ? 's' : ''}
+                          {policy.rules.length} rule{policy.rules.length !== 1 ? 's' : ''}
                         </p>
                       )}
                     </div>

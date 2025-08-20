@@ -16,9 +16,8 @@ import {
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { policyApi } from '../../../../lib/api/policy';
-import { ruleTemplatesApi, RuleTemplate } from '../../../../lib/api/ruleTemplates';
 import { queryKeys, invalidateQueries } from '../../../../lib/query';
 
 // Zod schema for policy validation
@@ -46,8 +45,8 @@ const policySchema = z.object({
   }),
   substitution: z.record(z.string(), z.array(z.string())),
   timeBudgetMs: z.number().min(10000).max(300000),
-  policyRules: z.array(z.object({
-    ruleTemplateId: z.string(),
+  rules: z.array(z.object({
+    type: z.string(),
     kind: z.enum(['HARD', 'SOFT']),
     params: z.record(z.string(), z.any()),
     weight: z.number().optional(),
@@ -64,14 +63,18 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
   const [activeTab, setActiveTab] = useState('presets');
   const [testResults, setTestResults] = useState<any>(null);
   const [isTesting, setIsTesting] = useState(false);
-  const [selectedRuleTemplate, setSelectedRuleTemplate] = useState<string>('');
+  const [selectedRuleType, setSelectedRuleType] = useState<string>('');
   const queryClient = useQueryClient();
 
-  // Fetch rule templates
-  const { data: ruleTemplates = [] } = useQuery({
-    queryKey: ['ruleTemplates'],
-    queryFn: ruleTemplatesApi.getAll,
-  });
+  // Define available rule types
+  const availableRuleTypes = [
+    { type: 'MIN_REST_HOURS', name: 'Minimum Rest Hours', params: { hours: 11 } },
+    { type: 'MAX_CONSEC_NIGHTS', name: 'Maximum Consecutive Nights', params: { nights: 3 } },
+    { type: 'ONE_SHIFT_PER_DAY', name: 'One Shift Per Day', params: { enabled: true } },
+    { type: 'WEEKLY_CONTRACT_LIMITS', name: 'Weekly Contract Limits', params: { maxHours: 48 } },
+    { type: 'WEEKEND_FAIRNESS', name: 'Weekend Fairness', params: { enabled: true } },
+    { type: 'PREFERENCES', name: 'Staff Preferences', params: { weight: 5 } },
+  ];
 
   const isEditing = !!policyId;
 
@@ -346,24 +349,27 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                 {/* Current Rules */}
                 <div className="space-y-3">
                   <h4 className="text-md font-medium text-neutral-800">Current Rules</h4>
-                  {watch('policyRules')?.length ? (
+                  {watch('rules')?.length ? (
                     <div className="space-y-2">
-                      {watch('policyRules')?.map((rule, index) => {
-                        const template = ruleTemplates.find(t => t.id === rule.ruleTemplateId);
+                      {watch('rules')?.map((rule, index) => {
+                        const ruleType = availableRuleTypes.find(t => t.type === rule.type);
                         return (
                           <div key={index} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
                             <div className="flex-1">
-                              <div className="font-medium text-neutral-900">{template?.name || 'Unknown Rule'}</div>
+                              <div className="font-medium text-neutral-900">{ruleType?.name || rule.type}</div>
                               <div className="text-sm text-neutral-600">
                                 {rule.kind} rule
                                 {rule.weight && ` (weight: ${rule.weight})`}
+                              </div>
+                              <div className="text-xs text-neutral-500">
+                                {JSON.stringify(rule.params)}
                               </div>
                             </div>
                             <button
                               type="button"
                               onClick={() => {
-                                const currentRules = watch('policyRules') || [];
-                                setValue('policyRules', currentRules.filter((_, i) => i !== index));
+                                const currentRules = watch('rules') || [];
+                                setValue('rules', currentRules.filter((_, i) => i !== index));
                               }}
                               className="p-1 text-red-500 hover:text-red-700"
                             >
@@ -384,17 +390,17 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Rule Template
+                        Rule Type
                       </label>
                       <select
-                        value={selectedRuleTemplate}
-                        onChange={(e) => setSelectedRuleTemplate(e.target.value)}
+                        value={selectedRuleType}
+                        onChange={(e) => setSelectedRuleType(e.target.value)}
                         className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       >
-                        <option value="">Select a rule template</option>
-                        {ruleTemplates.map((template) => (
-                          <option key={template.id} value={template.id}>
-                            {template.name}
+                        <option value="">Select a rule type</option>
+                        {availableRuleTypes.map((ruleType) => (
+                          <option key={ruleType.type} value={ruleType.type}>
+                            {ruleType.name}
                           </option>
                         ))}
                       </select>
@@ -404,6 +410,7 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                         Kind
                       </label>
                       <select
+                        id="ruleKind"
                         className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         defaultValue="HARD"
                       >
@@ -416,6 +423,7 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                         Weight (for soft rules)
                       </label>
                       <input
+                        id="ruleWeight"
                         type="number"
                         min="1"
                         max="10"
@@ -427,20 +435,26 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                   <button
                     type="button"
                     onClick={() => {
-                      if (!selectedRuleTemplate) return;
+                      if (!selectedRuleType) return;
                       
-                      const currentRules = watch('policyRules') || [];
+                      const selectedType = availableRuleTypes.find(t => t.type === selectedRuleType);
+                      if (!selectedType) return;
+
+                      const kindSelect = document.getElementById('ruleKind') as HTMLSelectElement;
+                      const weightInput = document.getElementById('ruleWeight') as HTMLInputElement;
+                      
+                      const currentRules = watch('rules') || [];
                       const newRule = {
-                        ruleTemplateId: selectedRuleTemplate,
-                        kind: 'HARD' as const,
-                        params: {},
-                        weight: undefined,
+                        type: selectedRuleType,
+                        kind: kindSelect.value as 'HARD' | 'SOFT',
+                        params: { ...selectedType.params },
+                        weight: kindSelect.value === 'SOFT' ? parseInt(weightInput.value) : undefined,
                       };
                       
-                      setValue('policyRules', [...currentRules, newRule]);
-                      setSelectedRuleTemplate('');
+                      setValue('rules', [...currentRules, newRule]);
+                      setSelectedRuleType('');
                     }}
-                    disabled={!selectedRuleTemplate}
+                    disabled={!selectedRuleType}
                     className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Add Rule

@@ -120,12 +120,12 @@ const EffectivePolicyDisplay: React.FC<EffectivePolicyDisplayProps> = ({
         </div>
 
         {/* Policy Rules */}
-        {policy.policyRules && policy.policyRules.length > 0 && (
+        {policy.rules && policy.rules.length > 0 && (
           <div className="mt-3 pt-3 border-t border-neutral-200">
             <div className="text-xs font-medium text-neutral-700 mb-2">Rules:</div>
             <div className="space-y-1">
-              {policy.policyRules.map((rule) => (
-                <div key={rule.id} className="flex items-center justify-between text-xs">
+              {policy.rules.map((rule, index) => (
+                <div key={index} className="flex items-center justify-between text-xs">
                   <div className="flex items-center space-x-2">
                     <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
                       rule.kind === 'HARD' 
@@ -134,7 +134,7 @@ const EffectivePolicyDisplay: React.FC<EffectivePolicyDisplayProps> = ({
                     }`}>
                       {rule.kind}
                     </span>
-                    <span className="text-neutral-600">{rule.ruleTemplate.name}</span>
+                    <span className="text-neutral-600">{rule.type}</span>
                   </div>
                   {rule.weight && (
                     <span className="text-neutral-500">w: {rule.weight}</span>

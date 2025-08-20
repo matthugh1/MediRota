@@ -5,28 +5,17 @@ const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '';
 console.log('Using API_BASE_URL:', API_BASE_URL || '(relative paths)');
 
 export interface PolicyRule {
-  id: string;
-  policyId: string;
-  ruleTemplateId: string;
+  type: string;
   kind: 'HARD' | 'SOFT';
-  params: any;
+  params: Record<string, any>;
   weight?: number;
-  createdAt: string;
-  updatedAt: string;
-  ruleTemplate: {
-    id: string;
-    code: string;
-    name: string;
-    description: string;
-  };
 }
 
 export interface Policy {
   id: string;
-  scope: 'ORG' | 'WARD' | 'SCHEDULE';
+  scope: 'TRUST' | 'HOSPITAL' | 'WARD';
   orgId?: string;
   wardId?: string;
-  scheduleId?: string;
   weights: {
     unmet: number;
     overtime: number;
@@ -49,20 +38,13 @@ export interface Policy {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  policyRules?: PolicyRule[];
-}
-
-export interface CreatePolicyRuleData {
-  ruleTemplateId: string;
-  kind: 'HARD' | 'SOFT';
-  params: any;
-  weight?: number;
+  rules?: PolicyRule[];
 }
 
 export interface CreatePolicyData {
-  scope: 'ORG' | 'WARD' | 'SCHEDULE';
+  scope: 'TRUST' | 'HOSPITAL' | 'WARD';
+  orgId?: string;
   wardId?: string;
-  scheduleId?: string;
   weights: {
     unmet: number;
     overtime: number;
@@ -83,7 +65,7 @@ export interface CreatePolicyData {
   timeBudgetMs: number;
   label: string;
   isActive: boolean;
-  policyRules?: CreatePolicyRuleData[];
+  rules?: PolicyRule[];
 }
 
 export interface UpdatePolicyData extends Partial<CreatePolicyData> {}
@@ -92,7 +74,6 @@ export interface UpdatePolicyData extends Partial<CreatePolicyData> {}
 
 export interface EffectivePolicyParams {
   wardId?: string;
-  scheduleId?: string;
 }
 
 class PolicyApi {
@@ -134,7 +115,7 @@ class PolicyApi {
   getEffectivePolicy = async (params: EffectivePolicyParams): Promise<Policy> => {
     const queryParams = new URLSearchParams();
     if (params.wardId) queryParams.append('wardId', params.wardId);
-    if (params.scheduleId) queryParams.append('scheduleId', params.scheduleId);
+
     
     const response = await this.api.get(`/effective?${queryParams.toString()}`);
     return response.data;
@@ -194,7 +175,7 @@ try {
     getEffectivePolicy: async (params: EffectivePolicyParams) => {
       const queryParams = new URLSearchParams();
       if (params.wardId) queryParams.append('wardId', params.wardId);
-      if (params.scheduleId) queryParams.append('scheduleId', params.scheduleId);
+  
       const response = await fetch(`/api/policy/effective?${queryParams.toString()}`);
       return response.json();
     },
