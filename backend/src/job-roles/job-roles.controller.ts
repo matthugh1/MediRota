@@ -44,7 +44,9 @@ export class JobRolesController {
 	@ApiQuery({ name: 'take', required: false, description: 'Number of items to take', type: Number })
 	@ApiQuery({ name: 'skip', required: false, description: 'Number of items to skip', type: Number })
 	@ApiQuery({ name: 'orderBy', required: false, description: 'Field to order by', example: 'name' })
-	findAll(@Query() query: { search?: string; take?: number; skip?: number; orderBy?: string }) {
+	@ApiQuery({ name: 'trustId', required: false, description: 'Filter by trust ID' })
+	@ApiQuery({ name: 'hospitalId', required: false, description: 'Filter by hospital ID' })
+	findAll(@Query() query: { search?: string; take?: number; skip?: number; orderBy?: string; trustId?: string; hospitalId?: string }) {
 		return this.jobRolesService.findAll(query);
 	}
 

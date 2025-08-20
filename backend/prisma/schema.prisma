@@ -58,13 +58,25 @@ model Skill {
 
 model JobRole {
 	id        String @id @default(uuid()) @db.Uuid
-	code      String @unique @db.VarChar(64)
+	code      String @db.VarChar(64)
 	name      String @db.VarChar(160)
+	
+	// Organisational hierarchy (nullable)
+	scope      String? @db.VarChar(20) // 'TRUST', 'HOSPITAL'
+	trustId    String? @db.Uuid
+	hospitalId String? @db.Uuid
+	
+	// Relations
+	trust    Trust?    @relation(fields: [trustId], references: [id], onDelete: SetNull)
+	hospital Hospital? @relation(fields: [hospitalId], references: [id], onDelete: SetNull)
+	staff    Staff[]
+
+	// Timestamps
 	createdAt DateTime @default(now())
 	updatedAt DateTime @updatedAt
 
-	// Relations
-	staff Staff[]
+	@@unique([scope, trustId, hospitalId, code])
+	@@index([scope, trustId, hospitalId])
 }
 
 model WardSkill {
@@ -295,6 +307,7 @@ model Trust {
 
 	// Relations
 	hospitals Hospital[]
+	jobRoles  JobRole[]
 }
 
 model Hospital {
@@ -306,7 +319,8 @@ model Hospital {
 	updatedAt DateTime @updatedAt
 
 	// Relations
-	wards Ward[]
+	wards    Ward[]
+	jobRoles JobRole[]
 
 	@@index([trustId])
 	@@unique([trustId, name])

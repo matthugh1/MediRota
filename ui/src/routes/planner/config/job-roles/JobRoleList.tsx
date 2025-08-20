@@ -10,10 +10,15 @@ import { DrawerForm } from '../components/DrawerForm';
 import { FormField } from '../components/FormFields';
 import { useToastSuccess, useToastError, useConfirmDelete } from '../../../../components';
 import { jobRolesApi, JobRole } from '../../../../lib/api/jobRoles.js';
+import { useOrgScope } from '../../../../lib/orgScope.js';
+import { ORG_HIERARCHY_ENABLED } from '../../../../lib/flags.js';
 
 const jobRoleSchema = z.object({
   code: z.string().min(1, 'Job role code is required').max(20, 'Job role code must be less than 20 characters'),
   name: z.string().min(1, 'Job role name is required').max(100, 'Job role name must be less than 100 characters'),
+  scope: z.enum(['TRUST', 'HOSPITAL']).optional(),
+  trustId: z.string().optional(),
+  hospitalId: z.string().optional(),
 });
 
 type JobRoleFormData = z.infer<typeof jobRoleSchema>;
@@ -34,6 +39,37 @@ const columns: ColumnDef<JobRole>[] = [
     cell: ({ row }) => (
       <div className="font-medium text-zinc-900">{row.getValue('name')}</div>
     ),
+  },
+  {
+    accessorKey: 'scope',
+    header: 'Scope',
+    cell: ({ row }) => {
+      const scope = row.getValue('scope') as string;
+      const trust = row.original.trust;
+      const hospital = row.original.hospital;
+      
+      if (!scope) {
+        return <div className="text-sm text-zinc-400">Global</div>;
+      }
+      
+      if (scope === 'TRUST' && trust) {
+        return (
+          <div className="text-sm">
+            <span className="text-blue-600 font-medium">Trust:</span> {trust.name}
+          </div>
+        );
+      }
+      
+      if (scope === 'HOSPITAL' && hospital) {
+        return (
+          <div className="text-sm">
+            <span className="text-green-600 font-medium">Hospital:</span> {hospital.name}
+          </div>
+        );
+      }
+      
+      return <div className="text-sm text-zinc-500">{scope}</div>;
+    },
   },
   {
     accessorKey: 'createdAt',
@@ -60,11 +96,16 @@ export default function JobRoleList() {
   const showError = useToastError();
   const confirmDelete = useConfirmDelete();
 
+  const { hospitalId, trustId } = useOrgScope();
+  
   const form = useForm<JobRoleFormData>({
     resolver: zodResolver(jobRoleSchema),
     defaultValues: {
       code: '',
       name: '',
+      scope: undefined,
+      trustId: undefined,
+      hospitalId: undefined,
     },
   });
 
@@ -73,7 +114,18 @@ export default function JobRoleList() {
     const loadJobRoles = async () => {
       try {
         setIsLoading(true);
-        const response = await jobRolesApi.list();
+        const params: any = {};
+        
+        // Apply organizational filtering if hierarchy is enabled
+        if (ORG_HIERARCHY_ENABLED) {
+          if (hospitalId) {
+            params.hospitalId = hospitalId;
+          } else if (trustId) {
+            params.trustId = trustId;
+          }
+        }
+        
+        const response = await jobRolesApi.list(params);
         setJobRoles(response.data || []);
       } catch (error) {
         showError('Failed to load job roles', error instanceof Error ? error.message : 'Unknown error');
@@ -83,7 +135,7 @@ export default function JobRoleList() {
     };
 
     loadJobRoles();
-  }, [showError]);
+  }, [showError, hospitalId, trustId]);
 
   // Keyboard shortcuts
   useHotkeys('n', (e) => {
@@ -104,6 +156,9 @@ export default function JobRoleList() {
     form.reset({
       code: '',
       name: '',
+      scope: undefined,
+      trustId: undefined,
+      hospitalId: undefined,
     });
     setIsDrawerOpen(true);
   };
@@ -113,6 +168,9 @@ export default function JobRoleList() {
     form.reset({
       code: jobRole.code,
       name: jobRole.name,
+      scope: jobRole.scope,
+      trustId: jobRole.trust?.id,
+      hospitalId: jobRole.hospital?.id,
     });
     setIsDrawerOpen(true);
   };
@@ -203,8 +261,85 @@ export default function JobRoleList() {
               required
             />
             
+            {ORG_HIERARCHY_ENABLED && (
+              <>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700 mb-2">
+                      Organizational Scope
+                    </label>
+                    <div className="space-y-2">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="scope"
+                          value=""
+                          className="mr-2"
+                          onChange={(e) => {
+                            form.setValue('scope', undefined);
+                            form.setValue('trustId', undefined);
+                            form.setValue('hospitalId', undefined);
+                          }}
+                        />
+                        <span className="text-sm">Global (available to all hospitals)</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="scope"
+                          value="TRUST"
+                          className="mr-2"
+                          onChange={(e) => {
+                            form.setValue('scope', 'TRUST');
+                            form.setValue('hospitalId', undefined);
+                          }}
+                        />
+                        <span className="text-sm">Trust-specific</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="scope"
+                          value="HOSPITAL"
+                          className="mr-2"
+                          onChange={(e) => {
+                            form.setValue('scope', 'HOSPITAL');
+                            form.setValue('trustId', undefined);
+                          }}
+                        />
+                        <span className="text-sm">Hospital-specific</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {form.watch('scope') === 'TRUST' && (
+                    <FormField
+                      name="trustId"
+                      label="Trust"
+                      placeholder="Select a trust"
+                      required
+                    />
+                  )}
+                  
+                  {form.watch('scope') === 'HOSPITAL' && (
+                    <FormField
+                      name="hospitalId"
+                      label="Hospital"
+                      placeholder="Select a hospital"
+                      required
+                    />
+                  )}
+                </div>
+              </>
+            )}
+            
             <div className="text-sm text-zinc-500">
               <p>The job role code is used internally and should be short and unique.</p>
+              {ORG_HIERARCHY_ENABLED && (
+                <p className="mt-1">
+                  Choose the organizational scope to limit where this job role can be used.
+                </p>
+              )}
             </div>
           </div>
         </FormProvider>

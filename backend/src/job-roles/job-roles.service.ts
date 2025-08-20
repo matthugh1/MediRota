@@ -13,35 +13,60 @@ export class JobRolesService {
 		try {
 			const jobRole = await this.prisma.jobRole.create({
 				data: createJobRoleDto,
+				include: {
+					trust: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+					hospital: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+				},
 			});
 
 			return {
 				id: jobRole.id,
 				code: jobRole.code,
 				name: jobRole.name,
+				scope: jobRole.scope || undefined,
+				trust: jobRole.trust,
+				hospital: jobRole.hospital,
 				createdAt: jobRole.createdAt.toISOString(),
 			};
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === 'P2002') {
-					throw new ConflictException('Job role code must be unique');
+					throw new ConflictException('Job role code must be unique within the selected scope');
 				}
 			}
 			throw error;
 		}
 	}
 
-	async findAll(query?: { search?: string; take?: number; skip?: number; orderBy?: string }) {
-		const { search, take = 20, skip = 0, orderBy = 'name' } = query || {};
+	async findAll(query?: { search?: string; take?: number; skip?: number; orderBy?: string; trustId?: string; hospitalId?: string }) {
+		const { search, take = 20, skip = 0, orderBy = 'name', trustId, hospitalId } = query || {};
 
 		let where: Prisma.JobRoleWhereInput = {};
+		
+		// Search filter
 		if (search) {
-			where = {
-				OR: [
-					{ code: { contains: search, mode: 'insensitive' } },
-					{ name: { contains: search, mode: 'insensitive' } },
-				],
-			};
+			where.OR = [
+				{ code: { contains: search, mode: 'insensitive' } },
+				{ name: { contains: search, mode: 'insensitive' } },
+			];
+		}
+
+		// Organizational filtering
+		if (trustId) {
+			where.trustId = trustId;
+		}
+		if (hospitalId) {
+			where.hospitalId = hospitalId;
 		}
 
 		const [jobRoles, total] = await Promise.all([
@@ -50,6 +75,20 @@ export class JobRolesService {
 				take: Number(take),
 				skip: Number(skip),
 				orderBy: { [orderBy]: 'asc' },
+				include: {
+					trust: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+					hospital: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+				},
 			}),
 			this.prisma.jobRole.count({ where }),
 		]);
@@ -58,6 +97,9 @@ export class JobRolesService {
 			id: jobRole.id,
 			code: jobRole.code,
 			name: jobRole.name,
+			scope: jobRole.scope || undefined,
+			trust: jobRole.trust,
+			hospital: jobRole.hospital,
 			createdAt: jobRole.createdAt.toISOString(),
 		}));
 
@@ -73,6 +115,20 @@ export class JobRolesService {
 	async findOne(id: string): Promise<JobRoleResponseDto> {
 		const jobRole = await this.prisma.jobRole.findUnique({
 			where: { id },
+			include: {
+				trust: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+				hospital: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+			},
 		});
 
 		if (!jobRole) {
@@ -83,6 +139,9 @@ export class JobRolesService {
 			id: jobRole.id,
 			code: jobRole.code,
 			name: jobRole.name,
+			scope: jobRole.scope || undefined,
+			trust: jobRole.trust,
+			hospital: jobRole.hospital,
 			createdAt: jobRole.createdAt.toISOString(),
 		};
 	}
@@ -94,18 +153,35 @@ export class JobRolesService {
 			const jobRole = await this.prisma.jobRole.update({
 				where: { id },
 				data: updateJobRoleDto,
+				include: {
+					trust: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+					hospital: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+				},
 			});
 
 			return {
 				id: jobRole.id,
 				code: jobRole.code,
 				name: jobRole.name,
+				scope: jobRole.scope || undefined,
+				trust: jobRole.trust,
+				hospital: jobRole.hospital,
 				createdAt: jobRole.createdAt.toISOString(),
 			};
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === 'P2002') {
-					throw new ConflictException('Job role code must be unique');
+					throw new ConflictException('Job role code must be unique within the selected scope');
 				}
 			}
 			throw error;
