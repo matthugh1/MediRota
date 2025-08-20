@@ -223,7 +223,13 @@ export class SolveService {
 			include: {
 				skills: true,
 				wards: true,
-				job: true,
+				jobRole: {
+					select: {
+						id: true,
+						code: true,
+						name: true,
+					},
+				},
 			},
 		});
 
@@ -315,7 +321,7 @@ export class SolveService {
 			staff: staff.map(s => ({
 				id: s.id,
 				fullName: s.fullName,
-				job: s.job.name,
+				job: s.jobRole.name,
 				contractHoursPerWeek: s.contractHoursPerWeek,
 				skills: s.skills.map(skill => skill.code),
 				eligibleWards: s.wards.map(w => w.id),

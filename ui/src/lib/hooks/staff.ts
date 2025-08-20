@@ -9,17 +9,12 @@ export interface Staff {
   lastName: string;
   fullName: string; // server-composed
   role: string;
-  jobId: string;
-  job: {
-    id: string;
-    name: string;
-  };
   gradeBand?: string;
   contractHoursPerWeek: number;
   active: boolean;
   wards: Array<{ id: string; name: string }>;
   skills: Array<{ id: string; name: string }>;
-  jobRole?: { id: string; code: string; name: string } | null;
+  jobRole: { id: string; code: string; name: string };
   legacyJob?: string | null;
   _count?: {
     assignments: number;
@@ -31,13 +26,12 @@ export interface CreateStaffData {
   prefix?: string;
   firstName: string;
   lastName: string;
-  jobId: string;
+  jobRoleId: string;
   gradeBand?: string;
   contractHoursPerWeek: number;
   active?: boolean;
   wardIds?: string[];
   skillIds?: string[];
-  jobRoleId?: string;
 }
 
 export interface UpdateStaffData extends Partial<CreateStaffData> {
@@ -45,7 +39,6 @@ export interface UpdateStaffData extends Partial<CreateStaffData> {
 }
 
 export interface StaffListParams extends QueryParams {
-  jobId?: string;
   wardId?: string;
   skillId?: string;
   active?: boolean;
@@ -69,7 +62,7 @@ const fetchStaffList = async (params: StaffListParams): Promise<PaginatedRespons
   if (params.search) searchParams.append('search', params.search);
   if (params.sortBy) searchParams.append('sortBy', params.sortBy);
   if (params.sortOrder) searchParams.append('sortOrder', params.sortOrder);
-  if (params.jobId) searchParams.append('jobId', params.jobId);
+
   if (params.wardId) searchParams.append('wardId', params.wardId);
   if (params.skillId) searchParams.append('skillId', params.skillId);
   if (params.active !== undefined) searchParams.append('active', params.active.toString());

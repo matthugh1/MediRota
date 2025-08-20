@@ -172,15 +172,6 @@ const StaffTable: React.FC<StaffTableProps> = ({
                   </button>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                  <button
-                    onClick={() => handleSort('job.name')}
-                    className="flex items-center space-x-1 hover:text-neutral-700 transition-colors"
-                  >
-                    <span>Job</span>
-                    <SortIcon field="job.name" />
-                  </button>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                   <span>Job Role</span>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
@@ -237,11 +228,6 @@ const StaffTable: React.FC<StaffTableProps> = ({
                       <div className="text-sm font-medium text-neutral-900">
                         {staffMember.fullName || displayName(staffMember)}
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-neutral-900">
-                      {staffMember.job.name}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

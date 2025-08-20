@@ -7,7 +7,7 @@ import { HospitalsModule } from './hospitals/hospitals.module.js';
 import { WardsModule } from './wards/wards.module.js';
 import { SkillsModule } from './skills/skills.module.js';
 import { StaffModule } from './staff/staff.module.js';
-import { JobsModule } from './jobs/jobs.module.js';
+
 import { ShiftTypesModule } from './shift-types/shift-types.module.js';
 import { RuleSetsModule } from './rule-sets/rule-sets.module.js';
 import { SchedulesModule } from './schedules/schedules.module.js';
@@ -30,7 +30,7 @@ import { JobRolesModule } from './job-roles/job-roles.module.js';
 		WardsModule,
 		SkillsModule,
 		StaffModule,
-		JobsModule,
+
 		ShiftTypesModule,
 		RuleSetsModule,
 		SchedulesModule,

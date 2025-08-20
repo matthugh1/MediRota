@@ -34,7 +34,6 @@ export class StaffService {
 			include: {
 				wards: true,
 				skills: true,
-				job: true,
 				jobRole: {
 					select: {
 						id: true,
@@ -53,7 +52,7 @@ export class StaffService {
 	}
 
 	async findAll(queryDto: QueryStaffDto): Promise<PaginatedResponseDto<any>> {
-		const { page = 1, limit = 20, search, jobId, wardId, skillId, active, hospitalId } = queryDto;
+		const { page = 1, limit = 20, search, wardId, skillId, active, hospitalId } = queryDto;
 		const skip = (page - 1) * limit;
 
 		// Build where clause for filtering
@@ -67,9 +66,7 @@ export class StaffService {
 			];
 		}
 		
-		if (jobId) {
-			where.jobId = jobId;
-		}
+
 		
 		if (active !== undefined) {
 			where.active = active;
@@ -94,7 +91,6 @@ export class StaffService {
 				include: {
 					wards: true,
 					skills: true,
-					job: true,
 					jobRole: {
 						select: {
 							id: true,
@@ -137,7 +133,6 @@ export class StaffService {
 			include: {
 				wards: true,
 				skills: true,
-				job: true,
 				jobRole: {
 					select: {
 						id: true,
@@ -192,7 +187,6 @@ export class StaffService {
 			include: {
 				wards: true,
 				skills: true,
-				job: true,
 				jobRole: {
 					select: {
 						id: true,

@@ -10,7 +10,6 @@ interface StaffDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   staff?: Staff;
-  jobs: Job[];
   skills: Skill[];
   wards: Ward[];
   onSubmit: (data: CreateStaffData) => void;
@@ -22,7 +21,6 @@ const StaffDrawer: React.FC<StaffDrawerProps> = ({
   isOpen,
   onClose,
   staff,
-  jobs,
   skills,
   wards,
   onSubmit,
@@ -81,7 +79,7 @@ const StaffDrawer: React.FC<StaffDrawerProps> = ({
               <div className="p-6">
                 <StaffForm
                   staff={staff}
-                  jobs={jobs}
+          
                   skills={skills}
                   wards={wards}
                   onSubmit={onSubmit}

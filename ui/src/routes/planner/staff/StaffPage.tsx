@@ -6,7 +6,6 @@ import { motionPresets } from '../../../lib/motion';
 import { 
   useStaffList, 
   useStaffStats, 
-  useJobs, 
   useSkills, 
   useWards,
   useCreateStaff,
@@ -23,7 +22,7 @@ import { displayName } from '../../../components/utils/name';
 
 const StaffPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedJob, setSelectedJob] = useState('');
+
   const [selectedWard, setSelectedWard] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | undefined>();
@@ -35,13 +34,11 @@ const StaffPage: React.FC = () => {
   // Data hooks
   const { data: staffList, isLoading, error, refetch } = useStaffList({
     search: searchTerm || undefined,
-    jobId: selectedJob || undefined,
     wardId: selectedWard || undefined,
     limit: 50,
   });
   
   const { total, active, averageSkills } = useStaffStats();
-  const { data: jobs = [] } = useJobs();
   const { data: skills = [] } = useSkills();
   const { data: wards = [] } = useWards();
   
@@ -276,7 +273,7 @@ const StaffPage: React.FC = () => {
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
         staff={editingStaff}
-        jobs={jobs}
+
         skills={skills}
         wards={wards}
         onSubmit={handleSubmitStaff}

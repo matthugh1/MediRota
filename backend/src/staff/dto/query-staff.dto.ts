@@ -23,10 +23,7 @@ export class QueryStaffDto {
 	@IsString()
 	search?: string;
 
-	@ApiPropertyOptional({ description: 'Filter by job ID' })
-	@IsOptional()
-	@IsString()
-	jobId?: string;
+
 
 	@ApiPropertyOptional({ description: 'Filter by ward ID' })
 	@IsOptional()

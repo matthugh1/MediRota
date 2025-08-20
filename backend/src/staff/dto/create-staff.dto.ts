@@ -42,9 +42,9 @@ export class CreateStaffDto {
 	@IsUUID('4', { each: true })
 	wardIds?: string[];
 
-	@ApiProperty({ description: 'Job ID the staff belongs to' })
+	@ApiProperty({ description: 'Job role ID the staff belongs to' })
 	@IsUUID('4')
-	jobId!: string;
+	jobRoleId!: string;
 
 	@ApiPropertyOptional({ description: 'Skill IDs the staff has' })
 	@IsOptional()
@@ -56,9 +56,4 @@ export class CreateStaffDto {
 	@IsOptional()
 	@IsUUID('4')
 	hospitalId?: string;
-
-	@ApiPropertyOptional({ description: 'Job role ID to assign to the staff' })
-	@IsOptional()
-	@IsUUID('4')
-	jobRoleId?: string;
 }
