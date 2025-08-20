@@ -50,7 +50,17 @@ export function ActionsBar({
       <div className="bg-white border border-zinc-200 rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            {hasSchedule ? (
+            {/* Always show Create Schedule button */}
+            <button
+              onClick={onCreateSchedule}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Schedule
+            </button>
+
+            {/* Show Solve and Repair buttons only when a schedule exists */}
+            {hasSchedule && (
               <>
                 <button
                   onClick={onRunSolve}
@@ -88,14 +98,6 @@ export function ActionsBar({
                   )}
                 </button>
               </>
-            ) : (
-              <button
-                onClick={onCreateSchedule}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Schedule
-              </button>
             )}
           </div>
 
