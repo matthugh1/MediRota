@@ -12,6 +12,7 @@ You are building an MVP multi-ward NHS rota SaaS.
 ### Scope (MVP)
 - Multi-ward; Doctors horizon 6–12 months; Nurses 4–6 weeks.
 - No external system integrations; all data created/edited in-app and stored in Postgres.
+- Policy system: RuleTemplate (definition) → PolicyRule (instance with scope + params + kind + weight) → Policy (bundle of rules).
 - Rules: Hard (skill-mix coverage; ≥11h rest; one shift/day/person; max consecutive nights=3 default; eligibility; weekly rest approx). Soft (fairness for nights/weekends; preferences).
 - Objective weights: unfilled=1e6, hard=1e5, fairness=10, preferences=5.
 - Repair mode: sub-60s target via warm start + local relaxation windows.
