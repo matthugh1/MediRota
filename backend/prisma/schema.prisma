@@ -168,8 +168,6 @@ model Schedule {
 	assignments Assignment[]
 	events      Event[]
 	locks       Lock[]
-
-	@@unique([wardId, status])
 }
 
 enum ScheduleStatus {
