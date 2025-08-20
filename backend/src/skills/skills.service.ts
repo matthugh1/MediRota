@@ -5,13 +5,11 @@ import { UpdateSkillDto } from './dto/update-skill.dto.js';
 import { QuerySkillDto } from './dto/query-skill.dto.js';
 import { SkillResponseDto } from './dto/skill-response.dto.js';
 import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto.js';
-import { OrgCompatService } from '../common/org-compat.service.js';
 
 @Injectable()
 export class SkillsService {
 	constructor(
 		private prisma: PrismaService,
-		private orgCompatService: OrgCompatService,
 	) {}
 
 	async create(createSkillDto: CreateSkillDto): Promise<SkillResponseDto> {
