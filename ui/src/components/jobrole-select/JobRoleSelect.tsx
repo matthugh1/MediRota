@@ -1,31 +1,23 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { X, ChevronDown, Check } from 'lucide-react';
-import { useTrustOptions } from './useTrustOptions.js';
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, Check } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { jobRolesApi } from '../../lib/api/jobRoles.js';
 
-export type TrustOption = { id: string; name: string };
+export type Option = { id: string; name: string; code: string };
 
 type Props = {
-	value: string[];
-	onChange: (ids: string[]) => void;
-	options: TrustOption[];
-	loading?: boolean;
-	error?: string | null;
+	value?: string | null; // jobRoleId
+	onChange: (id: string | null) => void;
 	disabled?: boolean;
-	placeholder?: string;
 	'data-testid'?: string;
 };
 
-export function TrustMultiSelect({
+export function JobRoleSelect({
 	value,
 	onChange,
-	options,
-	loading = false,
-	error = null,
 	disabled = false,
-	placeholder = 'Search trusts...',
-	'data-testid': testId = 'trust-ms',
+	'data-testid': testId = 'jobrole-select',
 }: Props) {
-
 	const [open, setOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -33,40 +25,23 @@ export function TrustMultiSelect({
 	const listRef = useRef<HTMLUListElement>(null);
 	const listId = `${testId}-list`;
 
-	const selected = new Set(value);
-	const selectedOptions = options.filter(opt => selected.has(opt.id));
+	// Fetch job roles
+	const { data: jobRoles = [], isLoading, error } = useQuery({
+		queryKey: ['job-roles'],
+		queryFn: async () => {
+			const response = await jobRolesApi.list();
+			return response.data || [];
+		},
+	});
 
 	// Filter options based on search term
-	const filteredOptions = options.filter(opt =>
-		opt.name.toLowerCase().includes(searchTerm.toLowerCase())
+	const filteredOptions = jobRoles.filter(opt =>
+		opt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+		opt.code.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
-	// Handle option selection
-	const handleOptionToggle = useCallback((optionId: string) => {
-		console.log('TrustMultiSelect handleOptionToggle called with id:', optionId);
-		const newValue = value.includes(optionId)
-			? value.filter(id => id !== optionId)
-			: [...value, optionId];
-		console.log('TrustMultiSelect new value:', newValue);
-		onChange(newValue);
-	}, [value, onChange]);
-
-	// Handle chip removal
-	const handleChipRemove = useCallback((optionId: string) => {
-		onChange(value.filter(id => id !== optionId));
-	}, [value, onChange]);
-
-	// Handle select all filtered
-	const handleSelectAll = useCallback(() => {
-		const filteredIds = filteredOptions.map(option => option.id);
-		const newValue = [...new Set([...value, ...filteredIds])];
-		onChange(newValue);
-	}, [filteredOptions, value, onChange]);
-
-	// Handle clear all
-	const handleClear = useCallback(() => {
-		onChange([]);
-	}, [onChange]);
+	// Find selected option
+	const selectedOption = jobRoles.find(opt => opt.id === value);
 
 	const toggleOpen = () => {
 		if (!disabled) {
@@ -118,7 +93,8 @@ export function TrustMultiSelect({
 				case ' ':
 					e.preventDefault();
 					if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
-						handleOptionToggle(filteredOptions[focusedIndex].id);
+						onChange(filteredOptions[focusedIndex].id);
+						close();
 					}
 					break;
 			}
@@ -126,7 +102,7 @@ export function TrustMultiSelect({
 
 		document.addEventListener('keydown', handleKeyDown);
 		return () => document.removeEventListener('keydown', handleKeyDown);
-	}, [open, focusedIndex, filteredOptions]);
+	}, [open, focusedIndex, filteredOptions, onChange]);
 
 	// Close on outside click
 	useEffect(() => {
@@ -155,10 +131,10 @@ export function TrustMultiSelect({
 		}
 	}, [open]);
 
-	if (loading) {
+	if (isLoading) {
 		return (
 			<div className="border border-gray-300 rounded-md p-3 bg-gray-50">
-				<div className="text-sm text-gray-500">Loading trusts...</div>
+				<div className="text-sm text-gray-500">Loading job roles...</div>
 			</div>
 		);
 	}
@@ -166,7 +142,7 @@ export function TrustMultiSelect({
 	if (error) {
 		return (
 			<div className="border border-red-300 rounded-md p-3 bg-red-50">
-				<div className="text-sm text-red-600">Error loading trusts: {error}</div>
+				<div className="text-sm text-red-600">Error loading job roles</div>
 			</div>
 		);
 	}
@@ -198,36 +174,15 @@ export function TrustMultiSelect({
 				`}
 				data-testid={`${testId}-trigger`}
 			>
-				<div className="flex flex-wrap gap-1">
-					{selectedOptions.map(opt => (
-						<span
-							key={opt.id}
-							className="inline-flex items-center gap-1 px-2 py-1 text-sm bg-blue-100 text-blue-800 rounded-full"
-						>
-							{opt.name}
-							<button
-								type="button"
-								aria-label={`Remove ${opt.name}`}
-								onClick={(e) => {
-									e.stopPropagation();
-									handleChipRemove(opt.id);
-								}}
-								className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
-							>
-								<X size={12} />
-							</button>
-						</span>
-					))}
-					{selectedOptions.length === 0 && (
-						<span className="text-gray-500">{placeholder}</span>
-					)}
+				<div className="flex items-center justify-between">
+					<span className={selectedOption ? 'text-gray-900' : 'text-gray-500'}>
+						{selectedOption ? `${selectedOption.name} (${selectedOption.code})` : 'Select job role...'}
+					</span>
+					<ChevronDown
+						size={16}
+						className={`transform transition-transform ${open ? 'rotate-180' : ''}`}
+					/>
 				</div>
-				<ChevronDown
-					size={16}
-					className={`absolute right-2 top-1/2 transform -translate-y-1/2 transition-transform ${
-						open ? 'rotate-180' : ''
-					}`}
-				/>
 			</div>
 
 			{/* Dropdown */}
@@ -244,31 +199,11 @@ export function TrustMultiSelect({
 							type="text"
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
-							placeholder="Search trusts..."
+							placeholder="Search job roles..."
 							className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
 							data-testid={`${testId}-search`}
-							aria-label="Search trusts"
+							aria-label="Search job roles"
 						/>
-					</div>
-
-					{/* Actions */}
-					<div className="flex gap-2 p-2 border-b">
-													<button
-								type="button"
-								onClick={handleSelectAll}
-								className="text-xs text-blue-600 hover:text-blue-800"
-								data-testid={`${testId}-select-all`}
-							>
-								Select all
-							</button>
-							<button
-								type="button"
-								onClick={handleClear}
-								className="text-xs text-gray-600 hover:text-gray-800"
-								data-testid={`${testId}-clear`}
-							>
-								Clear
-							</button>
 					</div>
 
 					{/* Options */}
@@ -276,24 +211,25 @@ export function TrustMultiSelect({
 						ref={listRef}
 						id={listId}
 						role="listbox"
-						aria-multiselectable="true"
 						className="max-h-56 overflow-auto"
 						data-testid={`${testId}-list`}
 					>
 						{filteredOptions.map((opt, index) => {
-							const isSelected = value.includes(opt.id);
+							const isSelected = value === opt.id;
 							const isFocused = focusedIndex === index;
 							
 							return (
 								<li
 									key={opt.id}
-									id={`trust-opt-${opt.id}`}
-									data-index={index}
+									id={`jobrole-opt-${opt.id}`}
 									role="option"
 									aria-selected={isSelected}
 									tabIndex={-1}
 									onMouseDown={(e) => e.preventDefault()} // keep focus
-									onClick={() => handleOptionToggle(opt.id)}
+									onClick={() => {
+										onChange(opt.id);
+										close();
+									}}
 									onKeyDown={(e) => {
 										if (e.key === 'ArrowDown') focusOption(index + 1);
 										if (e.key === 'ArrowUp') focusOption(index - 1);
@@ -306,19 +242,19 @@ export function TrustMultiSelect({
 									`}
 									data-testid={`${testId}-opt-${opt.id}`}
 								>
-									<input
-										type="checkbox"
-										readOnly
-										checked={isSelected}
-										className="pointer-events-none"
-									/>
-									<span className="truncate">{opt.name}</span>
+									{isSelected && (
+										<Check size={16} className="text-blue-600" />
+									)}
+									<div className="flex-1">
+										<div className="font-medium">{opt.name}</div>
+										<div className="text-sm text-gray-500">{opt.code}</div>
+									</div>
 								</li>
 							);
 						})}
 						{filteredOptions.length === 0 && (
-							<li className="px-2 py-1 text-sm text-gray-500">
-								No trusts match your search
+							<li className="px-3 py-2 text-sm text-gray-500">
+								No job roles match your search
 							</li>
 						)}
 					</ul>

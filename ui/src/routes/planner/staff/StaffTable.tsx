@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Staff } from '../../../lib/hooks/staff';
 import { motionPresets } from '../../../lib/motion';
+import { displayName } from '../../../components/utils/name';
 
 interface StaffTableProps {
   staff: Staff[];
@@ -62,8 +63,8 @@ const StaffTable: React.FC<StaffTableProps> = ({
 
       switch (sortField) {
         case 'fullName':
-          aValue = a.fullName.toLowerCase();
-          bValue = b.fullName.toLowerCase();
+          aValue = (a.fullName || displayName(a)).toLowerCase();
+          bValue = (b.fullName || displayName(b)).toLowerCase();
           break;
         case 'job.name':
           aValue = a.job.name.toLowerCase();
@@ -180,6 +181,9 @@ const StaffTable: React.FC<StaffTableProps> = ({
                   </button>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                  <span>Job Role</span>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort('gradeBand')}
                     className="flex items-center space-x-1 hover:text-neutral-700 transition-colors"
@@ -231,13 +235,29 @@ const StaffTable: React.FC<StaffTableProps> = ({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-neutral-900">
-                        {staffMember.fullName}
+                        {staffMember.fullName || displayName(staffMember)}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-neutral-900">
                       {staffMember.job.name}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-neutral-900">
+                      {staffMember.jobRole ? (
+                        <span>{staffMember.jobRole.name}</span>
+                      ) : staffMember.legacyJob ? (
+                        <span className="flex items-center gap-1">
+                          {staffMember.legacyJob}
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-600">
+                            (legacy)
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-neutral-400">-</span>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

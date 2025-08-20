@@ -27,7 +27,7 @@ export function HospitalMultiSelect({
 	groupByTrust = false,
 	'data-testid': testId = 'hospital-ms',
 }: Props) {
-	console.log('HospitalMultiSelect props:', { value, options, loading, error, disabled, groupByTrust });
+
 	const [open, setOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -133,7 +133,7 @@ export function HospitalMultiSelect({
 				case ' ':
 					e.preventDefault();
 					if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
-						toggle(filteredOptions[focusedIndex].id);
+						handleOptionToggle(filteredOptions[focusedIndex].id);
 					}
 					break;
 			}
@@ -147,7 +147,12 @@ export function HospitalMultiSelect({
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			const target = event.target as Node;
-			if (triggerRef.current && !triggerRef.current.contains(target)) {
+			
+			// Check if click is inside the trigger OR inside the dropdown
+			const isInsideTrigger = triggerRef.current && triggerRef.current.contains(target);
+			const isInsideDropdown = listRef.current && listRef.current.contains(target);
+			
+			if (!isInsideTrigger && !isInsideDropdown) {
 				close();
 			}
 		};
@@ -306,14 +311,11 @@ export function HospitalMultiSelect({
 												role="option"
 												aria-selected={selected.has(opt.id)}
 												tabIndex={-1}
-												onClick={() => {
-													console.log('Hospital option clicked:', opt.id, opt.name);
-													handleOptionToggle(opt.id);
-												}}
+												onClick={() => handleOptionToggle(opt.id)}
 												onKeyDown={(e) => {
 													if (e.key === 'Enter' || e.key === ' ') {
 														e.preventDefault();
-														toggle(opt.id);
+														handleOptionToggle(opt.id);
 													}
 													if (e.key === 'ArrowDown') focusOption(globalIndex + 1);
 													if (e.key === 'ArrowUp') focusOption(globalIndex - 1);
@@ -352,11 +354,8 @@ export function HospitalMultiSelect({
 										role="option"
 										aria-selected={isSelected}
 										tabIndex={-1}
-										onMouseDown={(e) => e.preventDefault()}
-										onClick={() => {
-											console.log('Hospital option clicked:', opt.id, opt.name);
-											handleOptionToggle(opt.id);
-										}}
+									onMouseDown={(e) => e.preventDefault()} // keep focus
+									onClick={() => handleOptionToggle(opt.id)}
 										onKeyDown={(e) => {
 											if (e.key === 'ArrowDown') focusOption(index + 1);
 											if (e.key === 'ArrowUp') focusOption(index - 1);

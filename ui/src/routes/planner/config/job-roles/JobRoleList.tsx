@@ -104,9 +104,7 @@ export default function JobRoleList() {
   const { trusts, isLoading: trustsLoading, error: trustsError } = useTrustOptions();
   const { hospitals, isLoading: hospitalsLoading, error: hospitalsError } = useHospitalOptions();
   
-  // Debug logging
-  console.log('JobRole form - trusts:', trusts, 'loading:', trustsLoading, 'error:', trustsError);
-  console.log('JobRole form - hospitals:', hospitals, 'loading:', hospitalsLoading, 'error:', hospitalsError);
+
   
   const form = useForm<JobRoleFormData>({
     resolver: zodResolver(jobRoleSchema),
@@ -203,11 +201,12 @@ export default function JobRoleList() {
 
   const handleSubmit = async (data: JobRoleFormData) => {
     try {
-      // Convert arrays to single values for the API
+      // Convert arrays to single values for the API and remove array properties
+      const { trustIds, hospitalIds, ...restData } = data;
       const apiData = {
-        ...data,
-        trustId: data.trustIds && data.trustIds.length > 0 ? data.trustIds[0] : undefined,
-        hospitalId: data.hospitalIds && data.hospitalIds.length > 0 ? data.hospitalIds[0] : undefined,
+        ...restData,
+        trustId: trustIds && trustIds.length > 0 ? trustIds[0] : undefined,
+        hospitalId: hospitalIds && hospitalIds.length > 0 ? hospitalIds[0] : undefined,
       };
       
       if (editingJobRole) {

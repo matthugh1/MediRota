@@ -4,7 +4,10 @@ import { api, QueryParams, PaginatedResponse } from '../api';
 // Types
 export interface Staff {
   id: string;
-  fullName: string;
+  prefix?: string | null;
+  firstName: string;
+  lastName: string;
+  fullName: string; // server-composed
   role: string;
   jobId: string;
   job: {
@@ -16,6 +19,8 @@ export interface Staff {
   active: boolean;
   wards: Array<{ id: string; name: string }>;
   skills: Array<{ id: string; name: string }>;
+  jobRole?: { id: string; code: string; name: string } | null;
+  legacyJob?: string | null;
   _count?: {
     assignments: number;
     preferences: number;
@@ -23,14 +28,16 @@ export interface Staff {
 }
 
 export interface CreateStaffData {
-  fullName: string;
-  role: string;
+  prefix?: string;
+  firstName: string;
+  lastName: string;
   jobId: string;
   gradeBand?: string;
   contractHoursPerWeek: number;
   active?: boolean;
   wardIds?: string[];
   skillIds?: string[];
+  jobRoleId?: string;
 }
 
 export interface UpdateStaffData extends Partial<CreateStaffData> {

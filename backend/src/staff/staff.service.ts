@@ -6,6 +6,10 @@ import { PaginatedResponseDto } from '../common/dto/pagination.dto.js';
 import { QueryStaffDto } from './dto/query-staff.dto.js';
 import { OrgCompatService } from '../common/org-compat.service.js';
 
+function buildFullName(prefix?: string | null, first?: string | null, last?: string | null) {
+	return [prefix?.trim(), first?.trim(), last?.trim()].filter(Boolean).join(' ');
+}
+
 @Injectable()
 export class StaffService {
 	constructor(
@@ -14,11 +18,16 @@ export class StaffService {
 	) {}
 
 	async create(createStaffDto: CreateStaffDto) {
-		const { wardIds, skillIds, ...staffData } = createStaffDto;
+		const { wardIds, skillIds, role, ...staffData } = createStaffDto; // Exclude legacy role
 
-		return this.prisma.staff.create({
+		// Compose fullName from individual name fields
+		const fullName = buildFullName(staffData.prefix, staffData.firstName, staffData.lastName);
+
+		const createdStaff = await this.prisma.staff.create({
 			data: {
 				...staffData,
+				fullName,
+				role: 'nurse', // Default role for backward compatibility
 				wards: wardIds ? { connect: wardIds.map(id => ({ id })) } : undefined,
 				skills: skillIds ? { connect: skillIds.map(id => ({ id })) } : undefined,
 			},
@@ -35,6 +44,12 @@ export class StaffService {
 				},
 			},
 		});
+
+		// Map to response DTO format
+		return {
+			...createdStaff,
+			legacyJob: createdStaff.role, // Map legacy role for backward compatibility
+		};
 	}
 
 	async findAll(queryDto: QueryStaffDto): Promise<PaginatedResponseDto<any>> {
@@ -45,7 +60,11 @@ export class StaffService {
 		const where: any = {};
 		
 		if (search) {
-			where.fullName = { contains: search, mode: 'insensitive' };
+			where.OR = [
+				{ fullName: { contains: search, mode: 'insensitive' } },
+				{ firstName: { contains: search, mode: 'insensitive' } },
+				{ lastName: { contains: search, mode: 'insensitive' } },
+			];
 		}
 		
 		if (jobId) {
@@ -97,8 +116,14 @@ export class StaffService {
 			this.prisma.staff.count({ where: finalWhere }),
 		]);
 
+		// Map staff data to include legacyJob
+		const mappedStaff = staff.map(s => ({
+			...s,
+			legacyJob: s.role, // Map legacy role for backward compatibility
+		}));
+
 		return {
-			data: staff,
+			data: mappedStaff,
 			total,
 			page,
 			limit,
@@ -135,18 +160,32 @@ export class StaffService {
 			throw new NotFoundException(`Staff with ID ${id} not found`);
 		}
 
-		return staff;
+		// Map to response DTO format
+		return {
+			...staff,
+			legacyJob: staff.role, // Map legacy role for backward compatibility
+		};
 	}
 
 	async update(id: string, updateStaffDto: UpdateStaffDto) {
-		await this.findOne(id); // Verify staff exists
+		const existing = await this.findOne(id); // Verify staff exists
 
-		const { wardIds, skillIds, ...staffData } = updateStaffDto;
+		const { wardIds, skillIds, role, ...staffData } = updateStaffDto; // Exclude legacy role
 
-		return this.prisma.staff.update({
+		// Recompute fullName if any name fields are provided
+		let fullName: string | undefined;
+		if (staffData.prefix !== undefined || staffData.firstName !== undefined || staffData.lastName !== undefined) {
+			const prefix = staffData.prefix ?? existing.prefix;
+			const first = staffData.firstName ?? existing.firstName;
+			const last = staffData.lastName ?? existing.lastName;
+			fullName = buildFullName(prefix, first, last);
+		}
+
+		const updatedStaff = await this.prisma.staff.update({
 			where: { id },
 			data: {
 				...staffData,
+				...(fullName && { fullName }),
 				wards: wardIds ? { set: wardIds.map(id => ({ id })) } : undefined,
 				skills: skillIds ? { set: skillIds.map(id => ({ id })) } : undefined,
 			},
@@ -163,6 +202,12 @@ export class StaffService {
 				},
 			},
 		});
+
+		// Map to response DTO format
+		return {
+			...updatedStaff,
+			legacyJob: updatedStaff.role, // Map legacy role for backward compatibility
+		};
 	}
 
 	async remove(id: string) {

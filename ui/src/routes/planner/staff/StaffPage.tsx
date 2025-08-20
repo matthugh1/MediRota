@@ -19,6 +19,7 @@ import { useToast } from '../../../components/Toast';
 import { useConfirmDialog } from '../../../components/ConfirmDialog';
 import StaffTable from './StaffTable';
 import StaffDrawer from './StaffDrawer';
+import { displayName } from '../../../components/utils/name';
 
 const StaffPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,9 +76,10 @@ const StaffPage: React.FC = () => {
   };
 
   const handleDeleteStaff = (staff: Staff) => {
+    const staffName = staff.fullName || displayName(staff);
     showDialog({
       title: 'Delete Staff Member',
-      message: `Are you sure you want to delete ${staff.fullName}? This action cannot be undone.`,
+      message: `Are you sure you want to delete ${staffName}? This action cannot be undone.`,
       confirmText: 'Delete',
       cancelText: 'Cancel',
       type: 'danger',
@@ -86,7 +88,7 @@ const StaffPage: React.FC = () => {
           await deleteStaffMutation.mutateAsync(staff.id);
           addToast({
             title: 'Staff Deleted',
-            message: `${staff.fullName} has been deleted successfully.`,
+            message: `${staffName} has been deleted successfully.`,
             type: 'success',
           });
         } catch (error) {

@@ -3,13 +3,24 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { StaffRole } from '@prisma/client';
 
 export class CreateStaffDto {
-	@ApiProperty({ description: 'Staff full name' })
+	@ApiPropertyOptional({ description: 'Name prefix (e.g., Dr, Mr, Ms, Prof)' })
+	@IsOptional()
 	@IsString()
-	fullName!: string;
+	prefix?: string;
 
-	@ApiProperty({ description: 'Staff role', enum: StaffRole })
+	@ApiProperty({ description: 'Staff first name' })
+	@IsString()
+	firstName!: string;
+
+	@ApiProperty({ description: 'Staff last name' })
+	@IsString()
+	lastName!: string;
+
+	/** @deprecated Use jobRoleId instead */
+	@ApiPropertyOptional({ description: 'Staff role (deprecated - use jobRoleId instead)', enum: StaffRole, deprecated: true })
+	@IsOptional()
 	@IsEnum(StaffRole)
-	role!: StaffRole;
+	role?: StaffRole;
 
 	@ApiPropertyOptional({ description: 'Grade band' })
 	@IsOptional()

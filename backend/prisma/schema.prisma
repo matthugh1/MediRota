@@ -92,7 +92,10 @@ model WardSkill {
 
 model Staff {
 	id                    String     @id @default(uuid()) @db.Uuid
-	fullName              String
+	prefix                String?
+	firstName             String
+	lastName              String
+	fullName              String     @default("")
 	role                  StaffRole
 	gradeBand             String?
 	contractHoursPerWeek  Float

@@ -7,12 +7,15 @@ import { Check, ChevronDown } from 'lucide-react';
 import { Staff, CreateStaffData } from '../../../lib/hooks/staff';
 import { Job, Skill, Ward } from '../../../lib/hooks/refdata';
 import MultiSelect, { MultiSelectOption } from '../../../components/forms/MultiSelect';
+import { JobRoleSelect } from '../../../components/jobrole-select/JobRoleSelect';
 
 // Validation schema
 const staffFormSchema = z.object({
-  fullName: z.string().min(1, 'Full name is required').max(100, 'Full name must be less than 100 characters'),
-  role: z.enum(['doctor', 'nurse']).refine((val) => val !== undefined, { message: 'Role is required' }),
+  prefix: z.string().optional(),
+  firstName: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters'),
+  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters'),
   jobId: z.string().min(1, 'Job is required'),
+  jobRoleId: z.string().optional(),
   gradeBand: z.string().optional(),
   contractHoursPerWeek: z.number().min(0.5, 'Contract hours must be at least 0.5').max(168, 'Contract hours must be less than 168'),
   active: z.boolean(),
@@ -52,9 +55,11 @@ const StaffForm: React.FC<StaffFormProps> = ({
   } = useForm<StaffFormData>({
     resolver: zodResolver(staffFormSchema),
     defaultValues: {
-      fullName: staff?.fullName || '',
-      role: (staff?.role as 'doctor' | 'nurse') || 'nurse',
+      prefix: staff?.prefix || '',
+      firstName: staff?.firstName || '',
+      lastName: staff?.lastName || '',
       jobId: staff?.jobId || '',
+      jobRoleId: staff?.jobRole?.id || '',
       gradeBand: staff?.gradeBand || '',
       contractHoursPerWeek: staff?.contractHoursPerWeek || 37.5,
       active: staff?.active ?? true,
@@ -63,17 +68,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
     } as StaffFormData,
   });
 
-  const watchedRole = watch('role');
-
-  // Filter jobs based on role
-  const filteredJobs = jobs.filter(job => {
-    if (watchedRole === 'doctor') {
-      return job.code === 'doctor';
-    } else if (watchedRole === 'nurse') {
-      return job.code === 'nurse';
-    }
-    return true;
-  });
+  // Use all jobs since we're not filtering by role anymore
+  const filteredJobs = jobs;
 
   // Convert to MultiSelect options
   const skillOptions: MultiSelectOption[] = skills.map(skill => ({
@@ -88,9 +84,11 @@ const StaffForm: React.FC<StaffFormProps> = ({
 
   const handleFormSubmit = (data: StaffFormData) => {
     onSubmit({
-      fullName: data.fullName,
-      role: data.role,
+      prefix: data.prefix,
+      firstName: data.firstName,
+      lastName: data.lastName,
       jobId: data.jobId,
+      jobRoleId: data.jobRoleId,
       gradeBand: data.gradeBand,
       contractHoursPerWeek: data.contractHoursPerWeek,
       active: data.active,
@@ -101,87 +99,103 @@ const StaffForm: React.FC<StaffFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6" data-testid="staff-form">
-      {/* Full Name */}
+      {/* Name Fields */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Prefix */}
+        <div>
+          <label htmlFor="prefix" className="block text-sm font-medium text-neutral-700 mb-1">
+            Prefix
+          </label>
+          <Controller
+            name="prefix"
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                id="prefix"
+                className={`input ${errors.prefix || serverErrors.prefix ? 'border-error-300' : ''}`}
+                placeholder="Dr, Mr, Ms, Prof..."
+              />
+            )}
+          />
+          {(errors.prefix || serverErrors.prefix) && (
+            <p className="mt-1 text-sm text-error-600">
+              {errors.prefix?.message || serverErrors.prefix}
+            </p>
+          )}
+        </div>
+
+        {/* First Name */}
+        <div>
+          <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-1">
+            First Name *
+          </label>
+          <Controller
+            name="firstName"
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                id="firstName"
+                className={`input ${errors.firstName || serverErrors.firstName ? 'border-error-300' : ''}`}
+                placeholder="Enter first name"
+              />
+            )}
+          />
+          {(errors.firstName || serverErrors.firstName) && (
+            <p className="mt-1 text-sm text-error-600">
+              {errors.firstName?.message || serverErrors.firstName}
+            </p>
+          )}
+        </div>
+
+        {/* Last Name */}
+        <div>
+          <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 mb-1">
+            Last Name *
+          </label>
+          <Controller
+            name="lastName"
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                id="lastName"
+                className={`input ${errors.lastName || serverErrors.lastName ? 'border-error-300' : ''}`}
+                placeholder="Enter last name"
+              />
+            )}
+          />
+          {(errors.lastName || serverErrors.lastName) && (
+            <p className="mt-1 text-sm text-error-600">
+              {errors.lastName?.message || serverErrors.lastName}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Job Role */}
       <div>
-        <label htmlFor="fullName" className="block text-sm font-medium text-neutral-700 mb-1">
-          Full Name *
+        <label htmlFor="jobRoleId" className="block text-sm font-medium text-neutral-700 mb-1">
+          Job Role
         </label>
         <Controller
-          name="fullName"
+          name="jobRoleId"
           control={control}
           render={({ field }) => (
-            <input
-              {...field}
-              type="text"
-              id="fullName"
-              className={`input ${errors.fullName || serverErrors.fullName ? 'border-error-300' : ''}`}
-              placeholder="Enter full name"
+            <JobRoleSelect
+              value={field.value}
+              onChange={field.onChange}
+              data-testid="staff-jobrole-select"
             />
           )}
         />
-        {(errors.fullName || serverErrors.fullName) && (
+        {(errors.jobRoleId || serverErrors.jobRoleId) && (
           <p className="mt-1 text-sm text-error-600">
-            {errors.fullName?.message || serverErrors.fullName}
-          </p>
-        )}
-      </div>
-
-      {/* Role */}
-      <div>
-        <label htmlFor="role" className="block text-sm font-medium text-neutral-700 mb-1">
-          Role *
-        </label>
-        <Controller
-          name="role"
-          control={control}
-          render={({ field }) => (
-            <Listbox value={field.value} onChange={field.onChange}>
-              <div className="relative">
-                <Listbox.Button className="input text-left">
-                  <span className="block truncate capitalize">
-                    {field.value || 'Select role'}
-                  </span>
-                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                    <ChevronDown className="h-4 w-4 text-neutral-400" aria-hidden="true" />
-                  </span>
-                </Listbox.Button>
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                  {['doctor', 'nurse'].map((role) => (
-                    <Listbox.Option
-                      key={role}
-                      className={({ active }) =>
-                        `relative cursor-default select-none py-2 pl-3 pr-9 ${
-                          active ? 'bg-primary-600 text-white' : 'text-neutral-900'
-                        }`
-                      }
-                      value={role}
-                    >
-                      {({ selected, active }) => (
-                        <>
-                          <span className={`block truncate capitalize ${selected ? 'font-medium' : 'font-normal'}`}>
-                            {role}
-                          </span>
-                          {selected ? (
-                            <span
-                              className={`absolute inset-y-0 right-0 flex items-center pr-4 ${
-                                active ? 'text-white' : 'text-primary-600'
-                              }`}
-                            >
-                              <Check className="h-4 w-4" aria-hidden="true" />
-                            </span>
-                          ) : null}
-                        </>
-                      )}
-                    </Listbox.Option>
-                  ))}
-                </Listbox.Options>
-              </div>
-            </Listbox>
-          )}
-        />
-        {(errors.role || serverErrors.role) && (
-          <p className="mt-1 text-sm text-error-600">
-            {errors.role?.message || serverErrors.role}
+            {errors.jobRoleId?.message || serverErrors.jobRoleId}
           </p>
         )}
       </div>
