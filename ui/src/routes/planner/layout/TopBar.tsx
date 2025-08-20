@@ -5,8 +5,6 @@ import {
   User, 
   Settings, 
   LogOut, 
-  Play,
-  RotateCcw,
   Bell,
   Search,
   Building2,
@@ -183,20 +181,8 @@ const TopBar: React.FC<TopBarProps> = ({ navCollapsed }) => {
         </div>
       )}
 
-      {/* Right side - Actions and user menu */}
+      {/* Right side - Notifications and user menu */}
       <div className="flex items-center space-x-3">
-        {/* Action buttons */}
-        <div className="flex items-center space-x-2">
-          <button className="btn-primary">
-            <Play className="w-4 h-4 mr-2" />
-            Solve
-          </button>
-          <button className="btn-secondary">
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Repair
-          </button>
-        </div>
-
         {/* Notifications */}
         <button className="p-2 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg focus-ring transition-colors duration-200">
           <Bell className="w-5 h-5" />
