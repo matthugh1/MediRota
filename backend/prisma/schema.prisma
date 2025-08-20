@@ -27,7 +27,6 @@ model Ward {
 	demands   Demand[]
 	schedules Schedule[]
 	assignments Assignment[]
-	ruleSets  RuleSet[]
 	skills    WardSkill[]
 
 	@@index([hospitalId])
@@ -152,40 +151,7 @@ enum Granularity {
 	hour
 }
 
-model RuleSet {
-	id        String   @id @default(uuid()) @db.Uuid
-	wardId    String   @db.Uuid
-	ward      Ward     @relation(fields: [wardId], references: [id])
-	name      String
-	active    Boolean  @default(false)
-	createdAt DateTime @default(now())
-	updatedAt DateTime @updatedAt
 
-	// Organisational hierarchy (nullable)
-	scope      String? @db.VarChar(20) // 'TRUST', 'HOSPITAL', 'WARD', 'SCHEDULE'
-	trustId    String? @db.Uuid
-	hospitalId String? @db.Uuid
-
-	// Rules
-	minRestHours         Int  @default(11)
-	maxConsecutiveNights Int  @default(3)
-	oneShiftPerDay       Boolean @default(true)
-
-	// Relations
-	rules Rule[]
-
-	@@index([scope, trustId, hospitalId, wardId])
-}
-
-model Rule {
-	id        String   @id @default(uuid()) @db.Uuid
-	ruleSetId String   @db.Uuid
-	ruleSet   RuleSet  @relation(fields: [ruleSetId], references: [id])
-	type      String
-	value     Json
-	createdAt DateTime @default(now())
-	updatedAt DateTime @updatedAt
-}
 
 model Schedule {
 	id           String         @id @default(uuid()) @db.Uuid

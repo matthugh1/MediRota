@@ -9,7 +9,7 @@ import { SkillsModule } from './skills/skills.module.js';
 import { StaffModule } from './staff/staff.module.js';
 
 import { ShiftTypesModule } from './shift-types/shift-types.module.js';
-import { RuleSetsModule } from './rule-sets/rule-sets.module.js';
+
 import { SchedulesModule } from './schedules/schedules.module.js';
 import { SolveModule } from './solve/solve.module.js';
 import { DemandModule } from './demand/demand.module.js';
@@ -32,7 +32,7 @@ import { JobRolesModule } from './job-roles/job-roles.module.js';
 		StaffModule,
 
 		ShiftTypesModule,
-		RuleSetsModule,
+
 		SchedulesModule,
 		SolveModule,
 		DemandModule,

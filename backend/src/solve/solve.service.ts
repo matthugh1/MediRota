@@ -209,9 +209,16 @@ export class SolveService {
 			wardId, 
 			scheduleId: schedule.id 
 		});
-		// Fetch ward
+		// Fetch ward with hospital and trust info
 		const ward = await this.prisma.ward.findUnique({
 			where: { id: wardId },
+			include: {
+				hospital: {
+					include: {
+						trust: true,
+					},
+				},
+			},
 		});
 
 		// Fetch staff for this ward
@@ -247,14 +254,25 @@ export class SolveService {
 		// Fetch shift types
 		const shiftTypes = await this.prisma.shiftType.findMany();
 
-		// Fetch rules for this ward
-		const ruleSets = await this.prisma.ruleSet.findMany({
+		// Fetch effective policy for this ward
+		const policies = await this.prisma.policy.findMany({
 			where: {
-				wardId,
-				active: true,
+				OR: [
+					{ scope: 'WARD', orgId: wardId },
+					{ scope: 'HOSPITAL', orgId: ward!.hospitalId },
+					{ scope: 'TRUST', orgId: ward!.hospital!.trustId },
+				],
+				isActive: true,
 			},
 			include: {
-				rules: true,
+				policyRules: {
+					include: {
+						ruleTemplate: true,
+					},
+				},
+			},
+			orderBy: {
+				scope: 'asc',
 			},
 		});
 
@@ -276,26 +294,28 @@ export class SolveService {
 			where: { scheduleId: schedule.id },
 		});
 
-		// Build rules object from rule sets
+		// Build rules object from policies
 		const rules = {
 			minRestHours: 11, // Default values
 			maxConsecutiveNights: 3,
 			oneShiftPerDay: true,
 		};
 
-		// Override with actual rules from database
-		for (const ruleSet of ruleSets) {
-			for (const rule of ruleSet.rules) {
-				switch (rule.type) {
-					case 'minRestHours':
-						rules.minRestHours = parseInt(rule.value as string);
-						break;
-					case 'maxConsecutiveNights':
-						rules.maxConsecutiveNights = parseInt(rule.value as string);
-						break;
-					case 'oneShiftPerDay':
-						rules.oneShiftPerDay = rule.value === 'true';
-						break;
+		// Override with actual rules from policies (most specific first)
+		for (const policy of policies) {
+			if (policy.policyRules) {
+				for (const policyRule of policy.policyRules) {
+					switch (policyRule.ruleTemplate.code) {
+						case 'MIN_REST_HOURS':
+							rules.minRestHours = (policyRule.params as any).hours || 11;
+							break;
+						case 'MAX_CONSEC_NIGHTS':
+							rules.maxConsecutiveNights = (policyRule.params as any).nights || 3;
+							break;
+						case 'ONE_SHIFT_PER_DAY':
+							rules.oneShiftPerDay = (policyRule.params as any).enabled !== false;
+							break;
+					}
 				}
 			}
 		}

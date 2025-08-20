@@ -767,9 +767,7 @@ async function main() {
 			date: { gte: new Date('2025-01-01'), lte: new Date('2025-01-14') }
 		}
 	});
-	const finalRuleSets = await prisma.ruleSet.findMany({
-		include: { rules: true }
-	});
+
 
 	console.log(`🏥 Wards: ${finalWards.length} (${finalWards.map(w => w.name).join(', ')})`);
 	console.log(`👥 Staff: ${finalStaff.length} total`);
@@ -778,7 +776,7 @@ async function main() {
 	console.log(`📋 Policies: ${finalPolicies.length} active (${finalPolicies.map(p => p.scope).join(', ')})`);
 	console.log(`📅 Schedules: ${finalSchedules.length} (${finalSchedules.map(s => `${s.id} ${s.horizonStart.toISOString().split('T')[0]}-${s.horizonEnd.toISOString().split('T')[0]}`).join(', ')})`);
 	console.log(`📊 Demand: ${finalDemand.length} rows for Jan 1-14`);
-	console.log(`📏 Rule Sets: ${finalRuleSets.length} with ${finalRuleSets.reduce((sum, rs) => sum + rs.rules.length, 0)} rules`);
+
 
 	// Staff by skill histogram
 	const skillHistogram = finalStaff.reduce((acc, s) => {
@@ -813,14 +811,7 @@ async function main() {
 		console.log(`  WARD fairness weight: ${(wardPolicy.weights as any).fairness}`);
 	}
 
-	// Confirm schedule rules
-	const demoRuleSet = finalRuleSets.find(rs => rs.name === 'Demo Schedule Rules');
-	if (demoRuleSet) {
-		console.log('\n📏 Demo Schedule Rules:');
-		demoRuleSet.rules.forEach(rule => {
-			console.log(`  ${rule.key}: ${rule.value}`);
-		});
-	}
+
 
 	// ========================================
 	// CAPACITY VS DEMAND REPORT

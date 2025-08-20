@@ -88,7 +88,7 @@ export class WardsService {
 				},
 				demands: true,
 				schedules: true,
-				ruleSets: true,
+		
 			},
 		});
 
