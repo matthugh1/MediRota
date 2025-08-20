@@ -4,6 +4,23 @@ import axios from 'axios';
 const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '';
 console.log('Using API_BASE_URL:', API_BASE_URL || '(relative paths)');
 
+export interface PolicyRule {
+  id: string;
+  policyId: string;
+  ruleTemplateId: string;
+  kind: 'HARD' | 'SOFT';
+  params: any;
+  weight?: number;
+  createdAt: string;
+  updatedAt: string;
+  ruleTemplate: {
+    id: string;
+    code: string;
+    name: string;
+    description: string;
+  };
+}
+
 export interface Policy {
   id: string;
   scope: 'ORG' | 'WARD' | 'SCHEDULE';
@@ -32,6 +49,14 @@ export interface Policy {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  policyRules?: PolicyRule[];
+}
+
+export interface CreatePolicyRuleData {
+  ruleTemplateId: string;
+  kind: 'HARD' | 'SOFT';
+  params: any;
+  weight?: number;
 }
 
 export interface CreatePolicyData {
@@ -58,6 +83,7 @@ export interface CreatePolicyData {
   timeBudgetMs: number;
   label: string;
   isActive: boolean;
+  policyRules?: CreatePolicyRuleData[];
 }
 
 export interface UpdatePolicyData extends Partial<CreatePolicyData> {}

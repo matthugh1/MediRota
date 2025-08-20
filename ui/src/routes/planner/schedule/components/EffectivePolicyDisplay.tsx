@@ -118,6 +118,32 @@ const EffectivePolicyDisplay: React.FC<EffectivePolicyDisplayProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Policy Rules */}
+        {policy.policyRules && policy.policyRules.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-neutral-200">
+            <div className="text-xs font-medium text-neutral-700 mb-2">Rules:</div>
+            <div className="space-y-1">
+              {policy.policyRules.map((rule) => (
+                <div key={rule.id} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-2">
+                    <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                      rule.kind === 'HARD' 
+                        ? 'bg-red-100 text-red-700' 
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {rule.kind}
+                    </span>
+                    <span className="text-neutral-600">{rule.ruleTemplate.name}</span>
+                  </div>
+                  {rule.weight && (
+                    <span className="text-neutral-500">w: {rule.weight}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
