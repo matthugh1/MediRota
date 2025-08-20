@@ -124,6 +124,19 @@ const useMergedFilters = (filters?: any) => {
   };
 };
 
+// Hospitals hooks
+export const useHospitals = (filters?: any) => {
+  const mergedFilters = useMergedFilters(filters);
+  
+  return useQuery({
+    queryKey: queryKeys.hospitals.list(mergedFilters),
+    queryFn: async (): Promise<PaginatedResponse<Hospital>> => {
+      const response = await apiClient.get('/hospitals', { params: mergedFilters });
+      return response.data;
+    },
+  });
+};
+
 // Wards hooks
 export const useWards = (filters?: any) => {
   const mergedFilters = useMergedFilters(filters);

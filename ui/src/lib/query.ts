@@ -23,6 +23,13 @@ export const queryClient = new QueryClient({
 
 // Query keys factory for consistent key management
 export const queryKeys = {
+  hospitals: {
+    all: ['hospitals'] as const,
+    lists: () => [...queryKeys.hospitals.all, 'list'] as const,
+    list: (filters: any) => [...queryKeys.hospitals.lists(), filters] as const,
+    details: () => [...queryKeys.hospitals.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.hospitals.details(), id] as const,
+  },
   wards: {
     all: ['wards'] as const,
     lists: () => [...queryKeys.wards.all, 'list'] as const,
@@ -92,6 +99,7 @@ export const queryKeys = {
 
 // Utility function to invalidate related queries
 export const invalidateQueries = {
+  hospitals: () => queryClient.invalidateQueries({ queryKey: queryKeys.hospitals.all }),
   wards: () => queryClient.invalidateQueries({ queryKey: queryKeys.wards.all }),
   skills: () => queryClient.invalidateQueries({ queryKey: queryKeys.skills.all }),
   staff: () => queryClient.invalidateQueries({ queryKey: queryKeys.staff.all }),

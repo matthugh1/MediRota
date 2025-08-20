@@ -7,7 +7,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { DataTable } from './components/DataTable';
 import { DrawerForm } from './components/DrawerForm';
 import { FormField, SelectField } from './components/FormFields';
-import { useShiftTypes, useCreateShiftType, useUpdateShiftType, useDeleteShiftType, ShiftType } from '../../../lib/hooks';
+import { useShiftTypes, useCreateShiftType, useUpdateShiftType, useDeleteShiftType, useHospitals, useWards, ShiftType } from '../../../lib/hooks';
 import { useToastSuccess, useToastError, useConfirmDelete } from '../../../components';
 
 const shiftTypeSchema = z.object({
@@ -110,6 +110,8 @@ export default function ShiftTypesPage() {
   const [editingShiftType, setEditingShiftType] = useState<ShiftType | null>(null);
   
   const { data: shiftTypesData, isLoading } = useShiftTypes();
+  const { data: hospitalsData } = useHospitals();
+  const { data: wardsData } = useWards();
   const createShiftTypeMutation = useCreateShiftType();
   const updateShiftTypeMutation = useUpdateShiftType();
   const deleteShiftTypeMutation = useDeleteShiftType();
@@ -309,26 +311,35 @@ export default function ShiftTypesPage() {
               />
               
               {form.watch('scope') === 'HOSPITAL' && (
-                <FormField
+                <SelectField
                   name="hospitalId"
-                  label="Hospital ID"
-                  placeholder="Enter hospital ID"
+                  label="Hospital"
+                  options={hospitalsData?.data?.map(hospital => ({
+                    value: hospital.id,
+                    label: hospital.name
+                  })) || []}
                   required
                 />
               )}
               
               {form.watch('scope') === 'WARD' && (
                 <>
-                  <FormField
+                  <SelectField
                     name="hospitalId"
-                    label="Hospital ID"
-                    placeholder="Enter hospital ID"
+                    label="Hospital"
+                    options={hospitalsData?.data?.map(hospital => ({
+                      value: hospital.id,
+                      label: hospital.name
+                    })) || []}
                     required
                   />
-                  <FormField
+                  <SelectField
                     name="wardId"
-                    label="Ward ID"
-                    placeholder="Enter ward ID"
+                    label="Ward"
+                    options={wardsData?.data?.map(ward => ({
+                      value: ward.id,
+                      label: ward.name
+                    })) || []}
                     required
                   />
                 </>
