@@ -383,6 +383,7 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
         isOpen={isCreateFormOpen}
         onClose={() => setIsCreateFormOpen(false)}
         wards={wards}
+        schedules={schedulesData?.data || []}
         onSubmit={handleCreateSchedule}
         isLoading={createScheduleMutation.isPending}
         error={createScheduleMutation.error?.message}

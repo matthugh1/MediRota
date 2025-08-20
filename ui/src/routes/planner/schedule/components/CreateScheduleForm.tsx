@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Users } from 'lucide-react';
+import { X, Calendar, Users, AlertTriangle, Info } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,10 +11,20 @@ interface Ward {
   name: string;
 }
 
+interface Schedule {
+  id: string;
+  wardId: string;
+  horizonStart: string;
+  horizonEnd: string;
+  status: string;
+  createdAt: string;
+}
+
 interface CreateScheduleFormProps {
   isOpen: boolean;
   onClose: () => void;
   wards: Ward[];
+  schedules: Schedule[];
   onSubmit: (data: { wardId: string; horizonStart: string; horizonEnd: string }) => void;
   isLoading?: boolean;
   error?: string;
@@ -39,6 +49,7 @@ export function CreateScheduleForm({
   isOpen,
   onClose,
   wards,
+  schedules,
   onSubmit,
   isLoading = false,
   error,
@@ -54,6 +65,39 @@ export function CreateScheduleForm({
 
   const handleSubmit = (data: CreateScheduleFormData) => {
     onSubmit(data);
+  };
+
+  // Watch form values to detect overlapping schedules
+  const watchedWardId = form.watch('wardId');
+  const watchedStartDate = form.watch('horizonStart');
+  const watchedEndDate = form.watch('horizonEnd');
+
+  // Find overlapping schedules for the selected ward and date range
+  const overlappingSchedules = useMemo(() => {
+    if (!watchedWardId || !watchedStartDate || !watchedEndDate) {
+      return [];
+    }
+
+    const startDate = DateTime.fromISO(watchedStartDate);
+    const endDate = DateTime.fromISO(watchedEndDate);
+
+    return schedules.filter(schedule => {
+      if (schedule.wardId !== watchedWardId) return false;
+      
+      const scheduleStart = DateTime.fromISO(schedule.horizonStart);
+      const scheduleEnd = DateTime.fromISO(schedule.horizonEnd);
+      
+      // Check for overlap
+      return (startDate <= scheduleEnd && endDate >= scheduleStart);
+    });
+  }, [watchedWardId, watchedStartDate, watchedEndDate, schedules]);
+
+  // Get version number for the new schedule
+  const getNextVersion = () => {
+    if (!watchedWardId) return 1;
+    
+    const wardSchedules = schedules.filter(s => s.wardId === watchedWardId);
+    return wardSchedules.length + 1;
   };
 
   return (
@@ -156,6 +200,47 @@ export function CreateScheduleForm({
                     )}
                   </div>
                 </div>
+
+                {/* Overlapping Schedules Warning */}
+                {overlappingSchedules.length > 0 && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="flex items-start space-x-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-amber-800">
+                          Overlapping schedules detected
+                        </p>
+                        <p className="text-xs text-amber-700 mt-1">
+                          {overlappingSchedules.length} existing schedule{overlappingSchedules.length > 1 ? 's' : ''} overlap with this date range:
+                        </p>
+                        <div className="mt-2 space-y-1">
+                          {overlappingSchedules.map((schedule, index) => (
+                            <div key={schedule.id} className="text-xs text-amber-700 bg-amber-100 px-2 py-1 rounded">
+                              • {DateTime.fromISO(schedule.horizonStart).toFormat('MMM dd')} - {DateTime.fromISO(schedule.horizonEnd).toFormat('MMM dd, yyyy')} ({schedule.status})
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Version Information */}
+                {watchedWardId && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start space-x-2">
+                      <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-800">
+                          Schedule Version {getNextVersion()}
+                        </p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          This will be version {getNextVersion()} for {wards.find(w => w.id === watchedWardId)?.name}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Info */}
                 <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-lg">
