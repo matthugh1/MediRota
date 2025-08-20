@@ -42,13 +42,16 @@ export function TrustMultiSelect({
 	);
 
 	const toggle = (id: string) => {
+		console.log('TrustMultiSelect toggle called with id:', id);
 		const newSelected = new Set(selected);
 		if (newSelected.has(id)) {
 			newSelected.delete(id);
 		} else {
 			newSelected.add(id);
 		}
-		onChange(Array.from(newSelected));
+		const newValue = Array.from(newSelected);
+		console.log('TrustMultiSelect new value:', newValue);
+		onChange(newValue);
 	};
 
 	const remove = (id: string) => {
@@ -130,8 +133,13 @@ export function TrustMultiSelect({
 	// Close on outside click
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (triggerRef.current && !triggerRef.current.contains(event.target as Node)) {
-				close();
+			const target = event.target as Node;
+			if (triggerRef.current && !triggerRef.current.contains(target)) {
+				// Check if click is inside the dropdown
+				const dropdown = document.querySelector(`[data-testid="${testId}"] .absolute`);
+				if (dropdown && !dropdown.contains(target)) {
+					close();
+				}
 			}
 		};
 
@@ -140,7 +148,7 @@ export function TrustMultiSelect({
 		}
 
 		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, [open]);
+	}, [open, testId]);
 
 	if (loading) {
 		return (
@@ -274,7 +282,11 @@ export function TrustMultiSelect({
 								aria-selected={selected.has(opt.id)}
 								tabIndex={-1}
 								onMouseDown={(e) => e.preventDefault()}
-								onClick={() => toggle(opt.id)}
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									toggle(opt.id);
+								}}
 								onKeyDown={(e) => {
 									if (e.key === 'Enter' || e.key === ' ') {
 										e.preventDefault();
