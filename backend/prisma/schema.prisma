@@ -123,7 +123,7 @@ model ShiftType {
 	durationMinutes Int
 
 	// Organisational hierarchy (nullable)
-	scope      String? @db.VarChar(20) // 'TRUST', 'HOSPITAL', 'WARD', 'SCHEDULE'
+	scope      String? @db.VarChar(20) // 'TRUST', 'HOSPITAL', 'WARD'
 	trustId    String? @db.Uuid
 	hospitalId String? @db.Uuid
 	wardId     String? @db.Uuid
