@@ -5,8 +5,10 @@ export function useHospitalOptions(trustId?: string) {
 	const { data: hospitals = [], isLoading, error } = useQuery({
 		queryKey: ['hospitals', { trustId }],
 		queryFn: async () => {
+			console.log('Fetching hospitals...', { trustId });
 			const params = trustId ? { trustId } : {};
 			const response = await hospitalsApi.list(params);
+			console.log('Hospitals response:', response);
 			return response.data || [];
 		},
 		enabled: !trustId || !!trustId, // Always enabled, but filter by trustId if provided

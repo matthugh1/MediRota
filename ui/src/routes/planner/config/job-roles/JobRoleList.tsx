@@ -104,6 +104,10 @@ export default function JobRoleList() {
   const { trusts, isLoading: trustsLoading, error: trustsError } = useTrustOptions();
   const { hospitals, isLoading: hospitalsLoading, error: hospitalsError } = useHospitalOptions();
   
+  // Debug logging
+  console.log('JobRole form - trusts:', trusts, 'loading:', trustsLoading, 'error:', trustsError);
+  console.log('JobRole form - hospitals:', hospitals, 'loading:', hospitalsLoading, 'error:', hospitalsError);
+  
   const form = useForm<JobRoleFormData>({
     resolver: zodResolver(jobRoleSchema),
     defaultValues: {

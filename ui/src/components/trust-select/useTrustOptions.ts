@@ -5,7 +5,9 @@ export function useTrustOptions() {
 	const { data: trusts = [], isLoading, error } = useQuery({
 		queryKey: ['trusts'],
 		queryFn: async () => {
+			console.log('Fetching trusts...');
 			const response = await trustsApi.list();
+			console.log('Trusts response:', response);
 			return response.data || [];
 		},
 	});

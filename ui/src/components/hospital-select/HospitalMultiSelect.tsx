@@ -27,6 +27,7 @@ export function HospitalMultiSelect({
 	groupByTrust = false,
 	'data-testid': testId = 'hospital-ms',
 }: Props) {
+	console.log('HospitalMultiSelect props:', { value, options, loading, error, disabled, groupByTrust });
 	const [open, setOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [focusedIndex, setFocusedIndex] = useState(-1);

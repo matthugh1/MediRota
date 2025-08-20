@@ -25,6 +25,7 @@ export function TrustMultiSelect({
 	placeholder = 'Search trusts...',
 	'data-testid': testId = 'trust-ms',
 }: Props) {
+	console.log('TrustMultiSelect props:', { value, options, loading, error, disabled });
 	const [open, setOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [focusedIndex, setFocusedIndex] = useState(-1);

@@ -9,7 +9,9 @@ export type Trust = {
 export const trustsApi = {
 	list: async () => {
 		const response = await api.get('/trusts');
-		return response.data;
+		console.log('Raw trusts response:', response.data);
+		// The backend returns an array directly
+		return { data: response.data };
 	},
 	
 	create: async (data: { name: string }) => {

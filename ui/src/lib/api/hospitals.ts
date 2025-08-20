@@ -11,7 +11,9 @@ export type Hospital = {
 export const hospitalsApi = {
 	list: async (params?: { trustId?: string }) => {
 		const response = await api.get('/hospitals', { params });
-		return response.data;
+		console.log('Raw hospitals response:', response.data);
+		// The backend returns an array directly
+		return { data: response.data };
 	},
 	
 	create: async (data: { name: string; trustId?: string }) => {
