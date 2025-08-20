@@ -12,13 +12,17 @@ import { useToastSuccess, useToastError, useConfirmDelete } from '../../../../co
 import { jobRolesApi, JobRole } from '../../../../lib/api/jobRoles.js';
 import { useOrgScope } from '../../../../lib/orgScope.js';
 import { ORG_HIERARCHY_ENABLED } from '../../../../lib/flags.js';
+import { TrustMultiSelect } from '../../../../components/trust-select/TrustMultiSelect.js';
+import { HospitalMultiSelect } from '../../../../components/hospital-select/HospitalMultiSelect.js';
+import { useTrustOptions } from '../../../../components/trust-select/useTrustOptions.js';
+import { useHospitalOptions } from '../../../../components/hospital-select/useHospitalOptions.js';
 
 const jobRoleSchema = z.object({
   code: z.string().min(1, 'Job role code is required').max(20, 'Job role code must be less than 20 characters'),
   name: z.string().min(1, 'Job role name is required').max(100, 'Job role name must be less than 100 characters'),
   scope: z.enum(['TRUST', 'HOSPITAL']).optional(),
-  trustId: z.string().optional(),
-  hospitalId: z.string().optional(),
+  trustIds: z.array(z.string()).optional(),
+  hospitalIds: z.array(z.string()).optional(),
 });
 
 type JobRoleFormData = z.infer<typeof jobRoleSchema>;
@@ -97,6 +101,8 @@ export default function JobRoleList() {
   const confirmDelete = useConfirmDelete();
 
   const { hospitalId, trustId } = useOrgScope();
+  const { trusts, isLoading: trustsLoading, error: trustsError } = useTrustOptions();
+  const { hospitals, isLoading: hospitalsLoading, error: hospitalsError } = useHospitalOptions();
   
   const form = useForm<JobRoleFormData>({
     resolver: zodResolver(jobRoleSchema),
@@ -104,8 +110,8 @@ export default function JobRoleList() {
       code: '',
       name: '',
       scope: undefined,
-      trustId: undefined,
-      hospitalId: undefined,
+      trustIds: [],
+      hospitalIds: [],
     },
   });
 
@@ -157,8 +163,8 @@ export default function JobRoleList() {
       code: '',
       name: '',
       scope: undefined,
-      trustId: undefined,
-      hospitalId: undefined,
+      trustIds: [],
+      hospitalIds: [],
     });
     setIsDrawerOpen(true);
   };
@@ -169,8 +175,8 @@ export default function JobRoleList() {
       code: jobRole.code,
       name: jobRole.name,
       scope: jobRole.scope,
-      trustId: jobRole.trust?.id,
-      hospitalId: jobRole.hospital?.id,
+      trustIds: jobRole.trust ? [jobRole.trust.id] : [],
+      hospitalIds: jobRole.hospital ? [jobRole.hospital.id] : [],
     });
     setIsDrawerOpen(true);
   };
@@ -193,12 +199,19 @@ export default function JobRoleList() {
 
   const handleSubmit = async (data: JobRoleFormData) => {
     try {
+      // Convert arrays to single values for the API
+      const apiData = {
+        ...data,
+        trustId: data.trustIds && data.trustIds.length > 0 ? data.trustIds[0] : undefined,
+        hospitalId: data.hospitalIds && data.hospitalIds.length > 0 ? data.hospitalIds[0] : undefined,
+      };
+      
       if (editingJobRole) {
-        const updated = await jobRolesApi.update(editingJobRole.id, data);
+        const updated = await jobRolesApi.update(editingJobRole.id, apiData);
         setJobRoles(jobRoles.map(jr => jr.id === editingJobRole.id ? updated : jr));
         showSuccess('Job role updated successfully');
       } else {
-        const created = await jobRolesApi.create(data);
+        const created = await jobRolesApi.create(apiData);
         setJobRoles([...jobRoles, created]);
         showSuccess('Job role created successfully');
       }
@@ -313,21 +326,38 @@ export default function JobRoleList() {
                   </div>
                   
                   {form.watch('scope') === 'TRUST' && (
-                    <FormField
-                      name="trustId"
-                      label="Trust"
-                      placeholder="Select a trust"
-                      required
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 mb-2">
+                        Trusts
+                      </label>
+                      <TrustMultiSelect
+                        value={form.watch('trustIds') || []}
+                        onChange={(ids) => form.setValue('trustIds', ids)}
+                        options={trusts}
+                        loading={trustsLoading}
+                        error={trustsError}
+                        placeholder="Select trusts..."
+                        data-testid="job-role-trusts-multiselect"
+                      />
+                    </div>
                   )}
                   
                   {form.watch('scope') === 'HOSPITAL' && (
-                    <FormField
-                      name="hospitalId"
-                      label="Hospital"
-                      placeholder="Select a hospital"
-                      required
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-zinc-700 mb-2">
+                        Hospitals
+                      </label>
+                      <HospitalMultiSelect
+                        value={form.watch('hospitalIds') || []}
+                        onChange={(ids) => form.setValue('hospitalIds', ids)}
+                        options={hospitals}
+                        loading={hospitalsLoading}
+                        error={hospitalsError}
+                        placeholder="Select hospitals..."
+                        groupByTrust={true}
+                        data-testid="job-role-hospitals-multiselect"
+                      />
+                    </div>
                   )}
                 </div>
               </>
