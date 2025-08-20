@@ -57,6 +57,7 @@ export function CreateScheduleForm({
 }: CreateScheduleFormProps) {
   const form = useForm<CreateScheduleFormData>({
     resolver: zodResolver(createScheduleSchema),
+    mode: 'onSubmit',
     defaultValues: {
       wardId: '',
       horizonStart: '',
@@ -65,6 +66,7 @@ export function CreateScheduleForm({
   });
 
   const handleSubmit = (data: CreateScheduleFormData) => {
+    console.log('CreateScheduleForm: handleSubmit called with data:', data);
     onSubmit(data);
   };
 
@@ -75,6 +77,7 @@ export function CreateScheduleForm({
 
   // Handle date range changes from calendar
   const handleDateRangeChange = (startDate: string, endDate: string) => {
+    console.log('CreateScheduleForm: handleDateRangeChange called with:', { startDate, endDate });
     form.setValue('horizonStart', startDate);
     form.setValue('horizonEnd', endDate);
   };

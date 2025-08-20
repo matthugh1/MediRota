@@ -102,6 +102,7 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
   });
 
   const handleCreateSchedule = async (data: { wardId: string; horizonStart: string; horizonEnd: string }) => {
+    console.log('SchedulePage: handleCreateSchedule called with data:', data);
     try {
       const result = await createScheduleMutation.mutateAsync(data);
       setSelectedScheduleId(result.id);
