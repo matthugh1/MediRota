@@ -52,6 +52,10 @@ export interface ShiftType {
   endTime: string;
   isNight: boolean;
   durationMinutes: number;
+  scope?: 'TRUST' | 'HOSPITAL' | 'WARD';
+  trustId?: string;
+  hospitalId?: string;
+  wardId?: string;
   createdAt: string;
   updatedAt: string;
 }

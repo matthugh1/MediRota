@@ -17,6 +17,10 @@ const shiftTypeSchema = z.object({
   endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'End time must be in HH:MM format'),
   isNight: z.boolean(),
   durationMinutes: z.number().min(1, 'Duration must be at least 1 minute').max(1440, 'Duration cannot exceed 24 hours'),
+  scope: z.enum(['TRUST', 'HOSPITAL', 'WARD']).optional(),
+  trustId: z.string().optional(),
+  hospitalId: z.string().optional(),
+  wardId: z.string().optional(),
 });
 
 type ShiftTypeFormData = z.infer<typeof shiftTypeSchema>;
@@ -79,6 +83,26 @@ const columns: ColumnDef<ShiftType>[] = [
       </span>
     ),
   },
+  {
+    accessorKey: 'scope',
+    header: 'Scope',
+    cell: ({ row }) => {
+      const scope = row.getValue('scope') as string;
+      const getScopeColor = (scope: string) => {
+        switch (scope) {
+          case 'TRUST': return 'bg-blue-100 text-blue-800';
+          case 'HOSPITAL': return 'bg-orange-100 text-orange-800';
+          case 'WARD': return 'bg-green-100 text-green-800';
+          default: return 'bg-gray-100 text-gray-800';
+        }
+      };
+      return (
+        <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getScopeColor(scope)}`}>
+          {scope || 'TRUST'}
+        </span>
+      );
+    },
+  },
 ];
 
 export default function ShiftTypesPage() {
@@ -103,6 +127,7 @@ export default function ShiftTypesPage() {
       endTime: '16:00',
       isNight: false,
       durationMinutes: 480,
+      scope: 'TRUST',
     },
   });
 
@@ -129,6 +154,7 @@ export default function ShiftTypesPage() {
       endTime: '16:00',
       isNight: false,
       durationMinutes: 480,
+      scope: 'TRUST',
     });
     setIsDrawerOpen(true);
   };
@@ -142,6 +168,10 @@ export default function ShiftTypesPage() {
       endTime: shiftType.endTime,
       isNight: shiftType.isNight,
       durationMinutes: shiftType.durationMinutes,
+      scope: shiftType.scope || 'TRUST',
+      trustId: shiftType.trustId,
+      hospitalId: shiftType.hospitalId,
+      wardId: shiftType.wardId,
     });
     setIsDrawerOpen(true);
   };
@@ -262,6 +292,49 @@ export default function ShiftTypesPage() {
               label="Night Shift"
               type="checkbox"
             />
+            
+            {/* Scope Configuration */}
+            <div className="border-t border-zinc-200 pt-6">
+              <h3 className="text-lg font-medium text-zinc-900 mb-4">Scope Configuration</h3>
+              
+              <FormField
+                name="scope"
+                label="Scope"
+                type="select"
+                options={[
+                  { value: 'TRUST', label: 'Trust' },
+                  { value: 'HOSPITAL', label: 'Hospital' },
+                  { value: 'WARD', label: 'Ward' },
+                ]}
+                required
+              />
+              
+              {form.watch('scope') === 'HOSPITAL' && (
+                <FormField
+                  name="hospitalId"
+                  label="Hospital ID"
+                  placeholder="Enter hospital ID"
+                  required
+                />
+              )}
+              
+              {form.watch('scope') === 'WARD' && (
+                <>
+                  <FormField
+                    name="hospitalId"
+                    label="Hospital ID"
+                    placeholder="Enter hospital ID"
+                    required
+                  />
+                  <FormField
+                    name="wardId"
+                    label="Ward ID"
+                    placeholder="Enter ward ID"
+                    required
+                  />
+                </>
+              )}
+            </div>
             
             <div className="text-sm text-zinc-500">
               <p>Times should be in 24-hour format (HH:MM). Duration is calculated automatically but can be overridden.</p>
