@@ -19,9 +19,8 @@ export class SkillsService {
 		});
 	}
 
-	async findAll(paginationDto: PaginationDto, queryDto: QuerySkillDto): Promise<PaginatedResponseDto<any>> {
-		const { page = 1, limit = 20 } = paginationDto;
-		const { hospitalId } = queryDto;
+	async findAll(queryDto: QuerySkillDto): Promise<PaginatedResponseDto<any>> {
+		const { page = 1, limit = 20, hospitalId } = queryDto;
 		const skip = (page - 1) * limit;
 
 		// Apply hospital filter if provided and hierarchy is enabled

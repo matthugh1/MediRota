@@ -3,6 +3,8 @@ import apiClient, { PaginatedResponse } from './api';
 import { queryKeys, invalidateQueries } from './query';
 import { DateTime } from 'luxon';
 import axios from 'axios';
+import { useOrgScope } from './orgScope.js';
+import { ORG_HIERARCHY_ENABLED } from './flags.js';
 
 // Types for API responses
 export interface Ward {
@@ -114,12 +116,28 @@ export interface Event {
   createdAt: string;
 }
 
+// Utility function to merge filters with hospital filtering when org hierarchy is enabled
+const useMergedFilters = (filters?: any) => {
+  const { scope, isHierarchyEnabled } = useOrgScope();
+  
+  if (!isHierarchyEnabled || !scope.hospitalId) {
+    return filters;
+  }
+  
+  return {
+    ...filters,
+    hospitalId: scope.hospitalId,
+  };
+};
+
 // Wards hooks
 export const useWards = (filters?: any) => {
+  const mergedFilters = useMergedFilters(filters);
+  
   return useQuery({
-    queryKey: queryKeys.wards.list(filters),
+    queryKey: queryKeys.wards.list(mergedFilters),
     queryFn: async (): Promise<PaginatedResponse<Ward>> => {
-      const response = await apiClient.get('/wards', { params: filters });
+      const response = await apiClient.get('/wards', { params: mergedFilters });
       return response.data;
     },
   });
@@ -138,10 +156,12 @@ export const useWard = (id: string) => {
 
 // Skills hooks
 export const useSkills = (filters?: any) => {
+  const mergedFilters = useMergedFilters(filters);
+  
   return useQuery({
-    queryKey: queryKeys.skills.list(filters),
+    queryKey: queryKeys.skills.list(mergedFilters),
     queryFn: async (): Promise<PaginatedResponse<Skill>> => {
-      const response = await apiClient.get('/skills', { params: filters });
+      const response = await apiClient.get('/skills', { params: mergedFilters });
       return response.data;
     },
   });
@@ -160,10 +180,12 @@ export const useSkill = (id: string) => {
 
 // Staff hooks
 export const useStaff = (filters?: any) => {
+  const mergedFilters = useMergedFilters(filters);
+  
   return useQuery({
-    queryKey: queryKeys.staff.list(filters),
+    queryKey: queryKeys.staff.list(mergedFilters),
     queryFn: async (): Promise<PaginatedResponse<Staff>> => {
-      const response = await apiClient.get('/staff', { params: filters });
+      const response = await apiClient.get('/staff', { params: mergedFilters });
       return response.data;
     },
   });
@@ -193,10 +215,12 @@ export const useMyShifts = (staffId: string) => {
 
 // Shift Types hooks
 export const useShiftTypes = (filters?: any) => {
+  const mergedFilters = useMergedFilters(filters);
+  
   return useQuery({
-    queryKey: queryKeys.shiftTypes.list(filters),
+    queryKey: queryKeys.shiftTypes.list(mergedFilters),
     queryFn: async (): Promise<PaginatedResponse<ShiftType>> => {
-      const response = await apiClient.get('/shift-types', { params: filters });
+      const response = await apiClient.get('/shift-types', { params: mergedFilters });
       return response.data;
     },
   });
@@ -311,10 +335,15 @@ export const usePreferences = (scheduleId: string) => {
 // Mutation hooks
 export const useCreateWard = () => {
   const queryClient = useQueryClient();
+  const { scope, isHierarchyEnabled } = useOrgScope();
   
   return useMutation({
     mutationFn: async (data: Partial<Ward>) => {
-      const response = await apiClient.post('/wards', data);
+      const wardData = {
+        ...data,
+        ...(isHierarchyEnabled && scope.hospitalId && { hospitalId: scope.hospitalId }),
+      };
+      const response = await apiClient.post('/wards', wardData);
       return response.data;
     },
     onSuccess: () => {
@@ -354,9 +383,15 @@ export const useDeleteWard = () => {
 
 // Similar mutation hooks for other entities...
 export const useCreateSkill = () => {
+  const { scope, isHierarchyEnabled } = useOrgScope();
+  
   return useMutation({
     mutationFn: async (data: Partial<Skill>) => {
-      const response = await apiClient.post('/skills', data);
+      const skillData = {
+        ...data,
+        ...(isHierarchyEnabled && scope.hospitalId && { hospitalId: scope.hospitalId }),
+      };
+      const response = await apiClient.post('/skills', skillData);
       return response.data;
     },
     onSuccess: () => {
@@ -366,9 +401,15 @@ export const useCreateSkill = () => {
 };
 
 export const useCreateStaff = () => {
+  const { scope, isHierarchyEnabled } = useOrgScope();
+  
   return useMutation({
     mutationFn: async (data: Partial<Staff>) => {
-      const response = await apiClient.post('/staff', data);
+      const staffData = {
+        ...data,
+        ...(isHierarchyEnabled && scope.hospitalId && { hospitalId: scope.hospitalId }),
+      };
+      const response = await apiClient.post('/staff', staffData);
       return response.data;
     },
     onSuccess: () => {
@@ -378,9 +419,15 @@ export const useCreateStaff = () => {
 };
 
 export const useCreateShiftType = () => {
+  const { scope, isHierarchyEnabled } = useOrgScope();
+  
   return useMutation({
     mutationFn: async (data: Partial<ShiftType>) => {
-      const response = await apiClient.post('/shift-types', data);
+      const shiftTypeData = {
+        ...data,
+        ...(isHierarchyEnabled && scope.hospitalId && { hospitalId: scope.hospitalId }),
+      };
+      const response = await apiClient.post('/shift-types', shiftTypeData);
       return response.data;
     },
     onSuccess: () => {

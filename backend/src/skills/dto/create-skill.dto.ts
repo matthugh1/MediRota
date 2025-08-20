@@ -1,5 +1,5 @@
-import { IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsOptional, IsUUID } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateSkillDto {
 	@ApiProperty({ description: 'Skill code (unique identifier)' })
@@ -9,4 +9,9 @@ export class CreateSkillDto {
 	@ApiProperty({ description: 'Skill name' })
 	@IsString()
 	name!: string;
+
+	@ApiPropertyOptional({ description: 'Hospital ID to assign the skill to' })
+	@IsOptional()
+	@IsUUID('4')
+	hospitalId?: string;
 }

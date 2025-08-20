@@ -40,4 +40,9 @@ export class CreateStaffDto {
 	@IsArray()
 	@IsUUID('4', { each: true })
 	skillIds?: string[];
+
+	@ApiPropertyOptional({ description: 'Hospital ID to assign the staff to' })
+	@IsOptional()
+	@IsUUID('4')
+	hospitalId?: string;
 }

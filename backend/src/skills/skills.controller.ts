@@ -40,8 +40,8 @@ export class SkillsController {
 	@ApiOperation({ summary: 'Get all skills with pagination' })
 	@ApiResponse({ status: 200, description: 'Skills retrieved successfully' })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
-	findAll(@Query() paginationDto: PaginationDto, @Query() queryDto: QuerySkillDto) {
-		return this.skillsService.findAll(paginationDto, queryDto);
+	findAll(@Query() queryDto: QuerySkillDto) {
+		return this.skillsService.findAll(queryDto);
 	}
 
 	@Get(':id')

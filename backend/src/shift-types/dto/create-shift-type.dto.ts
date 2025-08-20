@@ -1,5 +1,5 @@
-import { IsString, IsBoolean, IsInt, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsBoolean, IsInt, Min, IsOptional, IsUUID } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateShiftTypeDto {
 	@ApiProperty({ description: 'Shift type code (unique identifier)' })
@@ -26,4 +26,9 @@ export class CreateShiftTypeDto {
 	@IsInt()
 	@Min(1)
 	durationMinutes!: number;
+
+	@ApiPropertyOptional({ description: 'Hospital ID to assign the shift type to' })
+	@IsOptional()
+	@IsUUID('4')
+	hospitalId?: string;
 }

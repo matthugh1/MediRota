@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ChevronDown, 
@@ -9,25 +9,33 @@ import {
   RotateCcw,
   Bell,
   Search,
-  Building2
+  Building2,
+  MapPin
 } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
+import { useOrgScope } from '../../../lib/orgScope.js';
+import api from '../../../lib/api.js';
+
+interface Trust {
+  id: string;
+  name: string;
+}
+
+interface Hospital {
+  id: string;
+  name: string;
+  trustId: string;
+}
 
 interface TopBarProps {
   navCollapsed: boolean;
 }
 
 const TopBar: React.FC<TopBarProps> = ({ navCollapsed }) => {
-  const [selectedWard, setSelectedWard] = useState('General Ward');
-  const [isWardMenuOpen, setIsWardMenuOpen] = useState(false);
-
-  const wards = [
-    'General Ward',
-    'ICU',
-    'Emergency Department',
-    'Surgical Ward',
-    'Maternity Ward'
-  ];
+  const { scope, setTrust, setHospital, isHierarchyEnabled } = useOrgScope();
+  const [trusts, setTrusts] = useState<Trust[]>([]);
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const getPageTitle = () => {
     const path = window.location.pathname;
@@ -43,63 +51,137 @@ const TopBar: React.FC<TopBarProps> = ({ navCollapsed }) => {
     return 'Dashboard';
   };
 
+  // Load trusts on mount
+  useEffect(() => {
+    if (!isHierarchyEnabled) return;
+    
+    const loadTrusts = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/trusts');
+        setTrusts(response.data);
+      } catch (error) {
+        console.error('Failed to load trusts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTrusts();
+  }, [isHierarchyEnabled]);
+
+  // Load hospitals when trust changes
+  useEffect(() => {
+    if (!isHierarchyEnabled || !scope.trustId) {
+      setHospitals([]);
+      return;
+    }
+
+    const loadHospitals = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(`/hospitals?trustId=${scope.trustId}`);
+        setHospitals(response.data);
+      } catch (error) {
+        console.error('Failed to load hospitals:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHospitals();
+  }, [isHierarchyEnabled, scope.trustId]);
+
+  // Render breadcrumb text
+  const renderBreadcrumb = () => {
+    if (!isHierarchyEnabled) return null;
+    
+    const items = [];
+    if (scope.trustName) {
+      items.push(scope.trustName);
+    }
+    if (scope.hospitalName) {
+      items.push(scope.hospitalName);
+    }
+    
+    if (items.length === 0) return null;
+    
+    return (
+      <div className="flex items-center text-sm text-neutral-600">
+        <MapPin className="w-4 h-4 mr-2" />
+        {items.join(' / ')}
+      </div>
+    );
+  };
+
   return (
     <div className="flex items-center justify-between px-6 py-4">
       {/* Left side - Page title and breadcrumb */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-6">
         <div>
           <h1 className="h3 text-neutral-900">{getPageTitle()}</h1>
-          <p className="caption text-neutral-500">Planner • {selectedWard}</p>
+          {renderBreadcrumb()}
         </div>
       </div>
 
-      {/* Center - Ward selector */}
-      <div className="flex items-center space-x-4">
-        <div className="relative">
-          <Menu as="div" className="relative inline-block text-left">
-                         <Menu.Button className="btn-secondary inline-flex items-center justify-center w-full">
-              <Building2 className="w-4 h-4 mr-2" />
-              {selectedWard}
-              <ChevronDown className="w-4 h-4 ml-2" />
-            </Menu.Button>
-            <Transition
-              as={React.Fragment}
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
+      {/* Center - Trust and Hospital selectors */}
+      {isHierarchyEnabled && (
+        <div className="flex items-center space-x-4">
+          {/* Trust Selector */}
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-neutral-700">Trust:</label>
+            <select
+              value={scope.trustId || ''}
+              onChange={(e) => {
+                const trust = trusts.find(t => t.id === e.target.value);
+                if (trust) {
+                  setTrust(trust.id, trust.name);
+                }
+              }}
+              className="px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+              disabled={loading}
             >
-              <Menu.Items className="card absolute right-0 z-10 w-56 mt-2 origin-top-right shadow-lg">
-                <div className="py-1">
-                  {wards.map((ward) => (
-                    <Menu.Item key={ward}>
-                      {({ active }) => (
-                        <button
-                          onClick={() => setSelectedWard(ward)}
-                          className={`
-                            ${active ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-700'}
-                            group flex items-center w-full px-4 py-2 text-sm transition-colors duration-200
-                          `}
-                        >
-                          {ward}
-                          {selectedWard === ward && (
-                            <motion.div
-                              layoutId="activeWard"
-                              className="w-2 h-2 bg-primary-500 rounded-full ml-auto"
-                            />
-                          )}
-                        </button>
-                      )}
-                    </Menu.Item>
-                  ))}
-                </div>
-              </Menu.Items>
-            </Transition>
-          </Menu>
+              <option value="">Select Trust</option>
+              {trusts.map(trust => (
+                <option key={trust.id} value={trust.id}>
+                  {trust.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Hospital Selector */}
+          {scope.trustId && (
+            <div className="flex items-center space-x-2">
+              <label className="text-sm font-medium text-neutral-700">Hospital:</label>
+              <select
+                value={scope.hospitalId || ''}
+                onChange={(e) => {
+                  const hospital = hospitals.find(h => h.id === e.target.value);
+                  if (hospital) {
+                    setHospital(hospital.id, hospital.name);
+                  }
+                }}
+                className="px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                disabled={loading}
+              >
+                <option value="">Select Hospital</option>
+                {hospitals.map(hospital => (
+                  <option key={hospital.id} value={hospital.id}>
+                    {hospital.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {loading && (
+            <div className="text-sm text-neutral-500">
+              Loading...
+            </div>
+          )}
         </div>
-      </div>
+      )}
 
       {/* Right side - Actions and user menu */}
       <div className="flex items-center space-x-3">

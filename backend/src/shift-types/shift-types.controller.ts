@@ -40,8 +40,8 @@ export class ShiftTypesController {
 	@ApiOperation({ summary: 'Get all shift types with pagination' })
 	@ApiResponse({ status: 200, description: 'Shift types retrieved successfully' })
 	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
-	findAll(@Query() paginationDto: PaginationDto, @Query() queryDto: QueryShiftTypeDto) {
-		return this.shiftTypesService.findAll(paginationDto, queryDto);
+	findAll(@Query() queryDto: QueryShiftTypeDto) {
+		return this.shiftTypesService.findAll(queryDto);
 	}
 
 	@Get(':id')
