@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, Users, AlertTriangle, Info } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -55,9 +55,12 @@ export function CreateScheduleForm({
   isLoading = false,
   error,
 }: CreateScheduleFormProps) {
+  const [shouldSubmit, setShouldSubmit] = useState(false);
+  
   const form = useForm<CreateScheduleFormData>({
     resolver: zodResolver(createScheduleSchema),
     mode: 'onSubmit',
+    shouldFocusError: false,
     defaultValues: {
       wardId: '',
       horizonStart: '',
@@ -66,8 +69,17 @@ export function CreateScheduleForm({
   });
 
   const handleSubmit = (data: CreateScheduleFormData) => {
-    console.log('CreateScheduleForm: handleSubmit called with data:', data);
-    onSubmit(data);
+    console.log('CreateScheduleForm: handleSubmit called with data:', data, 'shouldSubmit:', shouldSubmit);
+    if (shouldSubmit) {
+      onSubmit(data);
+      setShouldSubmit(false);
+    }
+  };
+
+  const handleFormSubmit = () => {
+    console.log('CreateScheduleForm: Create Schedule button clicked');
+    setShouldSubmit(true);
+    form.handleSubmit(handleSubmit)();
   };
 
   // Watch form values to detect overlapping schedules
@@ -151,7 +163,7 @@ export function CreateScheduleForm({
               </div>
 
               {/* Form */}
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="p-6 space-y-4">
+              <form onSubmit={(e) => e.preventDefault()} className="p-6 space-y-4">
                 {/* Error Display */}
                 {error && (
                   <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -267,7 +279,8 @@ export function CreateScheduleForm({
                     Cancel
                   </button>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleFormSubmit}
                     disabled={isLoading}
                     className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
