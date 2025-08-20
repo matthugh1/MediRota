@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -60,7 +61,10 @@ interface PolicyEditorProps {
   policyId?: string;
 }
 
-const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
+const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId: propPolicyId }) => {
+  const params = useParams();
+  const policyId = propPolicyId || params.id;
+  
   const [activeTab, setActiveTab] = useState('presets');
   const [testResults, setTestResults] = useState<any>(null);
   const [isTesting, setIsTesting] = useState(false);
