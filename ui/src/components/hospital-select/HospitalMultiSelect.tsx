@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { X, ChevronDown, Check } from 'lucide-react';
 import { useHospitalOptions } from './useHospitalOptions.js';
 
@@ -56,34 +56,32 @@ export function HospitalMultiSelect({
 		}, {} as Record<string, HospitalOption[]>)
 		: null;
 
-	const toggle = (id: string) => {
-		console.log('HospitalMultiSelect toggle called with id:', id);
-		const newSelected = new Set(selected);
-		if (newSelected.has(id)) {
-			newSelected.delete(id);
-		} else {
-			newSelected.add(id);
-		}
-		const newValue = Array.from(newSelected);
+	// Handle option selection
+	const handleOptionToggle = useCallback((optionId: string) => {
+		console.log('HospitalMultiSelect handleOptionToggle called with id:', optionId);
+		const newValue = value.includes(optionId)
+			? value.filter(id => id !== optionId)
+			: [...value, optionId];
 		console.log('HospitalMultiSelect new value:', newValue);
 		onChange(newValue);
-	};
+	}, [value, onChange]);
 
-	const remove = (id: string) => {
-		const newSelected = new Set(selected);
-		newSelected.delete(id);
-		onChange(Array.from(newSelected));
-	};
+	// Handle chip removal
+	const handleChipRemove = useCallback((optionId: string) => {
+		onChange(value.filter(id => id !== optionId));
+	}, [value, onChange]);
 
-	const selectAllFiltered = () => {
-		const newSelected = new Set(selected);
-		filteredOptions.forEach(opt => newSelected.add(opt.id));
-		onChange(Array.from(newSelected));
-	};
+	// Handle select all filtered
+	const handleSelectAll = useCallback(() => {
+		const filteredIds = filteredOptions.map(option => option.id);
+		const newValue = [...new Set([...value, ...filteredIds])];
+		onChange(newValue);
+	}, [filteredOptions, value, onChange]);
 
-	const clearAll = () => {
+	// Handle clear all
+	const handleClear = useCallback(() => {
 		onChange([]);
-	};
+	}, [onChange]);
 
 	const toggleOpen = () => {
 		if (!disabled) {
@@ -222,7 +220,7 @@ export function HospitalMultiSelect({
 								aria-label={`Remove ${opt.name}`}
 								onClick={(e) => {
 									e.stopPropagation();
-									remove(opt.id);
+									handleChipRemove(opt.id);
 								}}
 								className="ml-1 hover:bg-green-200 rounded-full p-0.5"
 							>
@@ -267,7 +265,7 @@ export function HospitalMultiSelect({
 					<div className="flex gap-2 p-2 border-b">
 						<button
 							type="button"
-							onClick={selectAllFiltered}
+							onClick={handleSelectAll}
 							className="text-xs text-blue-600 hover:text-blue-800"
 							data-testid={`${testId}-select-all`}
 						>
@@ -275,7 +273,7 @@ export function HospitalMultiSelect({
 						</button>
 						<button
 							type="button"
-							onClick={clearAll}
+							onClick={handleClear}
 							className="text-xs text-gray-600 hover:text-gray-800"
 							data-testid={`${testId}-clear`}
 						>
@@ -310,7 +308,7 @@ export function HospitalMultiSelect({
 												tabIndex={-1}
 												onClick={() => {
 													console.log('Hospital option clicked:', opt.id, opt.name);
-													toggle(opt.id);
+													handleOptionToggle(opt.id);
 												}}
 												onKeyDown={(e) => {
 													if (e.key === 'Enter' || e.key === ' ') {
@@ -349,7 +347,7 @@ export function HospitalMultiSelect({
 									type="button"
 									onClick={() => {
 										console.log('Hospital option clicked:', opt.id, opt.name);
-										toggle(opt.id);
+										handleOptionToggle(opt.id);
 									}}
 									onKeyDown={(e) => {
 										if (e.key === 'ArrowDown') focusOption(index + 1);
