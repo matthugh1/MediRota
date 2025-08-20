@@ -343,27 +343,21 @@ export function HospitalMultiSelect({
 						) : (
 							// Flat list
 							filteredOptions.map((opt, index) => (
-								<li
+								<button
 									key={opt.id}
 									id={`hospital-opt-${opt.id}`}
-									role="option"
-									aria-selected={selected.has(opt.id)}
-									tabIndex={-1}
+									type="button"
 									onClick={() => {
 										console.log('Hospital option clicked:', opt.id, opt.name);
 										toggle(opt.id);
 									}}
 									onKeyDown={(e) => {
-										if (e.key === 'Enter' || e.key === ' ') {
-											e.preventDefault();
-											toggle(opt.id);
-										}
 										if (e.key === 'ArrowDown') focusOption(index + 1);
 										if (e.key === 'ArrowUp') focusOption(index - 1);
 										if (e.key === 'Escape') close();
 									}}
 									className={`
-										flex items-center gap-2 px-2 py-1 cursor-pointer
+										w-full text-left flex items-center gap-2 px-2 py-1 cursor-pointer select-none
 										${selected.has(opt.id) ? 'bg-green-50' : 'hover:bg-gray-50'}
 										${focusedIndex === index ? 'ring-1 ring-blue-500' : ''}
 									`}
@@ -379,7 +373,7 @@ export function HospitalMultiSelect({
 									{opt.trust?.name && (
 										<span className="ml-auto text-xs text-gray-500">{opt.trust.name}</span>
 									)}
-								</li>
+								</button>
 							))
 						)}
 						{filteredOptions.length === 0 && (
