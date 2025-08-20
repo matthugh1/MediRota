@@ -8,10 +8,12 @@ import { format } from 'date-fns';
 import { DataTable } from './components/DataTable';
 import { DrawerForm } from './components/DrawerForm';
 import { FormField } from './components/FormFields';
-import { useSkills, useCreateSkill, useUpdateSkill, useDeleteSkill, Skill, useWards } from '../../../lib/hooks';
+import { useSkills, useCreateSkill, useUpdateSkill, useDeleteSkill, Skill } from '../../../lib/hooks';
 import { useToastSuccess, useToastError, useConfirmDelete } from '../../../components';
 import { useOrgScope } from '../../../lib/orgScope.js';
 import { ORG_HIERARCHY_ENABLED } from '../../../lib/flags.js';
+import { WardMultiSelect } from '../../../components/ward-select/WardMultiSelect.js';
+import { useWardOptions } from '../../../components/ward-select/useWardOptions.js';
 
 const skillSchema = z.object({
   code: z.string().min(1, 'Skill code is required').max(20, 'Skill code must be less than 20 characters'),
@@ -90,7 +92,7 @@ export default function SkillsPage() {
   
   const { scope } = useOrgScope();
   const { data: skillsData, isLoading } = useSkills();
-  const { data: wardsData } = useWards();
+  const { options: wardOptions, isLoading: wardsLoading, error: wardsError } = useWardOptions();
   const createSkillMutation = useCreateSkill();
   const updateSkillMutation = useUpdateSkill();
   const deleteSkillMutation = useDeleteSkill();
@@ -232,29 +234,25 @@ export default function SkillsPage() {
               required
             />
             
-            {wardsData?.data && (
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Applies to Wards
-                </label>
-                <div className="space-y-2 max-h-40 overflow-y-auto border rounded-md p-3">
-                  {wardsData.data.map(ward => (
-                    <label key={ward.id} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        value={ward.id}
-                        {...form.register('wardIds')}
-                        className="rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-zinc-700">{ward.name}</span>
-                    </label>
-                  ))}
-                </div>
-                <p className="text-xs text-zinc-500 mt-1">
-                  Select which wards this skill applies to. Leave empty to apply to all wards.
-                </p>
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 mb-2">
+                Applies to Wards
+              </label>
+              <WardMultiSelect
+                value={form.watch('wardIds') || []}
+                onChange={(wardIds) => form.setValue('wardIds', wardIds)}
+                options={wardOptions}
+                loading={wardsLoading}
+                error={wardsError}
+                groupByHospital={true}
+                disabled={createSkillMutation.isPending || updateSkillMutation.isPending}
+                placeholder="Search wards..."
+                data-testid="skill-wards-multiselect"
+              />
+              <p className="text-xs text-zinc-500 mt-1">
+                Select which wards this skill applies to. Leave empty to apply to all wards.
+              </p>
+            </div>
             
             <div className="text-sm text-zinc-500">
               <p>The skill code is used internally and should be short and unique.</p>
