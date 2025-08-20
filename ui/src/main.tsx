@@ -27,7 +27,7 @@ import SchedulePage from './routes/planner/schedule/SchedulePage';
 // Import policy components
 import PolicyList from './routes/planner/config/policy/PolicyList';
 import PolicyEditor from './routes/planner/config/policy/PolicyEditor';
-import PolicyAssignmentPage from './routes/admin/policy/PolicyAssignmentPage';
+
 
 function App() {
 	return (
@@ -56,7 +56,7 @@ function App() {
 								<Route path="config/policy/new" element={<PolicyEditor />} />
 								<Route path="config/policy/:id" element={<PolicyEditor />} />
 								<Route path="config/policy/:id/edit" element={<PolicyEditor />} />
-								<Route path="config/policy/assignments" element={<PolicyAssignmentPage />} />
+
 								
 								{/* Staff routes */}
 								<Route path="staff" element={<StaffPage />} />
