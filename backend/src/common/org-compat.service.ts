@@ -21,24 +21,40 @@ export class OrgCompatService {
    * Apply hospital filter to a where clause
    * Returns original where clause when hierarchy is disabled or no hospitalId provided
    */
-  applyHospitalFilter<T extends { hospitalId?: string }>(where: any, hospitalId?: string): any {
+  applyHospitalFilter<T extends { hospitalId?: string }>(where: any, hospitalId?: string, modelType?: 'staff' | 'auto'): any {
     if (!ORG_HIERARCHY_ENABLED || !hospitalId) {
       return where;
     }
 
-    // Check if this is a Staff model (has wards relation)
-    if (where.wards !== undefined) {
+    // Determine if this is a Staff model
+    const isStaffModel = modelType === 'staff' || where.wards !== undefined;
+
+    if (isStaffModel) {
       // For Staff model, filter through wards that belong to the hospital
       const existingWardsFilter = where.wards;
-      return {
-        ...where,
-        wards: {
-          some: {
-            hospitalId,
-            ...existingWardsFilter.some
+      
+      if (existingWardsFilter) {
+        // Merge with existing wards filter
+        return {
+          ...where,
+          wards: {
+            some: {
+              hospitalId,
+              ...(existingWardsFilter.some || existingWardsFilter)
+            }
           }
-        }
-      };
+        };
+      } else {
+        // Add new wards filter
+        return {
+          ...where,
+          wards: {
+            some: {
+              hospitalId
+            }
+          }
+        };
+      }
     } else {
       // For models with direct hospitalId field (like ShiftType), filter directly
       return { ...where, hospitalId };

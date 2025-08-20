@@ -81,7 +81,7 @@ export class StaffService {
 		}
 
 		// Apply hospital filter if provided and hierarchy is enabled
-		const finalWhere = this.orgCompatService.applyHospitalFilter(where, hospitalId);
+		const finalWhere = this.orgCompatService.applyHospitalFilter(where, hospitalId, 'staff');
 
 		const [staff, total] = await Promise.all([
 			this.prisma.staff.findMany({
