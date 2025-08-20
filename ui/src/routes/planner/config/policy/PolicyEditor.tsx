@@ -318,6 +318,29 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
 
       {/* Form */}
       <div className="bg-white rounded-lg border border-neutral-200">
+        {/* Always-visible basic details */}
+        <div className="px-6 pt-6">
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
+              Policy Name
+            </label>
+            <Controller
+              name="label"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="text"
+                  {...field}
+                  className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Enter policy name"
+                />
+              )}
+            />
+            {errors.label && (
+              <p className="text-red-500 text-sm mt-1">{errors.label.message}</p>
+            )}
+          </div>
+        </div>
         {/* Tabs */}
         <div className="border-b border-neutral-200">
           <nav className="flex space-x-8 px-6">
@@ -829,9 +852,9 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                           {...field}
                           className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         >
-                          <option value="ORG">Organization-wide</option>
-                          <option value="WARD">Ward-specific</option>
-                          <option value="SCHEDULE">Schedule-specific</option>
+                          <option value="TRUST">Trust</option>
+                          <option value="HOSPITAL">Hospital</option>
+                          <option value="WARD">Ward</option>
                         </select>
                       )}
                     />
@@ -860,46 +883,7 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                     </div>
                   )}
 
-                  {watchedScope === 'SCHEDULE' && (
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Schedule ID
-                      </label>
-                      <Controller
-                        name="scheduleId"
-                        control={control}
-                        render={({ field }) => (
-                          <input
-                            type="text"
-                            {...field}
-                            className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder="Enter schedule ID"
-                          />
-                        )}
-                      />
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-2">
-                      Policy Label
-                    </label>
-                    <Controller
-                      name="label"
-                      control={control}
-                      render={({ field }) => (
-                        <input
-                          type="text"
-                          {...field}
-                          className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                          placeholder="Enter policy label"
-                        />
-                      )}
-                    />
-                    {errors.label && (
-                      <p className="text-red-500 text-sm mt-1">{errors.label.message}</p>
-                    )}
-                  </div>
+                  
 
                   <div className="flex items-center justify-between">
                     <div>
