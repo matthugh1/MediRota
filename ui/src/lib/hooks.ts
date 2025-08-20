@@ -605,17 +605,16 @@ export const useApplyAlternative = () => {
   });
 };
 
-export const useEffectivePolicy = (wardId?: string, scheduleId?: string) => {
+export const useEffectivePolicy = (wardId?: string) => {
   return useQuery({
-    queryKey: queryKeys.policies.effective({ wardId, scheduleId }),
+    queryKey: queryKeys.policies.effective({ wardId }),
     queryFn: async () => {
       const params = new URLSearchParams();
       if (wardId) params.append('wardId', wardId);
-      if (scheduleId) params.append('scheduleId', scheduleId);
       
       const response = await apiClient.get(`/api/policy/effective?${params.toString()}`);
       return response.data;
     },
-    enabled: !!(wardId || scheduleId),
+    enabled: !!wardId,
   });
 };

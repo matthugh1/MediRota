@@ -85,7 +85,7 @@ export const queryKeys = {
     list: (filters: any) => [...queryKeys.policies.lists(), filters] as const,
     details: () => [...queryKeys.policies.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.policies.details(), id] as const,
-    effective: (params: { wardId?: string; scheduleId?: string }) => 
+    effective: (params: { wardId?: string }) => 
       [...queryKeys.policies.all, 'effective', params] as const,
   },
 } as const;
