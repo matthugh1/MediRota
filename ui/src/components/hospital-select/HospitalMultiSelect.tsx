@@ -340,39 +340,48 @@ export function HospitalMultiSelect({
 							))
 						) : (
 							// Flat list
-							filteredOptions.map((opt, index) => (
-								<button
-									key={opt.id}
-									id={`hospital-opt-${opt.id}`}
-									type="button"
-									onClick={() => {
-										console.log('Hospital option clicked:', opt.id, opt.name);
-										handleOptionToggle(opt.id);
-									}}
-									onKeyDown={(e) => {
-										if (e.key === 'ArrowDown') focusOption(index + 1);
-										if (e.key === 'ArrowUp') focusOption(index - 1);
-										if (e.key === 'Escape') close();
-									}}
-									className={`
-										w-full text-left flex items-center gap-2 px-2 py-1 cursor-pointer select-none
-										${selected.has(opt.id) ? 'bg-green-50' : 'hover:bg-gray-50'}
-										${focusedIndex === index ? 'ring-1 ring-blue-500' : ''}
-									`}
-									data-testid={`${testId}-opt-${opt.id}`}
-								>
-									<input
-										type="checkbox"
-										readOnly
-										checked={selected.has(opt.id)}
-										className="pointer-events-none"
-									/>
-									<span className="truncate">{opt.name}</span>
-									{opt.trust?.name && (
-										<span className="ml-auto text-xs text-gray-500">{opt.trust.name}</span>
-									)}
-								</button>
-							))
+							filteredOptions.map((opt, index) => {
+								const isSelected = value.includes(opt.id);
+								const isFocused = focusedIndex === index;
+								
+								return (
+									<li
+										key={opt.id}
+										id={`hospital-opt-${opt.id}`}
+										data-index={index}
+										role="option"
+										aria-selected={isSelected}
+										tabIndex={-1}
+										onMouseDown={(e) => e.preventDefault()}
+										onClick={() => {
+											console.log('Hospital option clicked:', opt.id, opt.name);
+											handleOptionToggle(opt.id);
+										}}
+										onKeyDown={(e) => {
+											if (e.key === 'ArrowDown') focusOption(index + 1);
+											if (e.key === 'ArrowUp') focusOption(index - 1);
+											if (e.key === 'Escape') close();
+										}}
+										className={`
+											flex items-center gap-2 px-3 py-2 cursor-pointer
+											${isFocused ? 'bg-blue-50 ring-1 ring-blue-500' : 'hover:bg-gray-50'}
+											${isSelected ? 'bg-gray-50' : ''}
+										`}
+										data-testid={`${testId}-opt-${opt.id}`}
+									>
+										<input
+											type="checkbox"
+											readOnly
+											checked={isSelected}
+											className="pointer-events-none"
+										/>
+										<span className="truncate">{opt.name}</span>
+										{opt.trust?.name && (
+											<span className="ml-auto text-xs text-gray-500">{opt.trust.name}</span>
+										)}
+									</li>
+								);
+							})
 						)}
 						{filteredOptions.length === 0 && (
 							<li className="px-2 py-1 text-sm text-gray-500">
