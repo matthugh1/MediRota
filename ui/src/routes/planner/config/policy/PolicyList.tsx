@@ -21,18 +21,31 @@ import { queryKeys } from '../../../../lib/query';
 
 interface Policy {
   id: string;
-  scope: 'ORG' | 'WARD' | 'SCHEDULE';
+  scope: 'TRUST' | 'HOSPITAL' | 'WARD';
+  orgId?: string;
   wardId?: string;
-  scheduleId?: string;
   label: string;
   isActive: boolean;
+  policyRules?: PolicyRule[];
   createdAt: string;
   updatedAt: string;
 }
 
+interface PolicyRule {
+  id: string;
+  ruleTemplate: {
+    id: string;
+    code: string;
+    name: string;
+  };
+  kind: 'HARD' | 'SOFT';
+  params: any;
+  weight?: number;
+}
+
 const PolicyList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [scopeFilter, setScopeFilter] = useState<'ALL' | 'ORG' | 'WARD' | 'SCHEDULE'>('ALL');
+  const [scopeFilter, setScopeFilter] = useState<'ALL' | 'TRUST' | 'HOSPITAL' | 'WARD'>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
 
   const { data: policies, isLoading, error } = useQuery({
@@ -56,11 +69,11 @@ const PolicyList: React.FC = () => {
 
   const getScopeIcon = (scope: string) => {
     switch (scope) {
-      case 'ORG':
+      case 'TRUST':
         return <Globe className="w-4 h-4" />;
-      case 'WARD':
+      case 'HOSPITAL':
         return <Building2 className="w-4 h-4" />;
-      case 'SCHEDULE':
+      case 'WARD':
         return <Calendar className="w-4 h-4" />;
       default:
         return <Shield className="w-4 h-4" />;
@@ -69,12 +82,12 @@ const PolicyList: React.FC = () => {
 
   const getScopeLabel = (scope: string) => {
     switch (scope) {
-      case 'ORG':
-        return 'Organization';
+      case 'TRUST':
+        return 'Trust';
+      case 'HOSPITAL':
+        return 'Hospital';
       case 'WARD':
         return 'Ward';
-      case 'SCHEDULE':
-        return 'Schedule';
       default:
         return scope;
     }
@@ -152,9 +165,9 @@ const PolicyList: React.FC = () => {
             className="px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           >
             <option value="ALL">All Scopes</option>
-            <option value="ORG">Organization</option>
+            <option value="TRUST">Trust</option>
+            <option value="HOSPITAL">Hospital</option>
             <option value="WARD">Ward</option>
-            <option value="SCHEDULE">Schedule</option>
           </select>
 
           {/* Status Filter */}
@@ -213,10 +226,15 @@ const PolicyList: React.FC = () => {
                     <div>
                       <h3 className="font-medium text-neutral-900">{policy.label}</h3>
                       <p className="text-sm text-neutral-600">
-                        {policy.wardId && `Ward: ${policy.wardId}`}
-                        {policy.scheduleId && `Schedule: ${policy.scheduleId}`}
-                        {!policy.wardId && !policy.scheduleId && 'Organization-wide'}
+                        {policy.wardId && `Ward ID: ${policy.wardId}`}
+                        {policy.orgId && !policy.wardId && `Org ID: ${policy.orgId}`}
+                        {!policy.wardId && !policy.orgId && 'Global'}
                       </p>
+                      {policy.policyRules && (
+                        <p className="text-xs text-neutral-500">
+                          {policy.policyRules.length} rule{policy.policyRules.length !== 1 ? 's' : ''}
+                        </p>
+                      )}
                     </div>
                   </div>
 

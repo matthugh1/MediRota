@@ -16,15 +16,16 @@ import {
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { policyApi } from '../../../../lib/api/policy';
+import { ruleTemplatesApi, RuleTemplate } from '../../../../lib/api/ruleTemplates';
 import { queryKeys, invalidateQueries } from '../../../../lib/query';
 
 // Zod schema for policy validation
 const policySchema = z.object({
-  scope: z.enum(['ORG', 'WARD', 'SCHEDULE']),
+  scope: z.enum(['TRUST', 'HOSPITAL', 'WARD']),
+  orgId: z.string().optional(),
   wardId: z.string().optional(),
-  scheduleId: z.string().optional(),
   label: z.string().min(1, 'Label is required'),
   isActive: z.boolean(),
   weights: z.object({
@@ -45,6 +46,12 @@ const policySchema = z.object({
   }),
   substitution: z.record(z.string(), z.array(z.string())),
   timeBudgetMs: z.number().min(10000).max(300000),
+  policyRules: z.array(z.object({
+    ruleTemplateId: z.string(),
+    kind: z.enum(['HARD', 'SOFT']),
+    params: z.record(z.string(), z.any()),
+    weight: z.number().optional(),
+  })).optional(),
 });
 
 type PolicyFormData = z.infer<typeof policySchema>;
@@ -57,7 +64,14 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
   const [activeTab, setActiveTab] = useState('presets');
   const [testResults, setTestResults] = useState<any>(null);
   const [isTesting, setIsTesting] = useState(false);
+  const [selectedRuleTemplate, setSelectedRuleTemplate] = useState<string>('');
   const queryClient = useQueryClient();
+
+  // Fetch rule templates
+  const { data: ruleTemplates = [] } = useQuery({
+    queryKey: ['ruleTemplates'],
+    queryFn: ruleTemplatesApi.getAll,
+  });
 
   const isEditing = !!policyId;
 
@@ -70,7 +84,7 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
   } = useForm<PolicyFormData>({
     resolver: zodResolver(policySchema),
     defaultValues: {
-      scope: 'ORG',
+      scope: 'TRUST',
       label: '',
       isActive: true,
       weights: {
@@ -182,6 +196,7 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
 
   const tabs = [
     { id: 'presets', label: 'Presets', icon: Target },
+    { id: 'rules', label: 'Rules', icon: Shield },
     { id: 'weights', label: 'Weights', icon: Settings },
     { id: 'limits', label: 'Limits', icon: Shield },
     { id: 'toggles', label: 'Toggles', icon: ToggleLeft },
@@ -314,6 +329,122 @@ const PolicyEditor: React.FC<PolicyEditorProps> = ({ policyId }) => {
                       </div>
                     </motion.button>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Rules Tab */}
+            {activeTab === 'rules' && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-medium text-neutral-900 mb-2">Business Rules</h3>
+                  <p className="text-neutral-600 mb-4">
+                    Configure business rules that constrain the solver
+                  </p>
+                </div>
+                
+                {/* Current Rules */}
+                <div className="space-y-3">
+                  <h4 className="text-md font-medium text-neutral-800">Current Rules</h4>
+                  {watch('policyRules')?.length ? (
+                    <div className="space-y-2">
+                      {watch('policyRules')?.map((rule, index) => {
+                        const template = ruleTemplates.find(t => t.id === rule.ruleTemplateId);
+                        return (
+                          <div key={index} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                            <div className="flex-1">
+                              <div className="font-medium text-neutral-900">{template?.name || 'Unknown Rule'}</div>
+                              <div className="text-sm text-neutral-600">
+                                {rule.kind} rule
+                                {rule.weight && ` (weight: ${rule.weight})`}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const currentRules = watch('policyRules') || [];
+                                setValue('policyRules', currentRules.filter((_, i) => i !== index));
+                              }}
+                              className="p-1 text-red-500 hover:text-red-700"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-neutral-500 text-sm">No rules configured</p>
+                  )}
+                </div>
+
+                {/* Add New Rule */}
+                <div className="space-y-3">
+                  <h4 className="text-md font-medium text-neutral-800">Add New Rule</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Rule Template
+                      </label>
+                      <select
+                        value={selectedRuleTemplate}
+                        onChange={(e) => setSelectedRuleTemplate(e.target.value)}
+                        className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      >
+                        <option value="">Select a rule template</option>
+                        {ruleTemplates.map((template) => (
+                          <option key={template.id} value={template.id}>
+                            {template.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Kind
+                      </label>
+                      <select
+                        className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        defaultValue="HARD"
+                      >
+                        <option value="HARD">Hard Constraint</option>
+                        <option value="SOFT">Soft Preference</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Weight (for soft rules)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        defaultValue="5"
+                        className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!selectedRuleTemplate) return;
+                      
+                      const currentRules = watch('policyRules') || [];
+                      const newRule = {
+                        ruleTemplateId: selectedRuleTemplate,
+                        kind: 'HARD' as const,
+                        params: {},
+                        weight: undefined,
+                      };
+                      
+                      setValue('policyRules', [...currentRules, newRule]);
+                      setSelectedRuleTemplate('');
+                    }}
+                    disabled={!selectedRuleTemplate}
+                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Add Rule
+                  </button>
                 </div>
               </div>
             )}
