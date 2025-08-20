@@ -6,7 +6,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { DataTable } from './components/DataTable';
 import { DrawerForm } from './components/DrawerForm';
-import { FormField } from './components/FormFields';
+import { FormField, SelectField } from './components/FormFields';
 import { useShiftTypes, useCreateShiftType, useUpdateShiftType, useDeleteShiftType, ShiftType } from '../../../lib/hooks';
 import { useToastSuccess, useToastError, useConfirmDelete } from '../../../components';
 
@@ -297,10 +297,9 @@ export default function ShiftTypesPage() {
             <div className="border-t border-zinc-200 pt-6">
               <h3 className="text-lg font-medium text-zinc-900 mb-4">Scope Configuration</h3>
               
-              <FormField
+              <SelectField
                 name="scope"
                 label="Scope"
-                type="select"
                 options={[
                   { value: 'TRUST', label: 'Trust' },
                   { value: 'HOSPITAL', label: 'Hospital' },
