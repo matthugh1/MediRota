@@ -110,8 +110,8 @@ export default function ShiftTypesPage() {
   const [editingShiftType, setEditingShiftType] = useState<ShiftType | null>(null);
   
   const { data: shiftTypesData, isLoading } = useShiftTypes();
-  const { data: hospitalsData } = useHospitals();
-  const { data: wardsData } = useWards();
+  const { data: hospitalsData, isLoading: hospitalsLoading, error: hospitalsError } = useHospitals();
+  const { data: wardsData, isLoading: wardsLoading, error: wardsError } = useWards();
   const createShiftTypeMutation = useCreateShiftType();
   const updateShiftTypeMutation = useUpdateShiftType();
   const deleteShiftTypeMutation = useDeleteShiftType();
@@ -314,7 +314,7 @@ export default function ShiftTypesPage() {
                 <SelectField
                   name="hospitalId"
                   label="Hospital"
-                  options={hospitalsData?.data?.map(hospital => ({
+                  options={hospitalsData?.map(hospital => ({
                     value: hospital.id,
                     label: hospital.name
                   })) || []}
@@ -327,7 +327,7 @@ export default function ShiftTypesPage() {
                   <SelectField
                     name="hospitalId"
                     label="Hospital"
-                    options={hospitalsData?.data?.map(hospital => ({
+                    options={hospitalsData?.map(hospital => ({
                       value: hospital.id,
                       label: hospital.name
                     })) || []}

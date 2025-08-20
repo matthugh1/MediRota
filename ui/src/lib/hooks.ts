@@ -129,7 +129,7 @@ export const useHospitals = (filters?: any) => {
   // Hospitals are not filtered by hospitalId - they are top-level entities
   return useQuery({
     queryKey: queryKeys.hospitals.list(filters),
-    queryFn: async (): Promise<PaginatedResponse<Hospital>> => {
+    queryFn: async (): Promise<Hospital[]> => {
       const response = await apiClient.get('/hospitals', { params: filters });
       return response.data;
     },
