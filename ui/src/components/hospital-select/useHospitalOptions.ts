@@ -9,7 +9,7 @@ export function useHospitalOptions(trustId?: string) {
 			const params = trustId ? { trustId } : {};
 			const response = await hospitalsApi.list(params);
 			console.log('Hospitals response:', response);
-			return response.data || [];
+			return response || [];
 		},
 		enabled: !trustId || !!trustId, // Always enabled, but filter by trustId if provided
 	});

@@ -13,7 +13,7 @@ export const hospitalsApi = {
 		const response = await api.get('/hospitals', { params });
 		console.log('Raw hospitals response:', response.data);
 		// The backend returns an array directly
-		return { data: response.data };
+		return response.data;
 	},
 	
 	create: async (data: { name: string; trustId?: string }) => {
