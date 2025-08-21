@@ -20,7 +20,7 @@ import { SolveService } from '../solve/solve.service.js';
 
 
 @ApiTags('Policy')
-@Controller('api/policy')
+@Controller('policy')
 export class PolicyController {
   constructor(
     private readonly policyService: PolicyService,
