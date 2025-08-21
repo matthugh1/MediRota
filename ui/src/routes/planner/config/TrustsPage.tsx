@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
-import api from '../../../lib/api.js';
+import { trustsApi } from '../../../lib/api/trusts.js';
 import { useToast } from '../../../components/Toast.js';
 import { useConfirmDialog } from '../../../components/ConfirmDialog.js';
 
@@ -34,7 +34,7 @@ export default function TrustsPage() {
   const { data: trusts = [], isLoading, error } = useQuery({
     queryKey: ['trusts'],
     queryFn: async () => {
-      const response = await api.get('/trusts');
+      const response = await trustsApi.list();
       return response.data;
     },
   });
@@ -42,8 +42,8 @@ export default function TrustsPage() {
   // Create trust mutation
   const createMutation = useMutation({
     mutationFn: async (data: CreateTrustData) => {
-      const response = await api.post('/trusts', data);
-      return response.data;
+      const response = await trustsApi.create(data);
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trusts'] });
@@ -59,8 +59,8 @@ export default function TrustsPage() {
   // Update trust mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateTrustData }) => {
-      const response = await api.put(`/trusts/${id}`, data);
-      return response.data;
+      const response = await trustsApi.update(id, data);
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trusts'] });
@@ -76,7 +76,7 @@ export default function TrustsPage() {
   // Delete trust mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await api.delete(`/trusts/${id}`);
+      await trustsApi.remove(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trusts'] });
