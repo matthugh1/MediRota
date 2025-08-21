@@ -35,7 +35,7 @@ export default function TrustsPage() {
     queryKey: ['trusts'],
     queryFn: async () => {
       const response = await trustsApi.list();
-      return response.data;
+      return response;
     },
   });
 

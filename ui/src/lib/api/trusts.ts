@@ -11,7 +11,7 @@ export const trustsApi = {
 		const response = await api.get('/trusts');
 		console.log('Raw trusts response:', response.data);
 		// The backend returns an array directly
-		return { data: response.data };
+		return response.data;
 	},
 	
 	create: async (data: { name: string }) => {

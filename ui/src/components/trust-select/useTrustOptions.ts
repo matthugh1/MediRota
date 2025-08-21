@@ -8,7 +8,7 @@ export function useTrustOptions() {
 			console.log('Fetching trusts...');
 			const response = await trustsApi.list();
 			console.log('Trusts response:', response);
-			return response.data || [];
+			return response || [];
 		},
 	});
 
