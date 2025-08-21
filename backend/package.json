@@ -14,6 +14,7 @@
 			"db:clear": "ts-node tools/clear-db.ts",
 	"db:seed": "npm run seed",
 	"seed": "npx ts-node --transpile-only prisma/seed.ts",
+	"production:seed": "node prisma/production_seed.js",
 	"db:reset": "npm run seed",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
