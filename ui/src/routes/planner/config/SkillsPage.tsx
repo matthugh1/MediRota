@@ -11,7 +11,7 @@ import { FormField } from './components/FormFields';
 import { useSkills, useCreateSkill, useUpdateSkill, useDeleteSkill, Skill } from '../../../lib/hooks';
 import { useToastSuccess, useToastError, useConfirmDelete } from '../../../components';
 import { useOrgScope } from '../../../lib/orgScope.js';
-import { ORG_HIERARCHY_ENABLED } from '../../../lib/flags.js';
+
 import { WardMultiSelect } from '../../../components/ward-select/WardMultiSelect.js';
 import { useWardOptions } from '../../../components/ward-select/useWardOptions.js';
 
@@ -192,7 +192,7 @@ export default function SkillsPage() {
       <div>
         <h1 className="text-2xl font-bold text-zinc-900">Skills</h1>
         <p className="text-zinc-600">Manage staff skills and qualifications.</p>
-        {ORG_HIERARCHY_ENABLED && scope.hospitalId && (
+        {scope.hospitalId && (
           <p className="text-sm text-zinc-500 mt-1">
             (Filtered by {scope.hospitalName})
           </p>

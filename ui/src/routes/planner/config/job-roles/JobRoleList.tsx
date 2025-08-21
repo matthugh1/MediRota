@@ -124,13 +124,11 @@ export default function JobRoleList() {
         setIsLoading(true);
         const params: any = {};
         
-        // Apply organizational filtering if hierarchy is enabled
-        if (ORG_HIERARCHY_ENABLED) {
-          if (hospitalId) {
-            params.hospitalId = hospitalId;
-          } else if (trustId) {
-            params.trustId = trustId;
-          }
+        // Apply organizational filtering
+        if (hospitalId) {
+          params.hospitalId = hospitalId;
+        } else if (trustId) {
+          params.trustId = trustId;
         }
         
         const response = await jobRolesApi.list(params);

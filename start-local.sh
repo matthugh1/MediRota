@@ -41,7 +41,7 @@ BACKEND_PID=$!
 
 # Start Solver (Python/FastAPI)
 echo "🧮 Starting Solver..."
-cd ../solver && uvicorn app.main:app --reload --port 8090 &
+cd solver && uvicorn app.main:app --reload --port 8090 &
 SOLVER_PID=$!
 
 # Wait a moment for services to start
@@ -49,7 +49,7 @@ sleep 3
 
 # Start UI (React)
 echo "🎨 Starting UI..."
-cd ../ui && npm run dev &
+cd ui && npm run dev &
 UI_PID=$!
 
 echo ""
