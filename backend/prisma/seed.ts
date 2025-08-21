@@ -373,7 +373,8 @@ async function main() {
         },
         timeBudgetMs: 60000,
         label: "Trust Policy",
-        isActive: true
+        isActive: true,
+        rules: []
       }
     });
 
@@ -406,7 +407,8 @@ async function main() {
         },
         timeBudgetMs: 45000,
         label: "Hospital Policy",
-        isActive: true
+        isActive: true,
+        rules: []
       }
     });
 
@@ -494,13 +496,13 @@ async function main() {
         
         // Only create demand if there are requirements
         if (Object.values(requirements).some(count => count > 0)) {
-          demandRecords.push({
-            wardId: ward.id,
-            date,
-            granularity: 'shift',
-            slot,
-            requiredBySkill: requirements
-          });
+                  demandRecords.push({
+          wardId: ward.id,
+          date,
+          granularity: 'shift' as const,
+          slot,
+          requiredBySkill: requirements
+        });
         }
       }
     }
@@ -578,7 +580,7 @@ async function main() {
     console.log('🎯 Ready for solver testing with:');
     console.log(`   - ${staff.length} staff members`);
     console.log(`   - ${demandRecords.length} demand records`);
-    console.log(`   - ${wardPolicy.rules?.length || 0} rules in ward policy`);
+    console.log(`   - ${Array.isArray(wardPolicy.rules) ? wardPolicy.rules.length : 0} rules in ward policy`);
     console.log(`   - Schedule: ${schedule.objective}`);
     
   } catch (error) {
