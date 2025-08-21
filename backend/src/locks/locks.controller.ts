@@ -24,7 +24,6 @@ export class LocksController {
   constructor(private readonly locksService: LocksService) {}
 
   @Post()
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Create a new lock' })
   @ApiResponse({ 
     status: 201, 
@@ -54,13 +53,11 @@ export class LocksController {
     }
   })
   @ApiResponse({ status: 400, description: 'Bad request - validation error' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   create(@Body() createLockDto: CreateLockDto) {
     return this.locksService.create(createLockDto);
   }
 
   @Get()
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Get all locks with optional filtering' })
   @ApiResponse({ 
     status: 200, 
@@ -91,13 +88,11 @@ export class LocksController {
       ]
     }
   })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   findAll(@Query() query: QueryLocksDto) {
     return this.locksService.findAll(query);
   }
 
   @Get(':id')
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Get a specific lock by ID' })
   @ApiResponse({ 
     status: 200, 
@@ -127,17 +122,14 @@ export class LocksController {
     }
   })
   @ApiResponse({ status: 404, description: 'Lock not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   findOne(@Param('id') id: string) {
     return this.locksService.findOne(id);
   }
 
   @Delete(':id')
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Delete a lock' })
   @ApiResponse({ status: 200, description: 'Lock deleted successfully' })
   @ApiResponse({ status: 404, description: 'Lock not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   remove(@Param('id') id: string) {
     return this.locksService.remove(id);
   }

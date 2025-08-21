@@ -22,7 +22,6 @@ export class ExplainController {
   constructor(private readonly explainService: ExplainService) {}
 
   @Get()
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Get explanation for an assignment' })
   @ApiResponse({ 
     status: 200, 
@@ -72,13 +71,11 @@ export class ExplainController {
   })
   @ApiResponse({ status: 400, description: 'Bad request - validation error' })
   @ApiResponse({ status: 404, description: 'Assignment not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   explain(@Query() query: ExplainQueryDto) {
     return this.explainService.explain(query);
   }
 
   @Post('apply')
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Apply an alternative assignment' })
   @ApiResponse({ 
     status: 200, 
@@ -94,7 +91,6 @@ export class ExplainController {
   })
   @ApiResponse({ status: 400, description: 'Bad request - validation error' })
   @ApiResponse({ status: 404, description: 'Schedule or alternative not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   applyAlternative(@Body() applyDto: ApplyAlternativeDto) {
     return this.explainService.applyAlternative(applyDto);
   }

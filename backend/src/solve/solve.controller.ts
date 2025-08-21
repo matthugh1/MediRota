@@ -17,7 +17,6 @@ export class SolveController {
 	constructor(private readonly solveService: SolveService) {}
 
 	@Post()
-	@Roles(Role.ADMIN, Role.PLANNER)
 	@ApiOperation({ 
 		summary: 'Solve a schedule',
 		description: 'Generate a complete schedule by calling the Python solver'
@@ -96,14 +95,12 @@ export class SolveController {
 			}
 		}
 	})
-	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
 	@ApiResponse({ status: 404, description: 'Schedule not found' })
 	solve(@Body() solveDto: SolveDto) {
 		return this.solveService.solve(solveDto);
 	}
 
 	@Post('repair')
-	@Roles(Role.ADMIN, Role.PLANNER)
 	@ApiOperation({ 
 		summary: 'Repair a schedule',
 		description: 'Repair a schedule after events (staff unavailable, demand changes, etc.)'
@@ -182,7 +179,6 @@ export class SolveController {
 			}
 		}
 	})
-	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
 	@ApiResponse({ status: 404, description: 'Schedule not found' })
 	repair(@Body() repairDto: RepairDto) {
 		return this.solveService.repair(repairDto);

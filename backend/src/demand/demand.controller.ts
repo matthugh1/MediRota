@@ -26,7 +26,6 @@ export class DemandController {
   constructor(private readonly demandService: DemandService) {}
 
   @Post()
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Create a new demand entry' })
   @ApiResponse({ 
     status: 201, 
@@ -45,13 +44,11 @@ export class DemandController {
     }
   })
   @ApiResponse({ status: 400, description: 'Bad request - validation error' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   create(@Body() createDemandDto: CreateDemandDto) {
     return this.demandService.create(createDemandDto);
   }
 
   @Get()
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Get all demand entries with optional filtering' })
   @ApiResponse({ 
     status: 200, 
@@ -76,13 +73,11 @@ export class DemandController {
       ]
     }
   })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   findAll(@Query() query: QueryDemandDto) {
     return this.demandService.findAll(query);
   }
 
   @Get(':id')
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Get a specific demand entry by ID' })
   @ApiResponse({ 
     status: 200, 
@@ -106,13 +101,11 @@ export class DemandController {
     }
   })
   @ApiResponse({ status: 404, description: 'Demand entry not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   findOne(@Param('id') id: string) {
     return this.demandService.findOne(id);
   }
 
   @Patch(':id')
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Update a demand entry' })
   @ApiResponse({ 
     status: 200, 
@@ -137,17 +130,14 @@ export class DemandController {
   })
   @ApiResponse({ status: 400, description: 'Bad request - validation error' })
   @ApiResponse({ status: 404, description: 'Demand entry not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   update(@Param('id') id: string, @Body() updateDemandDto: UpdateDemandDto) {
     return this.demandService.update(id, updateDemandDto);
   }
 
   @Delete(':id')
-  @Roles(Role.PLANNER)
   @ApiOperation({ summary: 'Delete a demand entry' })
   @ApiResponse({ status: 200, description: 'Demand entry deleted successfully' })
   @ApiResponse({ status: 404, description: 'Demand entry not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - insufficient permissions' })
   remove(@Param('id') id: string) {
     return this.demandService.remove(id);
   }

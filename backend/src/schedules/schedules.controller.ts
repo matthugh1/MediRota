@@ -26,7 +26,6 @@ export class SchedulesController {
 	constructor(private readonly schedulesService: SchedulesService) {}
 
 	@Post()
-	@Roles(Role.ADMIN, Role.PLANNER)
 	@ApiOperation({ summary: 'Create a new schedule' })
 	@ApiResponse({ 
 		status: 201, 
@@ -52,22 +51,18 @@ export class SchedulesController {
 		}
 	})
 	@ApiResponse({ status: 400, description: 'Bad request - validation error' })
-	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
 	create(@Body() createScheduleDto: CreateScheduleDto) {
 		return this.schedulesService.create(createScheduleDto);
 	}
 
 	@Get()
-	@Roles(Role.ADMIN, Role.PLANNER)
 	@ApiOperation({ summary: 'Get all schedules with pagination' })
 	@ApiResponse({ status: 200, description: 'Schedules retrieved successfully' })
-	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
 	findAll(@Query() paginationDto: PaginationDto) {
 		return this.schedulesService.findAll(paginationDto);
 	}
 
 	@Get(':id')
-	@Roles(Role.ADMIN, Role.PLANNER)
 	@ApiOperation({ summary: 'Get a schedule by ID' })
 	@ApiResponse({ 
 		status: 200, 
@@ -122,27 +117,22 @@ export class SchedulesController {
 		}
 	})
 	@ApiResponse({ status: 404, description: 'Schedule not found' })
-	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
 	findOne(@Param('id') id: string) {
 		return this.schedulesService.findOne(id);
 	}
 
 	@Patch(':id')
-	@Roles(Role.ADMIN, Role.PLANNER)
 	@ApiOperation({ summary: 'Update a schedule' })
 	@ApiResponse({ status: 200, description: 'Schedule updated successfully' })
 	@ApiResponse({ status: 404, description: 'Schedule not found' })
-	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
 	update(@Param('id') id: string, @Body() updateScheduleDto: UpdateScheduleDto) {
 		return this.schedulesService.update(id, updateScheduleDto);
 	}
 
 	@Delete(':id')
-	@Roles(Role.ADMIN)
 	@ApiOperation({ summary: 'Delete a schedule' })
 	@ApiResponse({ status: 200, description: 'Schedule deleted successfully' })
 	@ApiResponse({ status: 404, description: 'Schedule not found' })
-	@ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
 	remove(@Param('id') id: string) {
 		return this.schedulesService.remove(id);
 	}
