@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_DB: medirota
       POSTGRES_USER: medirota_user
-      POSTGRES_PASSWORD: medirota123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medirota123}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
