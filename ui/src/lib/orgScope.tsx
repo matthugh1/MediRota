@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
-import { ORG_HIERARCHY_ENABLED } from './flags.js';
 
 interface OrgScope {
   trustId?: string;
@@ -24,11 +23,6 @@ export function OrgScopeProvider({ children }: { children: ReactNode }) {
   const [scope, setScope] = useState<OrgScope>(() => {
     // Initialize state from localStorage during component creation
     // This runs only once during the initial render, not on re-renders
-    if (!ORG_HIERARCHY_ENABLED) {
-      console.log('Org hierarchy disabled, initializing empty scope');
-      return {};
-    }
-    
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       console.log('Initializing scope from localStorage:', stored);
@@ -59,11 +53,6 @@ export function OrgScopeProvider({ children }: { children: ReactNode }) {
 
   // Save scope to localStorage when it changes
   useEffect(() => {
-    if (!ORG_HIERARCHY_ENABLED) {
-      console.log('Org hierarchy disabled, not saving scope');
-      return;
-    }
-    
     // Don't save if scope is empty (initial state)
     if (Object.keys(scope).length === 0) {
       console.log('Skipping save - scope is empty');
@@ -106,7 +95,7 @@ export function OrgScopeProvider({ children }: { children: ReactNode }) {
     setTrust,
     setHospital,
     clearScope,
-    isHierarchyEnabled: ORG_HIERARCHY_ENABLED,
+    isHierarchyEnabled: true,
   };
 
   return (

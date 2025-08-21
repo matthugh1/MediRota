@@ -51,8 +51,6 @@ const TopBar: React.FC<TopBarProps> = ({ navCollapsed }) => {
 
   // Load trusts on mount
   useEffect(() => {
-    if (!isHierarchyEnabled) return;
-    
     const loadTrusts = async () => {
       try {
         setLoading(true);
@@ -66,11 +64,11 @@ const TopBar: React.FC<TopBarProps> = ({ navCollapsed }) => {
     };
 
     loadTrusts();
-  }, [isHierarchyEnabled]);
+  }, []);
 
   // Load hospitals when trust changes
   useEffect(() => {
-    if (!isHierarchyEnabled || !scope.trustId) {
+    if (!scope.trustId) {
       setHospitals([]);
       return;
     }
@@ -88,12 +86,10 @@ const TopBar: React.FC<TopBarProps> = ({ navCollapsed }) => {
     };
 
     loadHospitals();
-  }, [isHierarchyEnabled, scope.trustId]);
+  }, [scope.trustId]);
 
   // Render breadcrumb text
   const renderBreadcrumb = () => {
-    if (!isHierarchyEnabled) return null;
-    
     const items = [];
     if (scope.trustName) {
       items.push(scope.trustName);
@@ -123,8 +119,7 @@ const TopBar: React.FC<TopBarProps> = ({ navCollapsed }) => {
       </div>
 
       {/* Center - Trust and Hospital selectors */}
-      {isHierarchyEnabled && (
-        <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4">
           {/* Trust Selector */}
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium text-neutral-700">Trust:</label>
@@ -179,7 +174,6 @@ const TopBar: React.FC<TopBarProps> = ({ navCollapsed }) => {
             </div>
           )}
         </div>
-      )}
 
       {/* Right side - Notifications and user menu */}
       <div className="flex items-center space-x-3">

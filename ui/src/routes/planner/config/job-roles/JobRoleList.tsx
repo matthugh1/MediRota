@@ -11,7 +11,7 @@ import { FormField } from '../components/FormFields';
 import { useToastSuccess, useToastError, useConfirmDelete } from '../../../../components';
 import { jobRolesApi, JobRole } from '../../../../lib/api/jobRoles.js';
 import { useOrgScope } from '../../../../lib/orgScope.js';
-import { ORG_HIERARCHY_ENABLED } from '../../../../lib/flags.js';
+
 import { TrustMultiSelect } from '../../../../components/trust-select/TrustMultiSelect.js';
 import { HospitalMultiSelect } from '../../../../components/hospital-select/HospitalMultiSelect.js';
 import { useTrustOptions } from '../../../../components/trust-select/useTrustOptions.js';
@@ -277,9 +277,7 @@ export default function JobRoleList() {
               required
             />
             
-            {ORG_HIERARCHY_ENABLED && (
-              <>
-                <div className="space-y-4">
+            <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 mb-2">
                       Organizational Scope
@@ -363,16 +361,12 @@ export default function JobRoleList() {
                     </div>
                   )}
                 </div>
-              </>
-            )}
             
             <div className="text-sm text-zinc-500">
               <p>The job role code is used internally and should be short and unique.</p>
-              {ORG_HIERARCHY_ENABLED && (
-                <p className="mt-1">
-                  Choose the organizational scope to limit where this job role can be used.
-                </p>
-              )}
+              <p className="mt-1">
+                Choose the organizational scope to limit where this job role can be used.
+              </p>
             </div>
           </div>
         </FormProvider>
