@@ -99,7 +99,7 @@ start_services() {
 # Function to stop services
 stop_services() {
     print_status "Stopping MediRota services..."
-    docker-compose -f "$COMPOSE_FILE" down
+    docker-compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" down
     print_success "Services stopped successfully"
 }
 
@@ -113,13 +113,13 @@ restart_services() {
 # Function to show logs
 show_logs() {
     print_status "Showing logs for all services..."
-    docker-compose -f "$COMPOSE_FILE" logs -f
+    docker-compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" logs -f
 }
 
 # Function to show status
 show_status() {
     print_status "Service status:"
-    docker-compose -f "$COMPOSE_FILE" ps
+    docker-compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps
     
     echo ""
     print_status "Resource usage:"
@@ -131,11 +131,11 @@ check_health() {
     print_status "Checking service health..."
     
     # Check if containers are running
-    if docker-compose -f "$COMPOSE_FILE" ps | grep -q "Up"; then
+    if docker-compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps | grep -q "Up"; then
         print_success "All containers are running"
     else
         print_error "Some containers are not running"
-        docker-compose -f "$COMPOSE_FILE" ps
+        docker-compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps
         exit 1
     fi
     
