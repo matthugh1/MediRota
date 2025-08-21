@@ -34,11 +34,7 @@ export default function TrustsPage() {
   const { data: trusts = [], isLoading, error } = useQuery({
     queryKey: ['trusts'],
     queryFn: async () => {
-      console.log('TrustsPage: Fetching trusts...');
       const response = await trustsApi.list();
-      console.log('TrustsPage: Response type:', typeof response);
-      console.log('TrustsPage: Response is array:', Array.isArray(response));
-      console.log('TrustsPage: Response:', response);
       return response;
     },
   });
@@ -124,10 +120,6 @@ export default function TrustsPage() {
     setEditingId(null);
     setEditingName('');
   };
-
-  console.log('TrustsPage: trusts value:', trusts);
-  console.log('TrustsPage: trusts type:', typeof trusts);
-  console.log('TrustsPage: trusts is array:', Array.isArray(trusts));
 
   if (isLoading) {
     return (
