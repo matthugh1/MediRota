@@ -147,7 +147,7 @@ check_health() {
     fi
     
     # Check backend health
-    if curl -f http://localhost/api/health > /dev/null 2>&1; then
+    if curl -f http://localhost/api/healthz > /dev/null 2>&1; then
         print_success "Backend API health check passed"
     else
         print_warning "Backend API health check failed"
