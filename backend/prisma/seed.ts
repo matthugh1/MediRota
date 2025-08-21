@@ -184,7 +184,7 @@ async function main() {
     // 8. Create Staff
     console.log('👥 Creating Staff...');
     const staff = await Promise.all([
-      // Doctors
+      // Doctors (3)
       prisma.staff.create({
         data: {
           prefix: 'Dr',
@@ -227,7 +227,35 @@ async function main() {
           skills: { connect: [{ id: skills[5].id }] } // DoctorXRay
         }
       }),
-      // Nurses
+      prisma.staff.create({
+        data: {
+          prefix: 'Dr',
+          firstName: 'Emily',
+          lastName: 'Davis',
+          fullName: 'Dr Emily Davis',
+          role: 'doctor',
+          contractHoursPerWeek: 40,
+          active: true,
+          jobRoleId: jobRoles[0].id, // CONSULTANT
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[4].id }] } // DoctorMRI
+        }
+      }),
+      prisma.staff.create({
+        data: {
+          prefix: 'Dr',
+          firstName: 'Robert',
+          lastName: 'Wilson',
+          fullName: 'Dr Robert Wilson',
+          role: 'doctor',
+          contractHoursPerWeek: 35,
+          active: true,
+          jobRoleId: jobRoles[1].id, // REGISTRAR
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[5].id }] } // DoctorXRay
+        }
+      }),
+      // Nurses (8)
       prisma.staff.create({
         data: {
           prefix: '',
@@ -270,7 +298,77 @@ async function main() {
           skills: { connect: [{ id: skills[3].id }, { id: skills[2].id }] } // GeneralCare, Bloods
         }
       }),
-      // Radiographers
+      prisma.staff.create({
+        data: {
+          prefix: '',
+          firstName: 'Jennifer',
+          lastName: 'Clark',
+          fullName: 'Jennifer Clark',
+          role: 'nurse',
+          contractHoursPerWeek: 37.5,
+          active: true,
+          jobRoleId: jobRoles[3].id, // SENIOR_NURSE
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[3].id }] } // GeneralCare
+        }
+      }),
+      prisma.staff.create({
+        data: {
+          prefix: '',
+          firstName: 'Christopher',
+          lastName: 'Lee',
+          fullName: 'Christopher Lee',
+          role: 'nurse',
+          contractHoursPerWeek: 30,
+          active: true,
+          jobRoleId: jobRoles[4].id, // STAFF_NURSE
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[3].id }, { id: skills[2].id }] } // GeneralCare, Bloods
+        }
+      }),
+      prisma.staff.create({
+        data: {
+          prefix: '',
+          firstName: 'Michelle',
+          lastName: 'White',
+          fullName: 'Michelle White',
+          role: 'nurse',
+          contractHoursPerWeek: 25,
+          active: true,
+          jobRoleId: jobRoles[4].id, // STAFF_NURSE
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[3].id }] } // GeneralCare
+        }
+      }),
+      prisma.staff.create({
+        data: {
+          prefix: '',
+          firstName: 'Thomas',
+          lastName: 'Hall',
+          fullName: 'Thomas Hall',
+          role: 'nurse',
+          contractHoursPerWeek: 37.5,
+          active: true,
+          jobRoleId: jobRoles[4].id, // STAFF_NURSE
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[3].id }] } // GeneralCare
+        }
+      }),
+      prisma.staff.create({
+        data: {
+          prefix: '',
+          firstName: 'Jessica',
+          lastName: 'Young',
+          fullName: 'Jessica Young',
+          role: 'nurse',
+          contractHoursPerWeek: 30,
+          active: true,
+          jobRoleId: jobRoles[4].id, // STAFF_NURSE
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[3].id }, { id: skills[2].id }] } // GeneralCare, Bloods
+        }
+      }),
+      // Radiographers (4)
       prisma.staff.create({
         data: {
           prefix: '',
@@ -299,7 +397,35 @@ async function main() {
           skills: { connect: [{ id: skills[1].id }] } // XRay
         }
       }),
-      // Healthcare Assistants
+      prisma.staff.create({
+        data: {
+          prefix: '',
+          firstName: 'Rachel',
+          lastName: 'Thompson',
+          fullName: 'Rachel Thompson',
+          role: 'nurse',
+          contractHoursPerWeek: 35,
+          active: true,
+          jobRoleId: jobRoles[6].id, // RADIOGRAPHER
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[0].id }] } // MRI
+        }
+      }),
+      prisma.staff.create({
+        data: {
+          prefix: '',
+          firstName: 'Kevin',
+          lastName: 'Moore',
+          fullName: 'Kevin Moore',
+          role: 'nurse',
+          contractHoursPerWeek: 25,
+          active: true,
+          jobRoleId: jobRoles[6].id, // RADIOGRAPHER
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[0].id }, { id: skills[1].id }] } // MRI, XRay
+        }
+      }),
+      // Healthcare Assistants (5)
       prisma.staff.create({
         data: {
           prefix: '',
@@ -322,6 +448,48 @@ async function main() {
           fullName: 'Ashley Martinez',
           role: 'nurse',
           contractHoursPerWeek: 30,
+          active: true,
+          jobRoleId: jobRoles[5].id, // HCA
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[3].id }] } // GeneralCare
+        }
+      }),
+      prisma.staff.create({
+        data: {
+          prefix: '',
+          firstName: 'Ryan',
+          lastName: 'Johnson',
+          fullName: 'Ryan Johnson',
+          role: 'nurse',
+          contractHoursPerWeek: 20,
+          active: true,
+          jobRoleId: jobRoles[5].id, // HCA
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[3].id }] } // GeneralCare
+        }
+      }),
+      prisma.staff.create({
+        data: {
+          prefix: '',
+          firstName: 'Nicole',
+          lastName: 'Davis',
+          fullName: 'Nicole Davis',
+          role: 'nurse',
+          contractHoursPerWeek: 25,
+          active: true,
+          jobRoleId: jobRoles[5].id, // HCA
+          wards: { connect: [{ id: ward.id }] },
+          skills: { connect: [{ id: skills[3].id }] } // GeneralCare
+        }
+      }),
+      prisma.staff.create({
+        data: {
+          prefix: '',
+          firstName: 'Steven',
+          lastName: 'Miller',
+          fullName: 'Steven Miller',
+          role: 'nurse',
+          contractHoursPerWeek: 20,
           active: true,
           jobRoleId: jobRoles[5].id, // HCA
           wards: { connect: [{ id: ward.id }] },
