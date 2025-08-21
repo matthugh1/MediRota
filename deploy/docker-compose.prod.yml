@@ -25,12 +25,13 @@ services:
       dockerfile: Dockerfile
     container_name: medirota-backend
     restart: unless-stopped
+    env_file:
+      - .env.production
     environment:
-      DATABASE_URL: postgresql://medirota_user:medirota123@postgres:5432/medirota
-      NODE_ENV: development
+      DATABASE_URL: postgresql://medirota_user:${POSTGRES_PASSWORD}@postgres:5432/medirota
+      NODE_ENV: production
       PORT: 3000
       SOLVER_URL: http://solver:8090
-      JWT_SECRET: 7a0422b4a6e23c4195faca9e41552415d89b32fd42515f62d9a68ef6f773bff2
     ports:
       - "3000:3000"
     depends_on:

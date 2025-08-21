@@ -13,7 +13,7 @@
 		"prisma:deploy": "prisma migrate deploy",
 			"db:clear": "ts-node tools/clear-db.ts",
 	"db:seed": "npm run seed",
-	"seed": "TS_NODE_TRANSPILE_ONLY=1 node --loader ts-node/esm tools/seed.ts",
+	"seed": "npx ts-node --transpile-only prisma/seed.ts",
 	"db:reset": "npm run seed",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
@@ -22,7 +22,7 @@
 		"test:e2e:basic": "playwright test basic.spec.ts"
 	},
 	"prisma": {
-		"seed": "node prisma/seed.js"
+		"seed": "npx ts-node --transpile-only prisma/seed.ts"
 	},
 	"dependencies": {
 		"@nestjs/common": "^10.0.0",
