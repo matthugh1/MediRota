@@ -24,21 +24,21 @@ export async function persistAssignments(
 		await client.query('DELETE FROM "Assignment" WHERE "scheduleId" = $1', [scheduleId]);
 
 		if (rows.length === 0) {
-			// No assignments to insert, just update metrics
-			await client.query('UPDATE "Schedule" SET metrics = $2 WHERE id = $1', [scheduleId, metricsJson]);
+			// No assignments to insert
 			await client.query('COMMIT');
 			return 0;
 		}
 
 		// Use COPY for bulk insert
 		const stream = client.query(copyFrom.from(
-			'COPY "Assignment"("id","scheduleId","staffId","wardId","date","slot","shiftTypeId","createdAt") FROM STDIN WITH (FORMAT csv)'
+			'COPY "Assignment"("id","scheduleId","staffId","wardId","date","slot","shiftTypeId","createdAt","updatedAt") FROM STDIN WITH (FORMAT csv)'
 		));
 		const pass = new PassThrough();
 		pass.pipe(stream);
 
 		// Write rows to the COPY stream
 		for (const row of rows) {
+			const now = new Date().toISOString();
 			const line = [
 				row.id,
 				scheduleId,
@@ -47,7 +47,8 @@ export async function persistAssignments(
 				row.date,
 				row.slot,
 				row.shiftTypeId,
-				new Date().toISOString()
+				now,  // createdAt
+				now   // updatedAt
 			].join(',') + '\n';
 			pass.write(line);
 		}
@@ -58,9 +59,6 @@ export async function persistAssignments(
 			stream.on('finish', () => resolve());
 			stream.on('error', reject);
 		});
-
-		// Update schedule metrics
-		await client.query('UPDATE "Schedule" SET metrics = $2 WHERE id = $1', [scheduleId, metricsJson]);
 
 		await client.query('COMMIT');
 		return rows.length;

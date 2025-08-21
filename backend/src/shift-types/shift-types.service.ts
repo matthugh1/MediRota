@@ -20,11 +20,43 @@ export class ShiftTypesService {
 	}
 
 	async findAll(queryDto: QueryShiftTypeDto): Promise<PaginatedResponseDto<any>> {
-		const { page = 1, limit = 20, hospitalId } = queryDto;
+		const { page = 1, limit = 20, trustId, hospitalId, wardId } = queryDto;
 		const skip = (page - 1) * limit;
 
-		// Apply hospital filter if provided and hierarchy is enabled
-		const where = this.orgCompatService.applyHospitalFilter({}, hospitalId);
+		// Build where clause for scope inheritance
+		let where: any = {};
+		
+		if (wardId) {
+			// If wardId is provided, get shift types scoped to:
+			// - This specific ward
+			// - The hospital containing this ward
+			// - The trust containing this hospital
+			where = {
+				OR: [
+					{ wardId: wardId },
+					{ hospitalId: hospitalId },
+					{ trustId: trustId }
+				]
+			};
+		} else if (hospitalId) {
+			// If hospitalId is provided, get shift types scoped to:
+			// - This specific hospital
+			// - The trust containing this hospital
+			where = {
+				OR: [
+					{ hospitalId: hospitalId },
+					{ trustId: trustId }
+				]
+			};
+		} else if (trustId) {
+			// If trustId is provided, get shift types scoped to this trust
+			where = { trustId: trustId };
+		}
+		
+		// If no scope parameters provided, return all shift types
+		if (!where.OR && !where.trustId) {
+			where = {};
+		}
 
 		const [shiftTypes, total] = await Promise.all([
 			this.prisma.shiftType.findMany({

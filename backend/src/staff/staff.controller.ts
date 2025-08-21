@@ -82,4 +82,17 @@ export class StaffController {
 	findMyShifts(@Param('id') id: string) {
 		return this.staffService.findMyShifts(id);
 	}
+
+	@Get('ward/:wardId/schedule/:scheduleId')
+	@Roles(Role.ADMIN, Role.PLANNER)
+	@ApiOperation({ summary: 'Get all staff in a ward with their assignments for a specific schedule' })
+	@ApiResponse({ status: 200, description: 'Staff and assignments retrieved successfully' })
+	@ApiResponse({ status: 404, description: 'Ward or schedule not found' })
+	@ApiResponse({ status: 403, description: 'Forbidden - Admin or Planner role required' })
+	findStaffWithAssignments(
+		@Param('wardId') wardId: string,
+		@Param('scheduleId') scheduleId: string
+	) {
+		return this.staffService.findStaffWithAssignments(wardId, scheduleId);
+	}
 }

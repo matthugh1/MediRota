@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { DateTime } from 'luxon';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { ScheduleGrid } from './components/ScheduleGrid';
+import { DateSelector } from './components/DateSelector';
 import { ActionsBar } from './components/ActionsBar';
 import { MetricsPanel } from './components/MetricsPanel';
 import { CreateScheduleForm } from './components/CreateScheduleForm';
@@ -19,29 +20,231 @@ import {
   useRepairSchedule,
   useCreateLock,
   useDeleteLock,
-  useApplyAlternative
+  useApplyAlternative,
+  useStaffWithAssignments
 } from '../../../lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 import { useToastSuccess, useToastError } from '../../../components';
 
 interface SchedulePageProps {
   scheduleId?: string;
 }
 
+// Child component for empty state
+const ScheduleEmptyState: React.FC<{
+  onCreateSchedule: () => void;
+}> = ({ onCreateSchedule }) => (
+  <div className="bg-white border border-zinc-200 rounded-lg p-6">
+    <div className="text-center">
+      <h3 className="text-lg font-medium text-zinc-900 mb-2">No Schedules Available</h3>
+      <p className="text-zinc-600 mb-4">Create your first schedule to get started</p>
+      <button
+        onClick={onCreateSchedule}
+        className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      >
+        Create Schedule
+      </button>
+    </div>
+  </div>
+);
+
+// Child component for schedule selection
+const ScheduleSelectionPrompt: React.FC<{
+  schedules: any[];
+  onSelectSchedule: (scheduleId: string) => void;
+  onCreateSchedule: () => void;
+}> = ({ schedules, onSelectSchedule, onCreateSchedule }) => (
+  <div className="bg-white border border-zinc-200 rounded-lg p-6">
+    <div className="text-center">
+      <h3 className="text-lg font-medium text-zinc-900 mb-2">Select a Schedule</h3>
+      <p className="text-zinc-600 mb-4">Choose from existing schedules or create a new one</p>
+      
+      <div className="flex items-center justify-center space-x-4">
+        <select
+          value=""
+          onChange={(e) => onSelectSchedule(e.target.value)}
+          className="px-3 py-2 text-sm border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
+          <option value="">Select a schedule...</option>
+          {schedules.map(schedule => (
+            <option key={schedule.id} value={schedule.id}>
+              {schedule.ward?.name} ({schedule.status})
+            </option>
+          ))}
+        </select>
+        
+        <span className="text-zinc-400">or</span>
+        
+        <button
+          onClick={onCreateSchedule}
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        >
+          Create New
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+// Child component for main schedule content
+const ScheduleContent: React.FC<{
+  scheduleData: any;
+  staff: any[];
+  assignments: any[];
+  locks: any[];
+  shiftTypes: any[];
+  metrics: any;
+  currentDate: DateTime;
+  view: 'month' | 'week';
+  selectedCell: { staffId: string; date: string; slot: string } | null;
+  selectedScheduleId: string;
+  solveScheduleMutation: any;
+  repairScheduleMutation: any;
+  error: string;
+  onDateChange: (date: DateTime) => void;
+  onViewChange: (view: 'month' | 'week') => void;
+  onCellSelect: (staffId: string, date: string, slot: string) => void;
+  onToggleLock: (staffId: string, date: string, slot: string) => void;
+  onExplainCell: (staffId: string, date: string, slot: string) => void;
+  onRunSolve: () => void;
+  onRunRepair: () => void;
+  onCreateSchedule: () => void;
+  onClearError: () => void;
+}> = ({
+  scheduleData,
+  staff,
+  assignments,
+  locks,
+  shiftTypes,
+  metrics,
+  currentDate,
+  view,
+  selectedCell,
+  selectedScheduleId,
+  solveScheduleMutation,
+  repairScheduleMutation,
+  error,
+  onDateChange,
+  onViewChange,
+  onCellSelect,
+  onToggleLock,
+  onExplainCell,
+  onRunSolve,
+  onRunRepair,
+  onCreateSchedule,
+  onClearError
+}) => {
+  const breachData: Record<string, Record<string, { severity: 'low' | 'medium' | 'high' }>> = {};
+
+  return (
+    <>
+      {/* Actions Bar */}
+      <ActionsBar
+        onRunSolve={onRunSolve}
+        onRunRepair={onRunRepair}
+        onCreateSchedule={onCreateSchedule}
+        isSolveRunning={solveScheduleMutation.isPending}
+        isRepairRunning={repairScheduleMutation.isPending}
+        hasSchedule={!!selectedScheduleId}
+        error={error}
+        onClearError={onClearError}
+      />
+
+      {/* Effective Policy Display */}
+      {selectedScheduleId && scheduleData?.wardId && (
+        <EffectivePolicyDisplay
+          wardId={scheduleData.wardId}
+          scheduleId={selectedScheduleId}
+        />
+      )}
+
+      {/* Date Selector */}
+      <DateSelector
+        currentDate={currentDate}
+        onDateChange={onDateChange}
+        view={view}
+        onViewChange={onViewChange}
+      />
+
+      {/* Metrics Panel */}
+      <MetricsPanel
+        metrics={metrics}
+        isRunning={solveScheduleMutation.isPending || repairScheduleMutation.isPending}
+        lastRunTime={scheduleData?.updatedAt}
+      />
+
+      {/* Schedule Grid */}
+      <ScheduleGrid
+        view={view}
+        currentDate={currentDate}
+        onDateChange={onDateChange}
+        onViewChange={onViewChange}
+        staff={staff}
+        assignments={assignments}
+        locks={locks}
+        shiftTypes={shiftTypes}
+        selectedCell={selectedCell}
+        onCellSelect={onCellSelect}
+        onToggleLock={onToggleLock}
+        onExplainCell={onExplainCell}
+        breachData={breachData}
+      />
+
+      {/* Keyboard Shortcuts Help */}
+      <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
+        <h3 className="text-sm font-medium text-zinc-700 mb-2">Keyboard Shortcuts</h3>
+        <div className="grid grid-cols-2 gap-4 text-xs text-zinc-600">
+          <div>
+            <span className="font-medium">S:</span> Run Solve
+          </div>
+          <div>
+            <span className="font-medium">R:</span> Run Repair
+          </div>
+          <div>
+            <span className="font-medium">Space:</span> Toggle Lock
+          </div>
+          <div>
+            <span className="font-medium">X:</span> Explain Assignment
+          </div>
+          <div>
+            <span className="font-medium">Arrow Keys:</span> Navigate cells
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
 export default function SchedulePage({ scheduleId }: SchedulePageProps) {
+  const queryClient = useQueryClient();
   const [selectedScheduleId, setSelectedScheduleId] = useState<string>(scheduleId || '');
   const [view, setView] = useState<'month' | 'week'>('week');
-  const [currentDate, setCurrentDate] = useState(DateTime.now());
+  const [currentDate, setCurrentDate] = useState<DateTime>(DateTime.now().startOf('week'));
   const [selectedCell, setSelectedCell] = useState<{ staffId: string; date: string; slot: string } | null>(null);
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
   const [isExplainDrawerOpen, setIsExplainDrawerOpen] = useState(false);
   const [error, setError] = useState<string>('');
 
-  // Data fetching
+  // Data fetching - ALL hooks must be called with consistent parameters
   const { data: wardsData } = useWards();
-  const { data: staffData } = useStaff();
-  const { data: shiftTypesData } = useShiftTypes();
   const { data: schedulesData } = useSchedules();
   const { data: scheduleData } = useSchedule(selectedScheduleId);
+  // Use the new hook that gets staff with assignments for the specific ward and schedule
+  const { data: staffWithAssignmentsData, isLoading: staffLoading, error: staffError } = useStaffWithAssignments(
+    scheduleData?.wardId || '', 
+    selectedScheduleId || ''
+  );
+
+  // Debug logging for staff hook
+  console.log('Staff Hook Debug:', {
+    wardId: scheduleData?.wardId,
+    scheduleId: selectedScheduleId,
+    staffWithAssignmentsData,
+    staffLoading,
+    staffError,
+    hookEnabled: !!(scheduleData?.wardId && selectedScheduleId)
+  });
+  const { data: shiftTypesData } = useShiftTypes();
   const { data: locksData } = useLocks(selectedScheduleId);
 
   // Mutations
@@ -63,14 +266,23 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
     }
   }, [selectedScheduleId, schedulesData]);
 
-  // Set current date to schedule start date when schedule is selected
+  // Set current date to the current week when schedule is selected
   useEffect(() => {
     if (scheduleData?.horizonStart) {
       const scheduleStartDate = DateTime.fromISO(scheduleData.horizonStart);
-      // Set to the start of the week containing the schedule start date
-      setCurrentDate(scheduleStartDate.startOf('week'));
+      const now = DateTime.now();
+      const currentWeekInScheduleYear = DateTime.fromObject({
+        year: scheduleStartDate.year,
+        month: now.month,
+        day: now.day
+      }).startOf('week');
+      setCurrentDate(currentWeekInScheduleYear);
     }
   }, [scheduleData]);
+
+
+
+
 
   // Keyboard shortcuts
   useHotkeys('s', (e) => {
@@ -101,8 +313,8 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
     }
   });
 
-  const handleCreateSchedule = async (data: { wardId: string; horizonStart: string; horizonEnd: string }) => {
-    console.log('SchedulePage: handleCreateSchedule called with data:', data);
+  // Memoized handlers to prevent unnecessary re-renders
+  const handleCreateSchedule = useCallback(async (data: { wardId: string; horizonStart: string; horizonEnd: string }) => {
     try {
       const result = await createScheduleMutation.mutateAsync(data);
       setSelectedScheduleId(result.id);
@@ -114,9 +326,9 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
         error instanceof Error ? error.message : 'Unknown error'
       );
     }
-  };
+  }, [createScheduleMutation, showSuccess, showError]);
 
-  const handleRunSolve = async () => {
+  const handleRunSolve = useCallback(async () => {
     if (!selectedScheduleId) return;
 
     try {
@@ -128,14 +340,13 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
       setError(`Solve failed: ${errorMessage}`);
       showError('Solve failed', errorMessage);
     }
-  };
+  }, [selectedScheduleId, solveScheduleMutation, showSuccess, showError]);
 
-  const handleRunRepair = async () => {
+  const handleRunRepair = useCallback(async () => {
     if (!selectedScheduleId) return;
 
     try {
       setError('');
-      // For now, provide a simple "Mark sickness" event
       const events = [
         {
           type: 'sickness',
@@ -152,9 +363,9 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
       setError(`Repair failed: ${errorMessage}`);
       showError('Repair failed', errorMessage);
     }
-  };
+  }, [selectedScheduleId, selectedCell, repairScheduleMutation, showSuccess, showError]);
 
-  const handleToggleLock = async (staffId: string, date: string, slot: string) => {
+  const handleToggleLock = useCallback(async (staffId: string, date: string, slot: string) => {
     if (!selectedScheduleId) return;
 
     try {
@@ -183,17 +394,17 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
         error instanceof Error ? error.message : 'Unknown error'
       );
     }
-  };
+  }, [selectedScheduleId, locksData, deleteLockMutation, createLockMutation, showSuccess, showError]);
 
-  const handleCellSelect = (staffId: string, date: string, slot: string) => {
+  const handleCellSelect = useCallback((staffId: string, date: string, slot: string) => {
     setSelectedCell({ staffId, date, slot });
-  };
+  }, []);
 
-  const handleClearError = () => {
+  const handleClearError = useCallback(() => {
     setError('');
-  };
+  }, []);
 
-  const handleApplyAlternative = async (alternativeId: string) => {
+  const handleApplyAlternative = useCallback(async (alternativeId: string) => {
     if (!selectedScheduleId) return;
 
     try {
@@ -204,182 +415,135 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
         'Failed to apply alternative',
         error instanceof Error ? error.message : 'Unknown error'
       );
-      throw error; // Re-throw to let the drawer handle the error
+      throw error;
     }
-  };
+  }, [selectedScheduleId, applyAlternativeMutation, showSuccess, showError]);
 
-  // Transform data for grid
-  const staff = staffData?.data || [];
-  const assignments = scheduleData?.assignments || [];
-  const locks = locksData || [];
-  const shiftTypes = shiftTypesData?.data || [];
-  const metrics = scheduleData?.metrics;
+  const handleSelectSchedule = useCallback((scheduleId: string) => {
+    setSelectedScheduleId(scheduleId);
+  }, []);
 
-  // Calculate breach data (simplified - would come from metrics in real implementation)
-  const breachData: Record<string, Record<string, { severity: 'low' | 'medium' | 'high' }>> = {};
+  const handleCreateScheduleClick = useCallback(() => {
+    setIsCreateFormOpen(true);
+  }, []);
 
-  const wards = wardsData?.data || [];
+  const handleExplainCell = useCallback((staffId: string, date: string, slot: string) => {
+    setSelectedCell({ staffId, date, slot });
+    setIsExplainDrawerOpen(true);
+  }, []);
 
-  // Show schedule selection if no schedule is selected but schedules are available
-  if (!selectedScheduleId && schedulesData?.data && schedulesData.data.length > 0) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Schedule Editor</h1>
-          <p className="text-zinc-600">Select a schedule to edit or create a new one.</p>
-        </div>
-        
-        <div className="bg-white border border-zinc-200 rounded-lg p-6">
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-zinc-900 mb-2">Select a Schedule</h3>
-            <p className="text-zinc-600 mb-4">Choose from existing schedules or create a new one</p>
-            
-            <div className="flex items-center justify-center space-x-4">
-              <select
-                value=""
-                onChange={(e) => setSelectedScheduleId(e.target.value)}
-                className="px-3 py-2 text-sm border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                <option value="">Select a schedule...</option>
-                {schedulesData.data.map(schedule => (
-                  <option key={schedule.id} value={schedule.id}>
-                    {schedule.ward?.name} ({schedule.status})
-                  </option>
-                ))}
-              </select>
-              
-              <span className="text-zinc-400">or</span>
-              
-              <button
-                onClick={() => setIsCreateFormOpen(true)}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                Create New
-              </button>
-            </div>
-          </div>
-        </div>
+  // Memoized derived data
+  const staff = useMemo(() => staffWithAssignmentsData || [], [staffWithAssignmentsData]);
+  const assignments = useMemo(() => {
+    // Flatten all assignments from all staff
+    return staff.flatMap(staffMember => staffMember.assignments || []);
+  }, [staff]);
+  const locks = useMemo(() => locksData || [], [locksData]);
+  const shiftTypes = useMemo(() => (shiftTypesData as any)?.data || [], [shiftTypesData]);
+  const metrics = useMemo(() => scheduleData?.metrics, [scheduleData?.metrics]);
+  const wards = useMemo(() => (wardsData as any)?.data || [], [wardsData]);
 
-        <CreateScheduleForm
-          isOpen={isCreateFormOpen}
-          onClose={() => setIsCreateFormOpen(false)}
-          wards={wards}
-          onSubmit={handleCreateSchedule}
-          isLoading={createScheduleMutation.isPending}
-          error={createScheduleMutation.error?.message}
-        />
-      </div>
-    );
-  }
+  // Memoized state flags
+  const hasSchedules = useMemo(() => schedulesData?.data && schedulesData.data.length > 0, [schedulesData?.data]);
+  const hasSelectedSchedule = useMemo(() => !!selectedScheduleId, [selectedScheduleId]);
 
-  // Show "no schedules" view if no schedules exist
-  if (!schedulesData?.data || schedulesData.data.length === 0) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Schedule Editor</h1>
-          <p className="text-zinc-600">Create and manage rota schedules.</p>
-        </div>
-        
-        <div className="bg-white border border-zinc-200 rounded-lg p-6">
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-zinc-900 mb-2">No Schedules Available</h3>
-            <p className="text-zinc-600 mb-4">Create your first schedule to get started</p>
-            <button
-              onClick={() => setIsCreateFormOpen(true)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              Create Schedule
-            </button>
-          </div>
-        </div>
-
-        <CreateScheduleForm
-          isOpen={isCreateFormOpen}
-          onClose={() => setIsCreateFormOpen(false)}
-          wards={wards}
-          onSubmit={handleCreateSchedule}
-          isLoading={createScheduleMutation.isPending}
-          error={createScheduleMutation.error?.message}
-        />
-      </div>
-    );
-  }
+  // Debug logging
+  console.log('SchedulePage Debug:', {
+    selectedScheduleId,
+    currentDate: currentDate.toISO(),
+    currentWeekStart: currentDate.startOf('week').toISO(),
+    currentWeekEnd: currentDate.endOf('week').toISO(),
+    scheduleData: scheduleData ? {
+      id: scheduleData.id,
+      wardId: scheduleData.wardId,
+      wardName: scheduleData.ward?.name,
+      horizonStart: scheduleData.horizonStart,
+      horizonEnd: scheduleData.horizonEnd,
+      assignmentsCount: scheduleData.assignments?.length || 0,
+      assignments: scheduleData.assignments?.slice(0, 3)
+    } : null,
+    staffWithAssignmentsData: staffWithAssignmentsData,
+    staffLength: staff.length,
+    assignmentsLength: assignments.length,
+    shiftTypesLength: shiftTypes.length,
+    currentWeekAssignments: assignments.filter(a => {
+      const assignmentDate = new Date(a.date);
+      const weekStart = currentDate.startOf('week').toJSDate();
+      const weekEnd = currentDate.endOf('week').toJSDate();
+      return assignmentDate >= weekStart && assignmentDate <= weekEnd;
+    }).length || 0
+  });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="schedule-page-root">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900">Schedule Editor</h1>
           <p className="text-zinc-600">
-            {scheduleData?.ward?.name} - {scheduleData?.status}
+            {scheduleData?.ward?.name ? `${scheduleData.ward.name} - ${scheduleData.status}` : 'Create and manage rota schedules'}
           </p>
         </div>
 
-        <div className="flex items-center space-x-4">
-          <select
-            value={selectedScheduleId}
-            onChange={(e) => setSelectedScheduleId(e.target.value)}
-            className="px-3 py-2 text-sm border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            {schedulesData?.data?.map(schedule => (
-              <option key={schedule.id} value={schedule.id}>
-                {schedule.ward?.name} ({schedule.status})
-              </option>
-            ))}
-          </select>
-        </div>
+        {hasSchedules && (
+          <div className="flex items-center space-x-4">
+            <select
+              value={selectedScheduleId}
+              onChange={(e) => setSelectedScheduleId(e.target.value)}
+              className="px-3 py-2 text-sm border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              {schedulesData?.data?.map(schedule => (
+                <option key={schedule.id} value={schedule.id}>
+                  {schedule.ward?.name} ({schedule.status})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
-      {/* Actions Bar */}
-      <ActionsBar
-        onRunSolve={handleRunSolve}
-        onRunRepair={handleRunRepair}
-        onCreateSchedule={() => setIsCreateFormOpen(true)}
-        isSolveRunning={solveScheduleMutation.isPending}
-        isRepairRunning={repairScheduleMutation.isPending}
-        hasSchedule={!!selectedScheduleId}
-        error={error}
-        onClearError={handleClearError}
-      />
+      {/* Conditional content based on state */}
+      {!hasSchedules && (
+        <ScheduleEmptyState onCreateSchedule={handleCreateScheduleClick} />
+      )}
 
-      {/* Effective Policy Display */}
-      {selectedScheduleId && scheduleData?.wardId && (
-        <EffectivePolicyDisplay
-          wardId={scheduleData.wardId}
-          scheduleId={selectedScheduleId}
+      {!hasSelectedSchedule && hasSchedules && (
+        <ScheduleSelectionPrompt
+          schedules={schedulesData?.data || []}
+          onSelectSchedule={handleSelectSchedule}
+          onCreateSchedule={handleCreateScheduleClick}
         />
       )}
 
-      {/* Metrics Panel */}
-      <MetricsPanel
-        metrics={metrics}
-        isRunning={solveScheduleMutation.isPending || repairScheduleMutation.isPending}
-        lastRunTime={scheduleData?.updatedAt}
-      />
+      {/* Main schedule content - only show when we have a selected schedule */}
+      {hasSelectedSchedule && hasSchedules && (
+        <ScheduleContent
+          scheduleData={scheduleData}
+          staff={staff}
+          assignments={assignments}
+          locks={locks}
+          shiftTypes={shiftTypes}
+          metrics={metrics}
+          currentDate={currentDate}
+          view={view}
+          selectedCell={selectedCell}
+          selectedScheduleId={selectedScheduleId}
+          solveScheduleMutation={solveScheduleMutation}
+          repairScheduleMutation={repairScheduleMutation}
+          error={error}
+          onDateChange={setCurrentDate}
+          onViewChange={setView}
+          onCellSelect={handleCellSelect}
+          onToggleLock={handleToggleLock}
+          onExplainCell={handleExplainCell}
+          onRunSolve={handleRunSolve}
+          onRunRepair={handleRunRepair}
+          onCreateSchedule={handleCreateScheduleClick}
+          onClearError={handleClearError}
+        />
+      )}
 
-      {/* Schedule Grid */}
-      <ScheduleGrid
-        view={view}
-        currentDate={currentDate}
-        onDateChange={setCurrentDate}
-        onViewChange={setView}
-        staff={staff}
-        assignments={assignments}
-        locks={locks}
-        shiftTypes={shiftTypes}
-        selectedCell={selectedCell}
-        onCellSelect={handleCellSelect}
-        onToggleLock={handleToggleLock}
-        onExplainCell={(staffId, date, slot) => {
-          setSelectedCell({ staffId, date, slot });
-          setIsExplainDrawerOpen(true);
-        }}
-        breachData={breachData}
-      />
-
-      {/* Create Schedule Form */}
+      {/* Create Schedule Form - always available */}
       <CreateScheduleForm
         isOpen={isCreateFormOpen}
         onClose={() => setIsCreateFormOpen(false)}
@@ -390,7 +554,7 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
         error={createScheduleMutation.error?.message}
       />
 
-      {/* Explain Drawer */}
+      {/* Explain Drawer - always available */}
       {selectedCell && (
         <ExplainDrawer
           isOpen={isExplainDrawerOpen}
@@ -402,28 +566,6 @@ export default function SchedulePage({ scheduleId }: SchedulePageProps) {
           onApplyAlternative={handleApplyAlternative}
         />
       )}
-
-      {/* Keyboard Shortcuts Help */}
-      <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-zinc-700 mb-2">Keyboard Shortcuts</h3>
-        <div className="grid grid-cols-2 gap-4 text-xs text-zinc-600">
-          <div>
-            <span className="font-medium">S:</span> Run Solve
-          </div>
-          <div>
-            <span className="font-medium">R:</span> Run Repair
-          </div>
-          <div>
-            <span className="font-medium">Space:</span> Toggle Lock
-          </div>
-          <div>
-            <span className="font-medium">X:</span> Explain Assignment
-          </div>
-          <div>
-            <span className="font-medium">Arrow Keys:</span> Navigate cells
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

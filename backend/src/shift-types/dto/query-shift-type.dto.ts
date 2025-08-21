@@ -3,10 +3,20 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class QueryShiftTypeDto {
+	@ApiPropertyOptional({ description: 'Filter by trust ID' })
+	@IsOptional()
+	@IsUUID('4')
+	trustId?: string;
+
 	@ApiPropertyOptional({ description: 'Filter by hospital ID' })
 	@IsOptional()
 	@IsUUID('4')
 	hospitalId?: string;
+
+	@ApiPropertyOptional({ description: 'Filter by ward ID' })
+	@IsOptional()
+	@IsUUID('4')
+	wardId?: string;
 
 	@ApiPropertyOptional({ description: 'Page number', default: 1 })
 	@IsOptional()

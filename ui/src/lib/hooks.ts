@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient, { PaginatedResponse } from './api';
-import { queryKeys, invalidateQueries } from './query';
+import { queryKeys, invalidateQueries, queryClient } from './query';
 import { DateTime } from 'luxon';
 import axios from 'axios';
 import { useOrgScope } from './orgScope.js';
@@ -40,6 +40,7 @@ export interface Staff {
   wards: Ward[];
   skills: Skill[];
   jobRole?: { id: string; code: string; name: string } | null;
+  assignments?: Assignment[];
   createdAt: string;
   updatedAt: string;
 }
@@ -185,15 +186,18 @@ export const useSkill = (id: string) => {
 };
 
 // Staff hooks
-export const useStaff = (filters?: any) => {
-  const mergedFilters = useMergedFilters(filters);
+export const useStaff = (filters?: any, options?: any) => {
+  // If we have a specific wardId in filters, don't merge with org scope filters
+  // to avoid conflicts between ward and hospital filtering
+  const finalFilters = filters?.wardId ? filters : useMergedFilters(filters);
   
   return useQuery({
-    queryKey: queryKeys.staff.list(mergedFilters),
+    queryKey: queryKeys.staff.list(finalFilters),
     queryFn: async (): Promise<PaginatedResponse<Staff>> => {
-      const response = await apiClient.get('/staff', { params: mergedFilters });
+      const response = await apiClient.get('/staff', { params: finalFilters });
       return response.data;
     },
+    ...options,
   });
 };
 
@@ -219,14 +223,49 @@ export const useMyShifts = (staffId: string) => {
   });
 };
 
+export const useStaffWithAssignments = (wardId: string, scheduleId: string) => {
+  return useQuery({
+    queryKey: queryKeys.staff.withAssignments(wardId, scheduleId),
+    queryFn: async (): Promise<Staff[]> => {
+      const response = await apiClient.get(`/staff/ward/${wardId}/schedule/${scheduleId}`);
+      return response.data;
+    },
+    enabled: !!wardId && !!scheduleId,
+  });
+};
+
 // Shift Types hooks
 export const useShiftTypes = (filters?: any) => {
-  const mergedFilters = useMergedFilters(filters);
+  const { scope, isHierarchyEnabled } = useOrgScope();
+  
+  // Build parameters to get all shift types in scope
+  const params: any = { ...filters };
+  
+  if (isHierarchyEnabled) {
+    if (scope.wardId) {
+      // If we have a ward context, get shift types scoped to:
+      // - This specific ward
+      // - The hospital containing this ward
+      // - The trust containing this hospital
+      params.wardId = scope.wardId;
+      params.hospitalId = scope.hospitalId;
+      params.trustId = scope.trustId;
+    } else if (scope.hospitalId) {
+      // If we have a hospital context, get shift types scoped to:
+      // - This specific hospital
+      // - The trust containing this hospital
+      params.hospitalId = scope.hospitalId;
+      params.trustId = scope.trustId;
+    } else if (scope.trustId) {
+      // If we have a trust context, get shift types scoped to this trust
+      params.trustId = scope.trustId;
+    }
+  }
   
   return useQuery({
-    queryKey: queryKeys.shiftTypes.list(mergedFilters),
+    queryKey: queryKeys.shiftTypes.list(params),
     queryFn: async (): Promise<PaginatedResponse<ShiftType>> => {
-      const response = await apiClient.get('/shift-types', { params: mergedFilters });
+      const response = await apiClient.get('/shift-types', { params });
       return response.data;
     },
   });
@@ -523,6 +562,7 @@ export const useUpdateDemand = () => {
 
 
 export const useSolveSchedule = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (scheduleId: string) => {
       // Get the schedule to find the wardId
@@ -552,8 +592,16 @@ export const useSolveSchedule = () => {
       const response = await solveApi.post('/solve', { scheduleId });
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data, scheduleId) => {
       invalidateQueries.schedules();
+      invalidateQueries.staff(); // Invalidate staff queries to refresh assignments
+      
+      // Also invalidate the specific staff with assignments query
+      if (data?.schedule?.wardId) {
+        queryClient.invalidateQueries({ 
+          queryKey: queryKeys.staff.withAssignments(data.schedule.wardId, scheduleId) 
+        });
+      }
     },
   });
 };
@@ -564,8 +612,16 @@ export const useRepairSchedule = () => {
       const response = await apiClient.post('/solve/repair', { scheduleId, events });
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       invalidateQueries.schedules();
+      invalidateQueries.staff(); // Invalidate staff queries to refresh assignments
+      
+      // Also invalidate the specific staff with assignments query
+      if (data?.schedule?.wardId) {
+        queryClient.invalidateQueries({ 
+          queryKey: queryKeys.staff.withAssignments(data.schedule.wardId, variables.scheduleId) 
+        });
+      }
     },
   });
 };

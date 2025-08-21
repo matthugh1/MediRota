@@ -51,6 +51,7 @@ export const queryKeys = {
     details: () => [...queryKeys.staff.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.staff.details(), id] as const,
     myShifts: (staffId: string) => [...queryKeys.staff.all, 'myShifts', staffId] as const,
+    withAssignments: (wardId: string, scheduleId: string) => [...queryKeys.staff.all, 'withAssignments', wardId, scheduleId] as const,
   },
   shiftTypes: {
     all: ['shiftTypes'] as const,

@@ -223,4 +223,60 @@ export class StaffService {
 			orderBy: { date: 'asc' },
 		});
 	}
+
+	async findStaffWithAssignments(wardId: string, scheduleId: string) {
+		// First verify the ward and schedule exist
+		const [ward, schedule] = await Promise.all([
+			this.prisma.ward.findUnique({ where: { id: wardId } }),
+			this.prisma.schedule.findUnique({ where: { id: scheduleId } })
+		]);
+
+		if (!ward) {
+			throw new NotFoundException(`Ward with ID ${wardId} not found`);
+		}
+
+		if (!schedule) {
+			throw new NotFoundException(`Schedule with ID ${scheduleId} not found`);
+		}
+
+		// Get all staff in the ward
+		const staff = await this.prisma.staff.findMany({
+			where: {
+				wards: { some: { id: wardId } },
+				active: true
+			},
+			include: {
+				wards: true,
+				skills: true,
+				jobRole: {
+					select: {
+						id: true,
+						code: true,
+						name: true,
+					},
+				},
+				assignments: {
+					where: { scheduleId },
+					include: {
+						shiftType: true,
+					},
+					orderBy: { date: 'asc' },
+				},
+			},
+			orderBy: { fullName: 'asc' },
+		});
+
+		// Debug logging
+		console.log(`findStaffWithAssignments: Found ${staff.length} staff in ward ${wardId} for schedule ${scheduleId}`);
+		staff.forEach(s => {
+			console.log(`  - ${s.fullName}: ${s.assignments?.length || 0} assignments`);
+		});
+
+		// Map to response format
+		return staff.map(s => ({
+			...s,
+			legacyJob: s.role, // Map legacy role for backward compatibility
+			assignments: s.assignments || [], // Ensure assignments is always an array
+		}));
+	}
 }

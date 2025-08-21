@@ -69,7 +69,6 @@ export function CreateScheduleForm({
   });
 
   const handleSubmit = (data: CreateScheduleFormData) => {
-    console.log('CreateScheduleForm: handleSubmit called with data:', data, 'shouldSubmit:', shouldSubmit);
     if (shouldSubmit) {
       onSubmit(data);
       setShouldSubmit(false);
@@ -77,7 +76,6 @@ export function CreateScheduleForm({
   };
 
   const handleFormSubmit = () => {
-    console.log('CreateScheduleForm: Create Schedule button clicked');
     setShouldSubmit(true);
     form.handleSubmit(handleSubmit)();
   };
@@ -89,7 +87,6 @@ export function CreateScheduleForm({
 
   // Handle date range changes from calendar
   const handleDateRangeChange = (startDate: string, endDate: string) => {
-    console.log('CreateScheduleForm: handleDateRangeChange called with:', { startDate, endDate });
     form.setValue('horizonStart', startDate);
     form.setValue('horizonEnd', endDate);
   };

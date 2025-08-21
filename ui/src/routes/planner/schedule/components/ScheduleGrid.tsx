@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { DateTime } from 'luxon';
-import { ChevronLeft, ChevronRight, Calendar, Grid3X3 } from 'lucide-react';
 import { Assignment } from '../../../../lib/hooks';
 
 interface Staff {
@@ -94,6 +93,29 @@ export function ScheduleGrid({
       index === self.findIndex(a => a.id === assignment.id)
     );
     
+    // Debug logging for first few assignments
+    if (staffId === assignments[0]?.staffId && date === '2025-08-18') {
+      console.log('ScheduleGrid Debug:', {
+        date,
+        staffId,
+        totalAssignments: assignments.length,
+        filteredAssignments: filteredAssignments.length,
+        uniqueAssignments: uniqueAssignments.length,
+        firstAssignment: assignments[0],
+        firstAssignmentDate: assignments[0] ? DateTime.fromISO(assignments[0].date).toFormat('yyyy-MM-dd') : null,
+        // Check a few assignments for the current week
+        currentWeekAssignments: assignments.filter(a => {
+          const assignmentDate = DateTime.fromISO(a.date).toFormat('yyyy-MM-dd');
+          return assignmentDate >= '2025-08-18' && assignmentDate <= '2025-08-24';
+        }).slice(0, 3).map(a => ({
+          date: a.date,
+          formattedDate: DateTime.fromISO(a.date).toFormat('yyyy-MM-dd'),
+          staffId: a.staffId,
+          slot: a.slot
+        }))
+      });
+    }
+    
     // Return the first assignment for this day (staff can only work one shift per day)
     return uniqueAssignments[0] || null;
   };
@@ -155,58 +177,29 @@ export function ScheduleGrid({
 
   const days = getDaysInView();
 
+  // Debug logging
+  console.log('ScheduleGrid Render Debug:', {
+    view,
+    currentDate: currentDate.toISO(),
+    daysCount: days.length,
+    staffCount: staff.length,
+    assignmentsCount: assignments.length,
+    shiftTypesCount: shiftTypes.length,
+    firstDay: days[0]?.toFormat('yyyy-MM-dd'),
+    lastDay: days[days.length - 1]?.toFormat('yyyy-MM-dd'),
+    firstStaff: staff[0]?.id,
+    firstAssignment: assignments[0]?.staffId,
+    // Check staff vs assignments
+    staffIds: staff.map(s => s.id).slice(0, 3),
+    assignmentStaffIds: [...new Set(assignments.map(a => a.staffId))].slice(0, 5),
+    // Check for overlapping staff IDs
+    overlappingStaffIds: staff.map(s => s.id).filter(staffId => 
+      assignments.some(a => a.staffId === staffId)
+    ).slice(0, 3)
+  });
+
   return (
     <div className="space-y-4">
-      {/* Grid Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => onDateChange(currentDate.minus({ [view === 'week' ? 'weeks' : 'months']: 1 }))}
-            className="p-2 text-zinc-400 hover:text-zinc-600 transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          
-          <h2 className="text-xl font-semibold text-zinc-900">
-            {view === 'week' 
-              ? `Week of ${currentDate.startOf('week').toFormat('MMMM d')}`
-              : currentDate.toFormat('MMMM yyyy')
-            }
-          </h2>
-          
-          <button
-            onClick={() => onDateChange(currentDate.plus({ [view === 'week' ? 'weeks' : 'months']: 1 }))}
-            className="p-2 text-zinc-400 hover:text-zinc-600 transition-colors"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => onViewChange('week')}
-            className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-              view === 'week'
-                ? 'bg-indigo-100 text-indigo-700'
-                : 'text-zinc-600 hover:text-zinc-900'
-            }`}
-          >
-            <Grid3X3 className="w-4 h-4 mr-2" />
-            Week
-          </button>
-          <button
-            onClick={() => onViewChange('month')}
-            className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-              view === 'month'
-                ? 'bg-indigo-100 text-indigo-700'
-                : 'text-zinc-600 hover:text-zinc-900'
-            }`}
-          >
-            <Calendar className="w-4 h-4 mr-2" />
-            Month
-          </button>
-        </div>
-      </div>
 
       {/* Schedule Grid */}
       <div 
