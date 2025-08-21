@@ -21,7 +21,6 @@ import { Role } from '../auth/roles.enum.js';
 
 @ApiTags('shift-types')
 @ApiBearerAuth()
-@UseGuards(RolesGuard)
 @Controller('shift-types')
 export class ShiftTypesController {
 	constructor(private readonly shiftTypesService: ShiftTypesService) {}

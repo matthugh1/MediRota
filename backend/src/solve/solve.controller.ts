@@ -11,7 +11,6 @@ import * as path from 'path';
 
 @ApiTags('solve')
 @ApiBearerAuth()
-@UseGuards(RolesGuard)
 @Controller('solve')
 export class SolveController {
 	constructor(private readonly solveService: SolveService) {}

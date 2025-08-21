@@ -22,7 +22,6 @@ import { Role } from '../auth/roles.enum.js';
 
 @ApiTags('wards')
 @ApiBearerAuth()
-@UseGuards(RolesGuard)
 @Controller('wards')
 export class WardsController {
 	constructor(private readonly wardsService: WardsService) {}

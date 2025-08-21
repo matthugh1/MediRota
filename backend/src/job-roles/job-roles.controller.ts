@@ -20,7 +20,6 @@ import { Role } from '../auth/roles.enum.js';
 
 @ApiTags('job-roles')
 @ApiBearerAuth()
-@UseGuards(RolesGuard)
 @Controller('job-roles')
 export class JobRolesController {
 	constructor(private readonly jobRolesService: JobRolesService) {}

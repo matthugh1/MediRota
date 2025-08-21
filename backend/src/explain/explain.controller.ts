@@ -17,7 +17,6 @@ import { Role } from '../auth/roles.enum.js';
 @ApiTags('Explain')
 @ApiBearerAuth()
 @Controller('explain')
-@UseGuards(RolesGuard)
 export class ExplainController {
   constructor(private readonly explainService: ExplainService) {}
 

@@ -21,7 +21,6 @@ import { Role } from '../auth/roles.enum.js';
 @ApiTags('Demand')
 @ApiBearerAuth()
 @Controller('demand')
-@UseGuards(RolesGuard)
 export class DemandController {
   constructor(private readonly demandService: DemandService) {}
 
