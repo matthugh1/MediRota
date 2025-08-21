@@ -5,7 +5,6 @@ import { UpdateTrustDto } from './dto/update-trust.dto.js';
 import { RolesGuard } from '../auth/roles.guard.js';
 
 @Controller('trusts')
-@UseGuards(RolesGuard)
 export class TrustsController {
   constructor(private readonly trustsService: TrustsService) {}
 

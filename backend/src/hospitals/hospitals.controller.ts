@@ -6,7 +6,6 @@ import { QueryHospitalDto } from './dto/query-hospital.dto.js';
 import { RolesGuard } from '../auth/roles.guard.js';
 
 @Controller('hospitals')
-@UseGuards(RolesGuard)
 export class HospitalsController {
   constructor(private readonly hospitalsService: HospitalsService) {}
 
